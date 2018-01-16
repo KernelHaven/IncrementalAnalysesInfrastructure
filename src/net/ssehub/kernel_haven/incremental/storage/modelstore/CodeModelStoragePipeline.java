@@ -7,42 +7,47 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings.MergeStrategy;
 import net.ssehub.kernel_haven.util.Logger;
 
 public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 
 	private AnalysisComponent<SourceFile> sourceFiles;
 	private static final Logger LOGGER = Logger.get();
+	private Configuration config;
 
-	public static enum MergeStrategy {
-		FILE_TO_FILE, EXTRACTED_ONLY
-	}
 
-	public CodeModelStoragePipeline(Configuration config, AnalysisComponent<SourceFile> cmComponent) {
+	public CodeModelStoragePipeline(Configuration config, AnalysisComponent<SourceFile> cmComponent) throws SetUpException {
 		super(config);
+		this.config = config;
+		IncrementalAnalysisSettings.registerAllSettings(config);
 		this.sourceFiles = cmComponent;
 	}
 
 	@Override
 	protected void execute() {
+		
+		
 
 		// TODO: read storage directory from settings/properties
-		File codeModelStorageDir = new File("./storage/");
+		File codeModelStorageDir = config.getValue(IncrementalAnalysisSettings.MODEL_DIR);
 
 		// TODO: compare with old revision
-		String referenceRevision = "tag1";
+		String referenceRevision = config.getValue(IncrementalAnalysisSettings.MODEL_REVISION_FOR_REFERENCE);
 
 		// TODO: read analysisRevision tag from settings/properties
-		String analysisRevision = "tag2";
+		String analysisRevision = config.getValue(IncrementalAnalysisSettings.MODEL_REVISION_FOR_ANALYSIS);
 
 		// TODO: get sourceFileRoot tag from settings/properties
-		File sourceFileRoot = new File("./source-file-root/");
+		File sourceFileRoot = config.getValue(IncrementalAnalysisSettings.SOURCE_DIR);
 
 		// TODO: read mergeStrategy from settings/properties
-		MergeStrategy mergeStrategy = MergeStrategy.FILE_TO_FILE;
+		MergeStrategy mergeStrategy = config.getValue(IncrementalAnalysisSettings.MERGE_STRATEGY);
 
 		Map<File, SourceFile> changedFilesModel = new HashMap<File, SourceFile>();
 		codeModelStorageDir.mkdirs();

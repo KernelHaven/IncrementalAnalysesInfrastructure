@@ -29,11 +29,11 @@ public class IncrementalAnalysisSettings {
 			"./incremental/model-storage", "TODO");
 
 	/** The Constant MODEL_TAG_FOR_ANALYSIS. */
-	public static final Setting<String> MODEL_TAG_FOR_ANALYSIS = new Setting<>("incremental.analysis_model_tag", STRING,
+	public static final Setting<String> MODEL_REVISION_FOR_ANALYSIS = new Setting<>("incremental.analysis_model_revision", STRING,
 			true, null, "TODO");
 
 	/** The Constant MODEL_TAG_FOR_REFERENCE. */
-	public static final Setting<String> MODEL_TAG_FOR_REFERENCE = new Setting<>("incremental.reference_model_tag",
+	public static final Setting<String> MODEL_REVISION_FOR_REFERENCE = new Setting<>("incremental.reference_model_revision",
 			STRING, true, null, "TODO");
 
 	/**
@@ -50,6 +50,16 @@ public class IncrementalAnalysisSettings {
 		 * Less storage intensive than FLAT.  */
 		GIT,
 	}
+	
+
+	public static enum MergeStrategy {
+		FILE_TO_FILE,
+		EXTRACTED_ONLY,
+	}
+	
+	/** The Constant STORAGE_TYPE. Defines the form in which the model files are accessed and stored.*/
+	public static final Setting<MergeStrategy> MERGE_STRATEGY = new EnumSetting<MergeStrategy>("incremental.merge_strategy",
+			MergeStrategy.class, true, null, "TODO");
 
 	/** The Constant STORAGE_TYPE. Defines the form in which the model files are accessed and stored.*/
 	public static final Setting<VersioningType> STORAGE_TYPE = new EnumSetting<VersioningType>("incremental.storage.type",
