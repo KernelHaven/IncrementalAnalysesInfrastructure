@@ -66,14 +66,15 @@ public class FlatFileCodeModelStorageProvider extends AbstractModelStorage<Sourc
 			Files.newDirectoryStream(dirForTag.toPath(), path -> path.toFile().isFile())
 					.forEach(path -> fileList.add(path.toFile()));
 
-			try {
-				// Read the model from each file
-				for (File file : fileList) {
-					SourceFile srcFile = cache.read(file);
+			// Read the model from each file
+			for (File file : fileList) {
+				SourceFile srcFile;
+				try {
+					srcFile = cache.read(file);
 					codeModel.put(srcFile.getPath(), srcFile);
+				} catch (FormatException e) {
+					LOGGER.logException("Could not read file " + file.getName(), e);
 				}
-			} catch (IOException | FormatException e) {
-				LOGGER.logError("Could not read model from cached file " + cache);
 			}
 
 		}
@@ -81,10 +82,12 @@ public class FlatFileCodeModelStorageProvider extends AbstractModelStorage<Sourc
 	}
 
 	@Override
-	public void storeModelForTag(Collection<SourceFile> file, String tag) throws IOException {
-		File storageDir = new File(this.modelStorageDir.getAbsolutePath() + "/" + tag);
-	
-		//TODO: store actual model
+	public void storeModelForTag(Collection<SourceFile> files, String tag) throws IOException {
+		File storageDir = new File(this.modelStorageDir.getAbsolutePath() + "/" + tag + "/");
+		CodeModelCache cache = new CodeModelCache(storageDir);
+		for (SourceFile file : files) {
+			cache.write(file);
+		}
 	}
 
 }
