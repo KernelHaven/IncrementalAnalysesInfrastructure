@@ -31,22 +31,15 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 
 	@Override
 	protected void execute() {
-		
-		
 
-		// TODO: read storage directory from settings/properties
 		File codeModelStorageDir = config.getValue(IncrementalAnalysisSettings.MODEL_DIR);
 
-		// TODO: compare with old revision
 		String referenceRevision = config.getValue(IncrementalAnalysisSettings.MODEL_REVISION_FOR_REFERENCE);
 
-		// TODO: read analysisRevision tag from settings/properties
 		String analysisRevision = config.getValue(IncrementalAnalysisSettings.MODEL_REVISION_FOR_ANALYSIS);
 
-		// TODO: get sourceFileRoot tag from settings/properties
 		File sourceFileRoot = config.getValue(IncrementalAnalysisSettings.SOURCE_DIR);
 
-		// TODO: read mergeStrategy from settings/properties
 		MergeStrategy mergeStrategy = config.getValue(IncrementalAnalysisSettings.MERGE_STRATEGY);
 
 		Map<File, SourceFile> changedFilesModel = new HashMap<File, SourceFile>();
@@ -54,7 +47,6 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 
 		FlatFileCodeModelStorageProvider storage = new FlatFileCodeModelStorageProvider(codeModelStorageDir);
 
-		// Get all newly extracted source files from the extractor
 		SourceFile file;
 		while ((file = sourceFiles.getNextResult()) != null) {
 			changedFilesModel.put(file.getPath(), file);
@@ -87,7 +79,7 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 				// file has been removed in the analysis revision
 				for (Map.Entry<File, SourceFile> entry : resultingAnalyisModelMap.entrySet()) {
 					File sourceCodeFile = entry.getKey();
-					if (analysisRevisionSourceCodeProvider.hasFile(sourceCodeFile)) {
+					if (!analysisRevisionSourceCodeProvider.hasFile(sourceCodeFile)) {
 						resultingAnalyisModelMap.remove(entry.getKey());
 					}
 				}
@@ -107,7 +99,6 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 				storage.storeModelForTag(resultingAnalyisModel, analysisRevision);
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				LOGGER.logException("Could not merge models.", e);
 			}
 
@@ -121,9 +112,6 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 				LOGGER.logException("Could not store model for initial commit", e);
 			}
 		}
-
-		// Pass a set of Models
-
 	}
 
 	@Override
