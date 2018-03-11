@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- author: moritz, kevin, Sascha El-Sharkawy -->
-<project name="StoreModelPreAnalysis" default="jenkins" basedir="." xmlns:jacoco="antlib:org.jacoco.ant" xmlns:cs="antlib:com.puppycrawl.tools.checkstyle.ant">
+<project name="ModelStoragePipeline" default="jenkins" basedir=".">
 	<description>Extracts a model from the code and stores it for future reference in incremental analyses</description>
 
 	<!-- Load Marcros on Jenkins -->
@@ -25,4 +25,5 @@
 		<get src="${infrastructure.location}" dest="${dependencies.dir}/kernelhaven.jar" />
 		<get src="${CnfUtils.location}" dest="${dependencies.dir}/CnfUtils.jar" />
 	</target>
+
 </project>
