@@ -6,11 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.Logger.Level;
 
 public class DiffIntegrationUtilTest {
 
@@ -18,17 +16,6 @@ public class DiffIntegrationUtilTest {
 	private static final File MODIFIED_FOLDER = new File("testdata/diff-integration/modified");
 	private static final File DIFF_FILE = new File("testdata/diff-integration/git.diff");
 	private static Logger LOGGER = null;
-
-	/**
-	 * Inits the logger.
-	 */
-	@BeforeClass
-	public static void initLogger() {
-		Logger.init();
-		LOGGER = Logger.get();
-		LOGGER.setLevel(Level.DEBUG);
-
-	}
 
 	/**
 	 * Tests whether the call to git apply works.
