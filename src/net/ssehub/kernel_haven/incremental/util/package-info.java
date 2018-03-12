@@ -1,7 +1,6 @@
 /**
+ * Provides Utility classes for Incremental Analyses.
  * 
- */
-/**
  * @author moritz
  *
  */

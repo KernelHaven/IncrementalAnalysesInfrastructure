@@ -8,14 +8,25 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * The Class FolderUtil.
+ * 
+ * @author Moritz
+ */
 public class FolderUtil {
 
-	public static void copyFolderContent(File originalFolder, File targetFolder) throws IOException {
-		Collection<File> files = FolderUtil.listFilesAndFolders(originalFolder, true);
+	/**
+	 * Copy folder content.
+	 *
+	 * @param sourceFolder the source folder
+	 * @param targetFolder the target folder
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static void copyFolderContent(File sourceFolder, File targetFolder) throws IOException {
+		Collection<File> files = FolderUtil.listFilesAndFolders(sourceFolder, true);
 		for (File file : files) {
-			// create target path based on the relative path that the file has in the
-			// originalFolder
-			Path targetPath = targetFolder.toPath().resolve(originalFolder.toPath().relativize(file.toPath()));
+			// create target path based on the relative path that the file has in the source folder
+			Path targetPath = targetFolder.toPath().resolve(sourceFolder.toPath().relativize(file.toPath()));
 			// create parent directories if they do not exist
 			if (file.isDirectory()) {
 				file.mkdir();
@@ -26,6 +37,14 @@ public class FolderUtil {
 		}
 	}
 
+	/**
+	 * Checks if folder content is equal.
+	 *
+	 * @param folderA the folder A
+	 * @param folderB the folder B
+	 * @return true, if successful
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public static boolean folderContentEquals(File folderA, File folderB) throws IOException {
 		boolean equals = true;
 		Collection<File> filesFolderA = FolderUtil.listFilesAndFolders(folderA, true);
@@ -44,6 +63,15 @@ public class FolderUtil {
 		return equals;
 	}
 
+	/**
+	 * Gets the new or changed files from newDirectory compared to referenceDirectory. This does not list
+	 * deleted files.
+	 *
+	 * @param referenceDirectory the reference directory
+	 * @param newDirectory the new directory
+	 * @return the new or changed files
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public static Collection<File> getNewOrChangedFiles(File referenceDirectory, File newDirectory) throws IOException {
 		Path referenceDirectoryPath = referenceDirectory.getAbsoluteFile().toPath().normalize();
 		Path newDirectorydPath = newDirectory.getAbsoluteFile().toPath().normalize();
@@ -71,12 +99,26 @@ public class FolderUtil {
 		return newOrChangedFiles;
 	}
 
+	/**
+	 * List files and folders within a directory.
+	 *
+	 * @param directory the directory
+	 * @param includeFilesInSubDirectories the include files in sub directories
+	 * @return the collection
+	 */
 	public static Collection<File> listFilesAndFolders(File directory, boolean includeFilesInSubDirectories) {
 		Collection<File> files = new ArrayList<>();
 		listFilesAndFolders(directory, files, includeFilesInSubDirectories);
 		return files;
 	}
 
+	/**
+	 * This method is used by listFilesAndFolders to recursively determine the folder content.
+	 *
+	 * @param directory the directory
+	 * @param files the files
+	 * @param recursive the recursive
+	 */
 	private static void listFilesAndFolders(File directory, Collection<File> files, boolean recursive) {
 		File[] fList = directory.listFiles();
 		for (File file : fList) {

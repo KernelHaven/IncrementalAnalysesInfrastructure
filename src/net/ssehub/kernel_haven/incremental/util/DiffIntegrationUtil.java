@@ -7,17 +7,38 @@ import java.io.IOException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
+/**
+ * The Class DiffIntegrationUtil.
+ * 
+ * @author Moritz
+ */
 public class DiffIntegrationUtil {
+	
+	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
 
+	/** The files storage dir. */
 	private final File filesStorageDir;
+	
+	/** The input diff. */
 	private final File inputDiff;
 
+	/**
+	 * Instantiates a new diff integration util.
+	 *
+	 * @param filesStorageDir the files storage dir
+	 * @param inputDiff the input diff
+	 */
 	public DiffIntegrationUtil(File filesStorageDir, File inputDiff) {
 		this.filesStorageDir = filesStorageDir;
 		this.inputDiff = inputDiff;
 	}
 
+	/**
+	 * Merge changes based on the input folder and provided diff.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean mergeChanges() {
 		LOGGER.logDebug("mergeChanges() called");
 
@@ -50,6 +71,11 @@ public class DiffIntegrationUtil {
 
 	}
 
+	/**
+	 * Revert changes based on the input folder and provided diff.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean revertChanges() {
 		LOGGER.logDebug("revertChanges() called");
 		boolean success = false;
