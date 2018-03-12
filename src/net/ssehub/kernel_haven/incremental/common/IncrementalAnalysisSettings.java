@@ -1,6 +1,6 @@
 package net.ssehub.kernel_haven.incremental.common;
 
-import static net.ssehub.kernel_haven.config.Setting.Type.DIRECTORY;
+import static net.ssehub.kernel_haven.config.Setting.Type.FILE;
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
 
 import java.io.File;
@@ -11,7 +11,6 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 
 // TODO: Auto-generated Javadoc
@@ -20,12 +19,12 @@ import net.ssehub.kernel_haven.config.Setting;
  */
 public class IncrementalAnalysisSettings {
 
-
-
-
-
-	public static final Setting INPUT_DIFF_FILE = null;
-	public static final Setting FILES_STORAGE_DIR = null;
+	public static final Setting<File> SOURCE_TREE_DIFF_FILE = new Setting<File>("incemental.input.source_tree_diff",
+			FILE, true, "git.diff",
+			"Diff-file describing the changes from the previously analyzed increment to the next one.");
+	public static final Setting<String> FILTER_CLASS = new Setting<String>("incemental.filter", STRING, true,
+			"ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			"name of the class used to filter the input for the incremental analysis");
 
 	/**
 	 * Instantiates a new incremental analysis settings.
@@ -38,7 +37,6 @@ public class IncrementalAnalysisSettings {
 	 * Holds all declared setting constants.
 	 */
 	private static final Set<Setting<?>> SETTINGS = new HashSet<>();
-
 
 	static {
 		for (Field field : IncrementalAnalysisSettings.class.getFields()) {

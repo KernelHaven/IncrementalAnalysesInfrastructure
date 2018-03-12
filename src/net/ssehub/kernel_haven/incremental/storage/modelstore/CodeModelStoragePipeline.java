@@ -10,6 +10,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.util.Logger;
 
@@ -31,7 +32,9 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 	protected void execute() {
 
 
-
+		
+		config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+		config.setValue(DefaultSettings.CODE_EXTRACTOR_FILES, value);
 
 		Map<File, SourceFile> changedFilesModel = new HashMap<File, SourceFile>();
 
