@@ -33,8 +33,7 @@ public class CodeModelStoragePipeline extends AnalysisComponent<Object> {
 
 
 		
-		config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
-		config.setValue(DefaultSettings.CODE_EXTRACTOR_FILES, value);
+
 
 		Map<File, SourceFile> changedFilesModel = new HashMap<File, SourceFile>();
 
