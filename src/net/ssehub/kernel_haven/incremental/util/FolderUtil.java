@@ -35,7 +35,6 @@ public class FolderUtil {
 			for (File folderAFile : folderA.listFiles()) {
 				File correspondingFileInB = folderB.toPath().resolve(folderA.toPath().relativize(folderAFile.toPath()))
 						.toFile();
-				System.out.println(folderAFile + " <-> " + correspondingFileInB);
 				equals = FileUtil.fileContentIsEqual(folderAFile, correspondingFileInB);
 				if (!equals) {
 					break;
