@@ -1,17 +1,21 @@
-diff --git a/file-that-was-added.txt b/file-that-was-added.txt
-new file mode 100644
-index 0000000..f8a9e9d
---- /dev/null
-+++ b/file-that-was-added.txt
-@@ -0,0 +1 @@
-+This file was added
-\ No newline at end of file
-diff --git a/file-that-will-be-deleted.txt b/file-that-will-be-deleted.txt
-deleted file mode 100644
-index e69de29..0000000
-diff --git a/file-that-will-be-modified.txt b/file-that-will-be-modified.txt
-index e69de29..b84df7e 100644
---- a/file-that-will-be-modified.txt
-+++ b/file-that-will-be-modified.txt
-@@ -0,0 +1 @@
-+This file was modified
+diff --git a/modify/Kbuild b/modify/Kbuild
+index 323fae0..646640d 100644
+--- a/modify/Kbuild
++++ b/modify/Kbuild
+@@ -1 +1,2 @@
+ foobar
++modification
+diff --git a/modify/Kconfig b/modify/Kconfig
+index 323fae0..646640d 100644
+--- a/modify/Kconfig
++++ b/modify/Kconfig
+@@ -1 +1,2 @@
+ foobar
++modification
+diff --git a/modify/a-code-file.c b/modify/a-code-file.c
+index 323fae0..646640d 100644
+--- a/modify/a-code-file.c
++++ b/modify/a-code-file.c
+@@ -1 +1,2 @@
+ foobar
++modification

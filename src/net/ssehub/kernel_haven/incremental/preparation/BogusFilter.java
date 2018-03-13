@@ -18,7 +18,7 @@ public class BogusFilter extends InputFilter {
 	@Override
 	protected Collection<Path> doFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
 
-		Collection<File> files = FolderUtil.listFiles(sourceDirectory, true);
+		Collection<File> files = FolderUtil.listRelativeFiles(sourceDirectory, true);
 		Collection<Path> paths = new ArrayList<Path>();
 		for (File file : files) {
 			paths.add(file.toPath());

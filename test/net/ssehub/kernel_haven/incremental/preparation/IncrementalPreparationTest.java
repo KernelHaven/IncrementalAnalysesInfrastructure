@@ -1,13 +1,25 @@
 package net.ssehub.kernel_haven.incremental.preparation;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
@@ -40,6 +52,54 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 		} catch (SetUpException e) {
 			Assert.fail("the filterInput method did not terminate properly: " + e.getMessage());
 		}
+	}
+
+	@Test
+	public void testRun() throws SetUpException, IOException {
+
+		Path tempFolderPath = Files.createTempDirectory("incrementa-analysis-test-run");
+		File tempFolder = tempFolderPath.toFile();
+		LOGGER.logDebug("Temp-Folder for testRun: " + tempFolder);
+
+		FolderUtil.copyFolderContent(MODIFIED_FOLDER, tempFolder);
+
+		Properties prop = new Properties();
+
+		prop.setProperty(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS.getKey(), BogusFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS.getKey(), BogusFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS.getKey(),
+				BogusFilter.class.getName());
+
+		prop.setProperty(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE.getKey(), DIFF_FILE.getAbsolutePath());
+		prop.setProperty(DefaultSettings.SOURCE_TREE.getKey(), tempFolder.getAbsolutePath());
+
+		// The following parameters are not used actively in the Preparation but are
+		// marked as mandatory in {@link #DefaultSettings}
+		prop.setProperty(DefaultSettings.ANALYSIS_CLASS.getKey(), "NOT USED");
+		prop.setProperty(DefaultSettings.CACHE_DIR.getKey(), tempFolder.getAbsolutePath());
+		prop.setProperty(DefaultSettings.OUTPUT_DIR.getKey(), tempFolder.getAbsolutePath());
+		prop.setProperty(DefaultSettings.RESOURCE_DIR.getKey(), tempFolder.getAbsolutePath());
+		prop.setProperty(DefaultSettings.PLUGINS_DIR.getKey(), tempFolder.getAbsolutePath());
+
+		Configuration config = new Configuration(prop);
+
+		IncrementalAnalysisSettings.registerAllSettings(config);
+		DefaultSettings.registerAllSettings(config);
+
+		IncrementalPreparation preparation = new IncrementalPreparation();
+		preparation.run(config);
+
+		List<String> listOfFilesForCodeModel = config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+
+		Assert.assertThat(listOfFilesForCodeModel,
+				CoreMatchers.anyOf(CoreMatchers.hasItems("a-code-file.c", "modify/a-code-file.c"),
+						CoreMatchers.hasItems("a-code-file.c", "modify\\a-code-file.c")));
+
+		Assert.assertThat(config.getValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL), equalTo(Boolean.TRUE));
+		Assert.assertThat(config.getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL),
+				equalTo(Boolean.TRUE));
+		Assert.assertThat(config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL), equalTo(Boolean.TRUE));
+
 	}
 
 }

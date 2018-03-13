@@ -71,7 +71,7 @@ public class IncrementalPreparation implements IPreparation {
 			//////////////////////////////////
 			filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
 					inputSourceDir, inputDiff, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX));
-			config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, !filteredPaths.isEmpty());
+			config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, !filteredPaths.isEmpty());
 
 			////////////////////////////
 			// Filter for build model //

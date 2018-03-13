@@ -26,7 +26,9 @@ public class FolderUtil {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public static void copyFolderContent(File sourceFolder, File targetFolder) throws IOException {
-		Collection<File> files = FolderUtil.listFilesAndFolders(sourceFolder, true);
+		sourceFolder = sourceFolder.getAbsoluteFile();
+		targetFolder = targetFolder.getAbsoluteFile();
+		Collection<File> files = FolderUtil.listAbsoluteFilesAndFolders(sourceFolder, true);
 		for (File file : files) {
 			// create target path based on the relative path that the file has in the source
 			// folder
@@ -54,8 +56,8 @@ public class FolderUtil {
 	 */
 	public static boolean folderContentEquals(File folderA, File folderB) throws IOException {
 		boolean equals = true;
-		Collection<File> filesFolderA = FolderUtil.listFilesAndFolders(folderA, true);
-		Collection<File> filesFolderB = FolderUtil.listFilesAndFolders(folderB, true);
+		Collection<File> filesFolderA = FolderUtil.listAbsoluteFilesAndFolders(folderA, true);
+		Collection<File> filesFolderB = FolderUtil.listAbsoluteFilesAndFolders(folderB, true);
 		equals = filesFolderA.size() == filesFolderB.size();
 		if (equals) {
 			for (File folderAFile : folderA.listFiles()) {
@@ -82,13 +84,14 @@ public class FolderUtil {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public static Collection<File> getNewOrChangedFiles(File referenceDirectory, File newDirectory) throws IOException {
-		Path referenceDirectoryPath = referenceDirectory.getAbsoluteFile().toPath().normalize();
-		Path newDirectorydPath = newDirectory.getAbsoluteFile().toPath().normalize();
+	public static Collection<File> getNewOrChangedFiles(File referenceDirectory, File newDirectory,
+			boolean absolutePaths) throws IOException {
+		Path referenceDirectoryPath = referenceDirectory.getAbsoluteFile().toPath();
+		Path newDirectorydPath = newDirectory.getAbsoluteFile().toPath();
 
 		// Create a list of relative Paths to all files in newDirectory
 		Collection<Path> pathsForFilesInNewDirectory = new ArrayList<Path>();
-		for (File file : FolderUtil.listFilesAndFolders(newDirectorydPath.toFile(), true)) {
+		for (File file : FolderUtil.listAbsoluteFilesAndFolders(newDirectorydPath.toFile(), true)) {
 			if (!file.isDirectory()) {
 				pathsForFilesInNewDirectory.add(newDirectorydPath.relativize(file.toPath()));
 			}
@@ -103,7 +106,11 @@ public class FolderUtil {
 			// if the file does not exist in the reference directory or the file content is
 			// not equal add it to the list of changed files
 			if (!fileInRefDir.exists() || !FileUtil.fileContentIsEqual(fileInRefDir, fileInNewDir)) {
-				newOrChangedFiles.add(newDirectorydPath.relativize(fileInNewDir.toPath()).toFile());
+				if (absolutePaths) {
+					newOrChangedFiles.add(fileInNewDir);
+				} else {
+					newOrChangedFiles.add(filePath.toFile());
+				}
 			}
 		}
 		return newOrChangedFiles;
@@ -118,9 +125,15 @@ public class FolderUtil {
 	 *            the include files in sub directories
 	 * @return the collection
 	 */
-	public static Collection<File> listFilesAndFolders(File directory, boolean includeFilesInSubDirectories) {
+	public static Collection<File> listAbsoluteFilesAndFolders(File directory, boolean includeFilesInSubDirectories) {
 		Collection<File> files = new ArrayList<>();
-		listFilesAndFolders(directory, files, includeFilesInSubDirectories, true);
+		listFilesAndFolders(directory, files, includeFilesInSubDirectories, true, true, directory);
+		return files;
+	}
+
+	public static Collection<File> listRelativeFilesAndFolders(File directory, boolean includeFilesInSubDirectories) {
+		Collection<File> files = new ArrayList<>();
+		listFilesAndFolders(directory, files, includeFilesInSubDirectories, true, false, directory);
 		return files;
 	}
 
@@ -133,9 +146,15 @@ public class FolderUtil {
 	 *            the include files in sub directories
 	 * @return the collection
 	 */
-	public static Collection<File> listFiles(File directory, boolean includeFilesInSubDirectories) {
+	public static Collection<File> listAbsoluteFiles(File directory, boolean includeFilesInSubDirectories) {
 		Collection<File> files = new ArrayList<>();
-		listFilesAndFolders(directory, files, includeFilesInSubDirectories, false);
+		listFilesAndFolders(directory, files, includeFilesInSubDirectories, false, true, directory);
+		return files;
+	}
+
+	public static Collection<File> listRelativeFiles(File directory, boolean includeFilesInSubDirectories) {
+		Collection<File> files = new ArrayList<>();
+		listFilesAndFolders(directory, files, includeFilesInSubDirectories, false, false, directory);
 		return files;
 	}
 
@@ -151,17 +170,21 @@ public class FolderUtil {
 	 *            the recursive
 	 */
 	private static void listFilesAndFolders(File directory, Collection<File> files, boolean recursive,
-			boolean listFolders) {
+			boolean listFolders, boolean absoluteFiles, File rootDirectory) {
 		File[] fList = directory.listFiles();
 		for (File file : fList) {
+			File fileToAdd = file.getAbsoluteFile();
+			if (!absoluteFiles) {
+				fileToAdd = rootDirectory.toPath().relativize(file.toPath()).toFile();
+			}
 			if (file.isFile()) {
-				files.add(file);
+				files.add(fileToAdd);
 			} else if (file.isDirectory()) {
 				if (listFolders) {
-					files.add(file);
+					files.add(fileToAdd);
 				}
 				if (recursive) {
-					listFilesAndFolders(file, files, recursive, listFolders);
+					listFilesAndFolders(file, files, recursive, listFolders, absoluteFiles, rootDirectory);
 				}
 			}
 		}
