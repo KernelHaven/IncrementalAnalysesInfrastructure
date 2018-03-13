@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.incremental.common;
 
+import static net.ssehub.kernel_haven.config.Setting.Type.BOOLEAN;
 import static net.ssehub.kernel_haven.config.Setting.Type.FILE;
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
 
@@ -13,7 +14,6 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class IncrementalAnalysisSettings.
  */
@@ -22,9 +22,24 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<File> SOURCE_TREE_DIFF_FILE = new Setting<File>("incemental.input.source_tree_diff",
 			FILE, true, "git.diff",
 			"Diff-file describing the changes from the previously analyzed increment to the next one.");
-	public static final Setting<String> FILTER_CLASS = new Setting<String>("incemental.filter", STRING, true,
+	public static final Setting<String> CODE_MODEL_FILTER_CLASS = new Setting<String>("incemental.code.filter", STRING,
+			true, "ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			"name of the class used to filter the input for the code-model in the incremental analysis");
+	public static final Setting<String> VARIABILITY_MODEL_FILTER_CLASS = new Setting<String>(
+			"incemental.variability.filter", STRING, true,
 			"ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
-			"name of the class used to filter the input for the incremental analysis");
+			"name of the class used to filter the input for the variability-model in the incremental analysis");
+	public static final Setting<String> BUILD_MODEL_FILTER_CLASS = new Setting<String>("incemental.build.filter",
+			STRING, true, "ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			"name of the class used to filter the input for the build-model in the incremental analysis");
+
+	public static final Setting<Boolean> EXTRACT_CODE_MODEL = new Setting<Boolean>("incremental.code.extract_cm",
+			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
+	public static final Setting<Boolean> EXTRACT_VARIABILITY_MODEL = new Setting<Boolean>(
+			"incremental.variability.extract_vm", BOOLEAN, true, "FALSE",
+			"This setting automatically gets set by IncrementalPreparation");
+	public static final Setting<Boolean> EXTRACT_BUILD_MODEL = new Setting<Boolean>("incremental.build.extract_bm",
+			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
 
 	/**
 	 * Instantiates a new incremental analysis settings.

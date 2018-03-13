@@ -16,11 +16,11 @@ import io.reflectoring.diffparser.api.model.Diff;
 
 
 /**
- * The Class DiffFileReader. This class extracts information out of a diff-file.
+ * The Class DiffFile. This class extracts information out of a diff-file.
  * 
  * @author Moritz
  */
-public class DiffFileReader {
+public class DiffFile {
 
 	/** The diff. */
 	private Collection<Diff> diff = null;
@@ -31,7 +31,7 @@ public class DiffFileReader {
 	 * @param file the git diff file
 	 * @throws FileNotFoundException occurs if file does not exist
 	 */
-	public DiffFileReader(File file) throws FileNotFoundException {
+	public DiffFile(File file) throws FileNotFoundException {
 		DiffParser parser = new UnifiedDiffParser();
 		InputStream in = new FileInputStream(file);
 		this.diff = parser.parse(in);
