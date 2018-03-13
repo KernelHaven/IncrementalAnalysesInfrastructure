@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.IPreparation;
@@ -17,9 +16,8 @@ import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class StoragePreparation.
+ * The Class IncrementalPreparation.
  */
 public class IncrementalPreparation implements IPreparation {
 
@@ -88,7 +86,7 @@ public class IncrementalPreparation implements IPreparation {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Collection<Path> filterInput(String filterClassName, File inputSourceDir, File inputDiff, Pattern regex)
+	protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, File inputDiff, Pattern regex)
 			throws SetUpException {
 		Collection<Path> paths = null;
 		// Call the method getFilteredResult for filterClassName via reflection-api
@@ -99,8 +97,7 @@ public class IncrementalPreparation implements IPreparation {
 					.newInstance(inputSourceDir, inputDiff, regex);
 			if (filterObject instanceof InputFilter) {
 				Method getFilteredResultMethod = filterClass.getMethod("getFilteredResult");
-				paths = (Collection<Path>) getFilteredResultMethod.invoke(filterObject, inputSourceDir, inputDiff,
-						regex);
+				paths = (Collection<Path>) getFilteredResultMethod.invoke(filterObject);
 			} else {
 				throw new SetUpException(
 						"The class name provided for the filter does not appear to extend the InputFilter class");
