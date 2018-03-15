@@ -16,7 +16,7 @@ public class StoragePipeline extends PipelineAnalysis {
 
     @Override
     protected AnalysisComponent<?> createPipeline() throws SetUpException {
-        return new CodeModelStoragePipeline(config, getCmComponent());
+        return new IncrementalPostExtraction(config, getCmComponent());
     }
 
 }

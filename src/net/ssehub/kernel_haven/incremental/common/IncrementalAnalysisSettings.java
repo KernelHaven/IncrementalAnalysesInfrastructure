@@ -1,6 +1,7 @@
 package net.ssehub.kernel_haven.incremental.common;
 
 import static net.ssehub.kernel_haven.config.Setting.Type.BOOLEAN;
+import static net.ssehub.kernel_haven.config.Setting.Type.DIRECTORY;
 import static net.ssehub.kernel_haven.config.Setting.Type.FILE;
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
 
@@ -32,6 +33,9 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<String> BUILD_MODEL_FILTER_CLASS = new Setting<String>("incremental.build.filter",
 			STRING, true, "ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
 			"name of the class used to filter the input for the build-model in the incremental analysis");
+
+	public static final Setting<File> HYBRID_CACHE_DIRECTORY = new Setting<File>("incremental.hybrid_cache.dir",
+			DIRECTORY, true, "hybrid-cache/", "Directory which represents the cache for incremental analyses");
 
 	public static final Setting<Boolean> EXTRACT_CODE_MODEL = new Setting<Boolean>("incremental.code.extract_cm",
 			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
