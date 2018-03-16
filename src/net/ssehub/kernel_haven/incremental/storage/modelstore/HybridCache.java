@@ -16,9 +16,18 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class HybridCache.
+ * HybridCache serves the purpose of storing two different versions of the
+ * models. Starting off with the previously present model (an empty model is
+ * also possible), one can add or delete elements within that model. When a
+ * modification takes place, the changes are persisted allowing for continuous
+ * access to the previous model. As a HybridCache only stores two models
+ * clearing information for the previous model via
+ * {@link HybridCache#clearChangeHistory()} offers you the option to clear the
+ * change-history thereby resulting in the previous model being equivalent to
+ * the current model at the time of the method-call. Any subsequent
+ * modifications will then again be stored for the previous model.
+ * 
  */
 public class HybridCache {
 
@@ -134,7 +143,7 @@ public class HybridCache {
 	/**
 	 * Removes all files representing the previous model.
 	 */
-	public void clearPrevious() {
+	public void clearChangeHistory() {
 		FolderUtil.deleteFolderContents(replacedFolder);
 		FolderUtil.deleteFolderContents(addedFolder);
 	}
@@ -390,7 +399,7 @@ public class HybridCache {
 					StandardCopyOption.REPLACE_EXISTING);
 		}
 
-		this.clearPrevious();
+		this.clearChangeHistory();
 
 	}
 
