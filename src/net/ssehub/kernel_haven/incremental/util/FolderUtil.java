@@ -72,6 +72,31 @@ public class FolderUtil {
 		return equals;
 	}
 
+	public static void deleteFolderContents(File folder) {
+		deleteFolder(folder, false);
+	}
+
+	public static void deleteFolder(File folder) {
+		deleteFolder(folder, true);
+	}
+
+	private static void deleteFolder(File folder, boolean deleteRootFolder) {
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteFolder(file, true);
+				} else {
+					file.delete();
+				}
+			}
+		}
+
+		if (deleteRootFolder && folder.exists()) {
+			folder.delete();
+		}
+	}
+
 	/**
 	 * Gets the new or changed files from newDirectory compared to
 	 * referenceDirectory. This does not list deleted files.
