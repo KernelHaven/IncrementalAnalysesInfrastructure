@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.build_model.BuildModelCache;
@@ -84,37 +86,37 @@ public class HybridCache {
 
 	/**
 	 * Cache-Object for accessing cm-cache elements in
-	 * {@link HybridCache#currentFolder}
+	 * {@link HybridCache#currentFolder}.
 	 */
 	private CodeModelCache currentCmCache;
 
 	/**
 	 * Cache-Object for accessing vm-cache elements in
-	 * {@link HybridCache#currentFolder}
+	 * {@link HybridCache#currentFolder}.
 	 */
 	private VariabilityModelCache currentVmCache;
 
 	/**
 	 * Cache-Object for accessing bm-cache elements in
-	 * {@link HybridCache#currentFolder}
+	 * {@link HybridCache#currentFolder}.
 	 */
 	private BuildModelCache currentBmCache;
 
 	/**
 	 * Cache-Object for accessing cm-cache elements in
-	 * {@link HybridCache#replacedFolder}
+	 * {@link HybridCache#replacedFolder}.
 	 */
 	private CodeModelCache replacedCmCache;
 
 	/**
 	 * Cache-Object for accessing vm-cache elements in
-	 * {@link HybridCache#replacedFolder}
+	 * {@link HybridCache#replacedFolder}.
 	 */
 	private VariabilityModelCache previousVmCache;
 
 	/**
 	 * Cache-Object for accessing bm-cache elements in
-	 * {@link HybridCache#replacedFolder}
+	 * {@link HybridCache#replacedFolder}.
 	 */
 	private BuildModelCache replacedBmCache;
 
@@ -370,11 +372,74 @@ public class HybridCache {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void hybridDelete(File target) throws IOException {
+	private void hybridDelete(File target) throws IOException {
 		File fileToDelete = currentFolder.toPath().resolve(target.toPath()).toFile();
 		boolean doDelete = fileToDelete.exists();
 		if (doDelete) {
 			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(target.toPath()));
+		}
+	}
+
+	/**
+	 * Delete code model for a code-file within the source-tree.
+	 *
+	 * @param codeFileWithinSourceTree
+	 *            the path
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void deleteCodeModel(File codeFileWithinSourceTree) throws IOException {
+		hybridDelete(new File(
+				codeFileWithinSourceTree.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX));
+	}
+
+	public Collection<SourceFile> getPreviousCodeModel() throws IOException, FormatException {
+		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
+		files.addAll(FolderUtil.listRelativeFiles(replacedFolder, false));
+		files.removeAll(FolderUtil.listRelativeFiles(addedFolder, false));
+		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+		for (File file : files) {
+			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
+				sourceFiles.add(readPreviousCm(file));
+			}
+		}
+		return sourceFiles;
+
+	}
+
+	public Collection<SourceFile> getCodeModel() throws IOException, FormatException {
+		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
+		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+		for (File file : files) {
+			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
+				sourceFiles.add(readCm(file));
+			}
+		}
+		return sourceFiles;
+	}
+
+	/**
+	 * Delete build model.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void deleteBuildModel() throws IOException {
+		for (Path path : BM_CACHE_FILES) {
+			hybridDelete(path.toFile());
+		}
+
+	}
+
+	/**
+	 * Delete variability model.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void deleteVariabilityModel() throws IOException {
+		for (Path path : VM_CACHE_FILES) {
+			hybridDelete(path.toFile());
 		}
 	}
 
