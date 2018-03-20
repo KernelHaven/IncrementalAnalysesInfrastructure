@@ -119,6 +119,7 @@ public class HybridCache {
 	 * {@link HybridCache#replacedFolder}.
 	 */
 	private BuildModelCache replacedBmCache;
+	
 
 	/**
 	 * Instantiates a new hybrid cache.

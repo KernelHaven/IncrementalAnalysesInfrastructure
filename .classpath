@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/diffparser-1.4.jar" sourcepath="lib/diffparser-1.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.25.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/UnDeadAnalyzer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
