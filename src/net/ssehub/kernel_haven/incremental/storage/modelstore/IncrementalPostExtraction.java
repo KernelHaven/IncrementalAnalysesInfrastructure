@@ -10,7 +10,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.util.DiffFile;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -90,7 +90,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 							+ "or extract all models from scratch.", exception);
 				}
 			}
-		} catch (FileNotFoundException e) {
+		} catch ( IllegalArgumentException | IOException e) {
 			// Does not happen as the existence of the file is already checked when through
 			// IncrementalAnalysisSettings.registerAllSettings(config);
 			LOGGER.logException("DiffFile was not found in method eventhough it got approved when "

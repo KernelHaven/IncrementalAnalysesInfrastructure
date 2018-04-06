@@ -57,7 +57,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	@Override
 	protected void execute() {
 		HybridCache data;
-
+		
 		if ((data = inputComponent.getNextResult()) != null) {
 			try {
 				// Get models

@@ -47,7 +47,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 	@Test
 	public void testFilterInput() {
 		try {
-			this.filterInput("net.ssehub.kernel_haven.incremental.preparation.BogusFilter", MODIFIED_FOLDER, DIFF_FILE,
+			this.filterInput("net.ssehub.kernel_haven.incremental.preparation.RegexOnlyFilter", MODIFIED_FOLDER, DIFF_FILE,
 					Pattern.compile(".*"));
 		} catch (SetUpException e) {
 			Assert.fail("the filterInput method did not terminate properly: " + e.getMessage());
@@ -65,10 +65,11 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 
 		Properties prop = new Properties();
 
-		prop.setProperty(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS.getKey(), BogusFilter.class.getName());
-		prop.setProperty(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS.getKey(), BogusFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS.getKey(), RegexOnlyFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS.getKey(), RegexOnlyFilter.class.getName());
 		prop.setProperty(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS.getKey(),
-				BogusFilter.class.getName());
+				RegexOnlyFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY.getKey(), tempFolder.getAbsolutePath());
 
 		prop.setProperty(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE.getKey(), DIFF_FILE.getAbsolutePath());
 		prop.setProperty(DefaultSettings.SOURCE_TREE.getKey(), tempFolder.getAbsolutePath());
@@ -80,7 +81,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 		prop.setProperty(DefaultSettings.OUTPUT_DIR.getKey(), tempFolder.getAbsolutePath());
 		prop.setProperty(DefaultSettings.RESOURCE_DIR.getKey(), tempFolder.getAbsolutePath());
 		prop.setProperty(DefaultSettings.PLUGINS_DIR.getKey(), tempFolder.getAbsolutePath());
-
+		  
 		Configuration config = new Configuration(prop);
 
 		IncrementalAnalysisSettings.registerAllSettings(config);

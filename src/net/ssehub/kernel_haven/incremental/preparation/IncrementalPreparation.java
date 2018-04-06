@@ -13,15 +13,16 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtil;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffIntegrationUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
+// TODO: Auto-generated Javadoc
 /**
- * The Class IncrementalPreparation.
+ * This.
  */
 public class IncrementalPreparation implements IPreparation {
 
-	/** The Constant LOGGER. */
+	/**  Logger instance. */
 	private static final Logger LOGGER = Logger.get();
 
 	/*
@@ -85,6 +86,17 @@ public class IncrementalPreparation implements IPreparation {
 		// Finish and let KernelHaven run
 	}
 
+	/**
+	 * Filters input using the class defined by filterClassName. This should be a class available in the classpath and
+	 * implementing InputFilter.
+	 *
+	 * @param filterClassName the filter class name
+	 * @param inputSourceDir the input source dir
+	 * @param inputDiff the input diff
+	 * @param regex the regex
+	 * @return the collection
+	 * @throws SetUpException the set up exception
+	 */
 	@SuppressWarnings("unchecked")
 	protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, File inputDiff, Pattern regex)
 			throws SetUpException {

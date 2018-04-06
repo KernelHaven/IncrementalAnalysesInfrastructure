@@ -9,12 +9,26 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 
-public class BogusFilter extends InputFilter {
+/**
+ * A filter which does only filter for regular expressions.
+ */
+public class RegexOnlyFilter extends InputFilter {
 
-	public BogusFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
+	/**
+	 * Instantiates a new bogus filter.
+	 *
+	 * @param sourceDirectory the source directory
+	 * @param diffFile the diff file
+	 * @param fileRegex the file regex
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public RegexOnlyFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
 		super(sourceDirectory, diffFile, fileRegex);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.ssehub.kernel_haven.incremental.preparation.InputFilter#doFilter(java.io.File, java.io.File, java.util.regex.Pattern)
+	 */
 	@Override
 	protected Collection<Path> doFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
 

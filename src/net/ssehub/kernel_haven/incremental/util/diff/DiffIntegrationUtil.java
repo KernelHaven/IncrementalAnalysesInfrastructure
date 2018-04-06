@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util;
+package net.ssehub.kernel_haven.incremental.util.diff;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
