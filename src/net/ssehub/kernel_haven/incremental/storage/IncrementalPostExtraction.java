@@ -1,6 +1,5 @@
-package net.ssehub.kernel_haven.incremental.storage.modelstore;
+package net.ssehub.kernel_haven.incremental.storage;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -9,19 +8,42 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
+/**
+ * This class is an {@link AnalysisComponent} which handles the extraction of models within an incremental 
+ * analysis pipeline. It should be used in conjunction with the preparation task {@link IncrementalPreparation}
+ * The result is given as {@link HybridCache}.
+ */
 public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
+	/** The cm component. */
 	private AnalysisComponent<SourceFile> cmComponent;
+	
+	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
+	
+	/** The config. */
 	private Configuration config;
+	
+	/** The bm component. */
 	private AnalysisComponent<BuildModel> bmComponent;
+	
+	/** The vm component. */
 	private AnalysisComponent<VariabilityModel> vmComponent;
 
+	/**
+	 * Instantiates a new IncremenmtalPostExtraction.
+	 *
+	 * @param config the config
+	 * @param cmComponent the cm component
+	 * @param bmComponent the bm component
+	 * @param vmComponent the vm component
+	 * @throws SetUpException thrown if required parameters were not configured correctly.
+	 */
 	public IncrementalPostExtraction(Configuration config, AnalysisComponent<SourceFile> cmComponent,
 			AnalysisComponent<BuildModel> bmComponent, AnalysisComponent<VariabilityModel> vmComponent)
 			throws SetUpException {
@@ -33,6 +55,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		this.vmComponent = vmComponent;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#execute()
+	 */
 	@Override
 	protected void execute() {
 
@@ -53,6 +78,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
 	}
 
+	/**
+	 * Variability model extraction.
+	 *
+	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 */
 	private void variabilityModelExtraction(HybridCache hybridCache) {
 		VariabilityModel variabilityModel;
 		while ((variabilityModel = vmComponent.getNextResult()) != null) {
@@ -64,6 +94,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		}
 	}
 
+	/**
+	 * Builds the model extraction.
+	 *
+	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 */
 	private void buildModelExtraction(HybridCache hybridCache) {
 		BuildModel buildModel;
 		while ((buildModel = bmComponent.getNextResult()) != null) {
@@ -75,6 +110,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		}
 	}
 
+	/**
+	 * Code model extraction.
+	 *
+	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 */
 	private void codeModelExtraction(HybridCache hybridCache) {
 		SourceFile file;
 		DiffFile diffFile;
@@ -107,6 +147,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
+	 */
 	@Override
 	public String getResultName() {
 		return "HybridCache";

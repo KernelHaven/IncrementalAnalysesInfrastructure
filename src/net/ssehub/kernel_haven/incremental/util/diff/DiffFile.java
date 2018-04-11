@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry.Type;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * The Class DiffFile. This class extracts information out of a diff-file.
@@ -29,11 +30,11 @@ public class DiffFile {
 	 *            the git diff file
 	 * @throws IOException
 	 */
-	public DiffFile(File file) throws IOException {
+	public DiffFile(@NonNull File file) throws IOException {
 		this.changeSet = parse(file);
 	}
 
-	private Collection<FileEntry> parse(File file) throws IOException {
+	private Collection<FileEntry> parse(@NonNull File file) throws IOException {
 		Collection<FileEntry> changed = new ArrayList<FileEntry>();
 		List<String> lines = Files.readAllLines(file.toPath());
 		for (int i = 0; i < lines.size(); i++) {

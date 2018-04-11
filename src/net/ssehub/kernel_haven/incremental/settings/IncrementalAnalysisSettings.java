@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.common;
+package net.ssehub.kernel_haven.incremental.settings;
 
 import static net.ssehub.kernel_haven.config.Setting.Type.BOOLEAN;
 import static net.ssehub.kernel_haven.config.Setting.Type.DIRECTORY;

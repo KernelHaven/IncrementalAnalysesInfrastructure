@@ -12,14 +12,11 @@ import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
-import net.ssehub.kernel_haven.incremental.common.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffIntegrationUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
-// TODO: Auto-generated Javadoc
-/**
- * This.
- */
+
 public class IncrementalPreparation implements IPreparation {
 
 	/**  Logger instance. */

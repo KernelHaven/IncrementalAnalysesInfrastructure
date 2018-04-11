@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.storage.modelstore;
+package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,13 +42,13 @@ public class HybridCache {
 	 * The folder represented by this path stores cache-files that replaced files in
 	 * the current model. Those files can be used to access the previous model.
 	 */
-	private static final Path REPLACED_CACHE_FOLDER = Paths.get("replaced/");
+	private static final Path REPLACED_CACHE_FOLDER = Paths.get("history/replaced/");
 
 	/**
 	 * The folder represented by this path stores cache-files that were added in the
 	 * current model and did not replace old files.
 	 */
-	private static final Path ADDED_FOLDER = Paths.get("added/");
+	private static final Path ADDED_FOLDER = Paths.get("history/added/");
 
 	/** Subpaths for all files representing the build-model cache. */
 	private static final Path[] BM_CACHE_FILES = { Paths.get("bmCache") };
@@ -233,7 +233,9 @@ public class HybridCache {
 		return currentCmCache.read(target);
 
 	}
+	
 
+	
 	/**
 	 * Read bm in current version.
 	 *
@@ -394,7 +396,14 @@ public class HybridCache {
 				codeFileWithinSourceTree.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX));
 	}
 
-	public Collection<SourceFile> getPreviousCodeModel() throws IOException, FormatException {
+	/**
+	 * Read all previous cm.
+	 *
+	 * @return the collection
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws FormatException the format exception
+	 */
+	public Collection<SourceFile> readAllPreviousCm() throws IOException, FormatException {
 		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
 		files.addAll(FolderUtil.listRelativeFiles(replacedFolder, false));
 		files.removeAll(FolderUtil.listRelativeFiles(addedFolder, false));
@@ -405,11 +414,36 @@ public class HybridCache {
 			}
 		}
 		return sourceFiles;
-
 	}
 
-	public Collection<SourceFile> getCodeModel() throws IOException, FormatException {
+	/**
+	 * Read all cm.
+	 *
+	 * @return the collection
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws FormatException the format exception
+	 */
+	public Collection<SourceFile> readAllCm() throws IOException, FormatException {
 		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
+		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+		for (File file : files) {
+			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
+				sourceFiles.add(readCm(file));
+			}
+		}
+		return sourceFiles;
+	}
+	
+	/**
+	 * Read changed cm.
+	 *
+	 * @return the collection
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws FormatException the format exception
+	 */
+	public Collection<SourceFile> readChangedCm() throws IOException, FormatException {
+		Collection<File> files = FolderUtil.listRelativeFiles(replacedFolder, false);
+		files.addAll(FolderUtil.listRelativeFiles(addedFolder, false));
 		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
 		for (File file : files) {
 			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
