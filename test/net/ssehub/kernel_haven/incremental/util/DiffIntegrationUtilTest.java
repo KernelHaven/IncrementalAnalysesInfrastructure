@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffIntegrationUtil;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
@@ -49,7 +49,7 @@ public class DiffIntegrationUtilTest {
 
 		// Merge action
 
-		DiffIntegrationUtil diffIntegration = new DiffIntegrationUtil(tempFolder.toFile(), DIFF_FILE);
+		DiffApplyUtil diffIntegration = new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
 
 		boolean success = diffIntegration.mergeChanges();
 		Assert.assertTrue(success);
@@ -79,7 +79,7 @@ public class DiffIntegrationUtilTest {
 
 		// Merge action
 
-		DiffIntegrationUtil diffIntegration = new DiffIntegrationUtil(tempFolder.toFile(), DIFF_FILE);
+		DiffApplyUtil diffIntegration = new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
 
 		boolean success = diffIntegration.mergeChanges();
 
@@ -107,7 +107,7 @@ public class DiffIntegrationUtilTest {
 		Assert.assertTrue(DIFF_FILE.exists());
 
 		// Revert action
-		DiffIntegrationUtil diffIntegration = new DiffIntegrationUtil(tempFolder.toFile(), DIFF_FILE);
+		DiffApplyUtil diffIntegration = new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
 
 		boolean success = diffIntegration.revertChanges();
 		Assert.assertTrue(success);
@@ -137,7 +137,7 @@ public class DiffIntegrationUtilTest {
 		Assert.assertTrue(DIFF_FILE.exists());
 
 		// Revert action
-		DiffIntegrationUtil diffIntegration = new DiffIntegrationUtil(tempFolder.toFile(), DIFF_FILE);
+		DiffApplyUtil diffIntegration = new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
 
 		boolean success = diffIntegration.revertChanges();
 		Assert.assertFalse(success);

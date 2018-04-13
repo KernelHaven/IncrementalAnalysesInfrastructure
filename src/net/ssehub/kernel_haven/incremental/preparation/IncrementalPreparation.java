@@ -13,7 +13,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffIntegrationUtil;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
 
@@ -31,12 +31,13 @@ public class IncrementalPreparation implements IPreparation {
 	@Override
 	public void run(Configuration config) throws SetUpException {
 		IncrementalAnalysisSettings.registerAllSettings(config);
+		LOGGER.logInfo("IncrementalPreparation started");
 
 		File inputDiff = (File) config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
 		File inputSourceDir = (File) config.getValue(DefaultSettings.SOURCE_TREE);
 
 		// Merge changes
-		DiffIntegrationUtil mergeUtil = new DiffIntegrationUtil(inputSourceDir, inputDiff);
+		DiffApplyUtil mergeUtil = new DiffApplyUtil(inputSourceDir, inputDiff);
 		boolean mergeSuccessful = mergeUtil.mergeChanges();
 
 		// only continue if merge was successful
@@ -79,8 +80,9 @@ public class IncrementalPreparation implements IPreparation {
 			config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, !filteredPaths.isEmpty());
 
 		}
-
+		
 		// Finish and let KernelHaven run
+		LOGGER.logInfo("IncrementalPreparation finished");
 	}
 
 	/**

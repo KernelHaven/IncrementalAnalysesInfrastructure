@@ -12,7 +12,7 @@ import net.ssehub.kernel_haven.util.Util;
  * 
  * @author Moritz
  */
-public class DiffIntegrationUtil {
+public class DiffApplyUtil {
 	
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
@@ -29,7 +29,7 @@ public class DiffIntegrationUtil {
 	 * @param filesStorageDir the files storage dir
 	 * @param inputDiff the input diff
 	 */
-	public DiffIntegrationUtil(File filesStorageDir, File inputDiff) {
+	public DiffApplyUtil(File filesStorageDir, File inputDiff) {
 		this.filesStorageDir = filesStorageDir;
 		this.inputDiff = inputDiff;
 	}
