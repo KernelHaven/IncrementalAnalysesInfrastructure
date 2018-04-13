@@ -24,14 +24,14 @@ public class IncrementalAnalysisSettings {
 			FILE, true, "git.diff",
 			"Diff-file describing the changes from the previously analyzed increment to the next one.");
 	public static final Setting<String> CODE_MODEL_FILTER_CLASS = new Setting<String>("incremental.code.filter", STRING,
-			true, "ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			true, "net.ssehub.kernel_haven.incremental.preparation.RegexOnlyFilter",
 			"name of the class used to filter the input for the code-model in the incremental analysis");
 	public static final Setting<String> VARIABILITY_MODEL_FILTER_CLASS = new Setting<String>(
 			"incremental.variability.filter", STRING, true,
-			"ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			"net.ssehub.kernel_haven.incremental.preparation.RegexOnlyFilter",
 			"name of the class used to filter the input for the variability-model in the incremental analysis");
 	public static final Setting<String> BUILD_MODEL_FILTER_CLASS = new Setting<String>("incremental.build.filter",
-			STRING, true, "ModelStoragePipeline.src.net.ssehub.kernel_haven.incremental.preparation.BogusFilter",
+			STRING, true, "net.ssehub.kernel_haven.incremental.preparation.RegexOnlyFilter",
 			"name of the class used to filter the input for the build-model in the incremental analysis");
 
 	public static final Setting<File> HYBRID_CACHE_DIRECTORY = new Setting<File>("incremental.hybrid_cache.dir",
