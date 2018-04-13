@@ -60,9 +60,15 @@ public class DiffApplyUtil {
 			String stderr = stderrStream.toString();
 			String stdout = stdoutStream.toString();
 			if (stderr != null && !stderr.equals("")) {
-				LOGGER.logError(("git apply stderr:\n" + stderr).split("\n"));
-			} else if ((stdout != null && !stdout.equals(""))) {
-				LOGGER.logDebug("git apply stout:\n" + stdout.split("\n"));
+				if (!success) {
+					LOGGER.logError(("git apply stderr:\n" + stderr).split("\n"));
+				} else {
+					LOGGER.logDebug(("git apply stderr:\n" + stderr).split("\n"));	
+				}
+			} 
+			
+			if ((stdout != null && !stdout.equals(""))) {
+				LOGGER.logDebug(("git apply stout:\n" + stdout).split("\n"));
 			}
 
 		}
@@ -97,9 +103,15 @@ public class DiffApplyUtil {
 			String stderr = stderrStream.toString();
 			String stdout = stdoutStream.toString();
 			if (stderr != null && !stderr.equals("")) {
-				LOGGER.logError(("git apply --reverse stderr:\n" + stderr).split("\n"));
-			} else if ((stdout != null && !stdout.equals(""))) {
-				LOGGER.logDebug("git apply stout:\n" + stdout.split("\n"));
+				if (!success) {
+					LOGGER.logError(("git apply --reverse stderr:\n" + stderr).split("\n"));
+				} else {
+					LOGGER.logDebug(("git apply --reverse stderr:\n" + stderr).split("\n"));	
+				}
+			} 
+			
+			if ((stdout != null && !stdout.equals(""))) {
+				LOGGER.logDebug(("git apply --reverse stout:\n" + stdout).split("\n"));
 			}
 
 		}
