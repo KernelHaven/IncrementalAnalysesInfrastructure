@@ -40,16 +40,13 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	private @NonNull AnalysisComponent<HybridCache> inputComponent;
 
 	/** The bm component. */
-	private OutputComponent<BuildModel> bmComponent = new OutputComponent<BuildModel>(config,
-			"HybridCacheAdapter-bmComponent");
+	private OutputComponent<BuildModel> bmComponent;
 
 	/** The vm component. */
-	private OutputComponent<VariabilityModel> vmComponent = new OutputComponent<VariabilityModel>(config,
-			"HybridCacheAdapter-vmComponent");;
+	private OutputComponent<VariabilityModel> vmComponent;
 
 	/** The cm component. */
-	private OutputComponent<SourceFile> cmComponent = new OutputComponent<SourceFile>(config,
-			"HybridCacheAdapter-cmComponent");;
+	private OutputComponent<SourceFile> cmComponent;
 
 	/** The change set only for cm. */
 	private boolean changeSetOnlyForCm = false;
@@ -69,6 +66,12 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 			boolean changeSetOnlyForCm) {
 		super(config);
 		this.config = config;
+		bmComponent = new OutputComponent<BuildModel>(config,
+				"HybridCacheAdapter-bmComponent");
+		vmComponent = new OutputComponent<VariabilityModel>(config,
+				"HybridCacheAdapter-vmComponent");
+		cmComponent = new OutputComponent<SourceFile>(config,
+				"HybridCacheAdapter-cmComponent");
 		this.inputComponent = inputComponent;
 		this.changeSetOnlyForCm = changeSetOnlyForCm;
 	}
