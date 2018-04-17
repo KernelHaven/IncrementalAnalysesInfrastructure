@@ -10,6 +10,8 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.util.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -119,15 +121,17 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		SourceFile file;
 		DiffFile diffFile;
 		try {
-			diffFile = new DiffFile(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
-			for (Path deleted : diffFile.getDeleted()) {
-				try {
-					hybridCache.deleteCodeModel(deleted.toFile());
-				} catch (IOException exception) {
-					LOGGER.logException("Could not delete CodeModel-File. "
-							+ "This may result in an inconsistent state of Hybridcache. "
-							+ "To fix an inconsistent state you can either do a rollback "
-							+ "or extract all models from scratch.", exception);
+			diffFile = new DiffFile(new SimpleDiffAnalyzer(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)));
+			for (FileEntry entry : diffFile.getEntries()) {
+				if (entry.getType().equals(FileEntry.Type.DELETION)) {
+					try {
+						hybridCache.deleteCodeModel(entry.getPath().toFile());
+					} catch (IOException exception) {
+						LOGGER.logException("Could not delete CodeModel-File. "
+								+ "This may result in an inconsistent state of Hybridcache. "
+								+ "To fix an inconsistent state you can either do a rollback "
+								+ "or extract all models from scratch.", exception);
+					}
 				}
 			}
 		} catch ( IllegalArgumentException | IOException e) {

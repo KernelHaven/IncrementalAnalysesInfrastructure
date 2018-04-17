@@ -21,7 +21,7 @@ public class DoNothingAnalysis extends PipelineAnalysis {
 	 */
 	@Override
 	protected AnalysisComponent<?> createPipeline() throws SetUpException {
-		HybridCacheAdapter hca = new HybridCacheAdapter(config,
+		new HybridCacheAdapter(config,
 				new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), true);
 		
 		

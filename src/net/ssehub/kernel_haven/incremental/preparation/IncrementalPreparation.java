@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
 import net.ssehub.kernel_haven.util.Logger;

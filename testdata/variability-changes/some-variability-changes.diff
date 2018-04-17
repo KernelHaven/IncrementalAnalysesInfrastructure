@@ -1,0 +1,83 @@
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index 6970e7922..16c302707 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -222,8 +222,6 @@ typedef struct compat_siginfo {
+ #ifdef __ARCH_SI_TRAPNO
+ 			int _trapno;	/* TRAP # which caused the signal */
+ #endif
+-#define __COMPAT_ADDR_BND_PKEY_PAD  (__alignof__(compat_uptr_t) < sizeof(short) ? \
+-				     sizeof(short) : __alignof__(compat_uptr_t))
+ 			union {
+ 				/*
+ 				 * used when si_code=BUS_MCEERR_AR or
+@@ -232,13 +230,13 @@ typedef struct compat_siginfo {
+ 				short int _addr_lsb;	/* Valid LSB of the reported address. */
+ 				/* used when si_code=SEGV_BNDERR */
+ 				struct {
+-					char _dummy_bnd[__COMPAT_ADDR_BND_PKEY_PAD];
++					compat_uptr_t _dummy_bnd;
+ 					compat_uptr_t _lower;
+ 					compat_uptr_t _upper;
+ 				} _addr_bnd;
+ 				/* used when si_code=SEGV_PKUERR */
+ 				struct {
+-					char _dummy_pkey[__COMPAT_ADDR_BND_PKEY_PAD];
++					compat_uptr_t _dummy_pkey;
+ 					u32 _pkey;
+ 				} _addr_pkey;
+ 			};
+diff --git a/.mailmap b/.mailmap
+deleted file mode 100644
+index a2ce89a45..000000000
+--- a/.mailmap
++++ /dev/null
+@@ -1,195 +0,0 @@
+-#
+-# This list is used by git-shortlog to fix a few botched name translations
+-# in the git archive, either because the author's full name was messed up
+-# and/or not always written the same way, making contributions from the
+-# same person appearing not to be so or badly displayed.
+-#
+-# repo-abbrev: /pub/scm/linux/kernel/git/
+-#
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index 1ee46f492..5f11fbdc2 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -302,20 +302,12 @@ static inline void bitmap_complement(unsigned long *dst, const unsigned long *sr
+ 		__bitmap_complement(dst, src, nbits);
+ }
+ 
+-#ifdef __LITTLE_ENDIAN
+-#define BITMAP_MEM_ALIGNMENT 8
+-#else
+-#define BITMAP_MEM_ALIGNMENT (8 * sizeof(unsigned long))
+-#endif
+-#define BITMAP_MEM_MASK (BITMAP_MEM_ALIGNMENT - 1)
+-
+ static inline int bitmap_equal(const unsigned long *src1,
+ 			const unsigned long *src2, unsigned int nbits)
+ {
+ 	if (small_const_nbits(nbits))
+ 		return !((*src1 ^ *src2) & BITMAP_LAST_WORD_MASK(nbits));
+-	if (__builtin_constant_p(nbits & BITMAP_MEM_MASK) &&
+-	    IS_ALIGNED(nbits, BITMAP_MEM_ALIGNMENT))
++	if (__builtin_constant_p(nbits & 7) && IS_ALIGNED(nbits, 8))
+ 		return !memcmp(src1, src2, nbits / 8);
+ 	return __bitmap_equal(src1, src2, nbits);
+ }
+diff --git a/drivers/crypto/caam/ctrl.c b/drivers/crypto/caam/ctrl.c
+index 361e750f9..e843cf410 100644
+--- a/drivers/crypto/caam/ctrl.c
++++ b/drivers/crypto/caam/ctrl.c
+@@ -815,6 +815,9 @@ static int caam_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ caam_remove:
++#ifdef CONFIG_DEBUG_FS
++	debugfs_remove_recursive(ctrlpriv->dfs_root);
++#endif
+ 	caam_remove(pdev);
+ 	return ret;
+ 

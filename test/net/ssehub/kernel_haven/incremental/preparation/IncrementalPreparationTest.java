@@ -18,6 +18,7 @@ import org.junit.Test;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
@@ -47,8 +48,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 	@Test
 	public void testFilterInput() {
 		try {
-			this.filterInput("net.ssehub.kernel_haven.incremental.preparation.RegexOnlyFilter", MODIFIED_FOLDER, DIFF_FILE,
-					Pattern.compile(".*"));
+			this.filterInput(DefaultFilter.class.getName(), MODIFIED_FOLDER, DIFF_FILE, Pattern.compile(".*"));
 		} catch (SetUpException e) {
 			Assert.fail("the filterInput method did not terminate properly: " + e.getMessage());
 		}
@@ -57,7 +57,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 	@Test
 	public void testRun() throws SetUpException, IOException {
 
-		Path tempFolderPath = Files.createTempDirectory("incrementa-analysis-test-run");
+		Path tempFolderPath = Files.createTempDirectory("incremental-analysis-test-run");
 		File tempFolder = tempFolderPath.toFile();
 		LOGGER.logDebug("Temp-Folder for testRun: " + tempFolder);
 
@@ -65,10 +65,10 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 
 		Properties prop = new Properties();
 
-		prop.setProperty(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS.getKey(), RegexOnlyFilter.class.getName());
-		prop.setProperty(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS.getKey(), RegexOnlyFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS.getKey(), DefaultFilter.class.getName());
+		prop.setProperty(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS.getKey(), DefaultFilter.class.getName());
 		prop.setProperty(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS.getKey(),
-				RegexOnlyFilter.class.getName());
+				DefaultFilter.class.getName());
 		prop.setProperty(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY.getKey(), tempFolder.getAbsolutePath());
 
 		prop.setProperty(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE.getKey(), DIFF_FILE.getAbsolutePath());
@@ -81,7 +81,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 		prop.setProperty(DefaultSettings.OUTPUT_DIR.getKey(), tempFolder.getAbsolutePath());
 		prop.setProperty(DefaultSettings.RESOURCE_DIR.getKey(), tempFolder.getAbsolutePath());
 		prop.setProperty(DefaultSettings.PLUGINS_DIR.getKey(), tempFolder.getAbsolutePath());
-		  
+
 		Configuration config = new Configuration(prop);
 
 		IncrementalAnalysisSettings.registerAllSettings(config);
