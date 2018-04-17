@@ -12,7 +12,8 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * Special adapter class to enable any pipeline-analysis to run as an incremental analysis.
+ * Special adapter class to enable any pipeline-analysis to run as an
+ * incremental analysis.
  * 
  * Usage Example:
  * <p>
@@ -39,36 +40,48 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	private @NonNull AnalysisComponent<HybridCache> inputComponent;
 
 	/** The bm component. */
-	private OutputComponent<BuildModel> bmComponent;
-	
+	private OutputComponent<BuildModel> bmComponent = new OutputComponent<BuildModel>(config,
+			"HybridCacheAdapter-bmComponent");
+
 	/** The vm component. */
-	private OutputComponent<VariabilityModel> vmComponent;
-	
+	private OutputComponent<VariabilityModel> vmComponent = new OutputComponent<VariabilityModel>(config,
+			"HybridCacheAdapter-vmComponent");;
+
 	/** The cm component. */
-	private OutputComponent<SourceFile> cmComponent;
-	
+	private OutputComponent<SourceFile> cmComponent = new OutputComponent<SourceFile>(config,
+			"HybridCacheAdapter-cmComponent");;
+
 	/** The change set only for cm. */
 	private boolean changeSetOnlyForCm = false;
 
 	/**
 	 * Creates this double analysis component with the given input component.
 	 *
-	 * @param config            The global configuration.
-	 * @param inputComponent            The component to get the results to pass to both other components.
-	 * @param changeSetOnlyForCm defines whether only the newly extracted files of the codemodel should be used.
+	 * @param config
+	 *            The global configuration.
+	 * @param inputComponent
+	 *            The component to get the results to pass to both other components.
+	 * @param changeSetOnlyForCm
+	 *            defines whether only the newly extracted files of the codemodel
+	 *            should be used.
 	 */
-	public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent, boolean changeSetOnlyForCm) {
+	public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent,
+			boolean changeSetOnlyForCm) {
 		super(config);
 		this.config = config;
 		this.inputComponent = inputComponent;
 		this.changeSetOnlyForCm = changeSetOnlyForCm;
 	}
+
 	/**
-	 * Creates this double analysis component with the given input component. This will include the entire current
-	 * model from the {@link HybridCache} inputComponent.
+	 * Creates this double analysis component with the given input component. This
+	 * will include the entire current model from the {@link HybridCache}
+	 * inputComponent.
 	 *
-	 * @param config            The global configuration.
-	 * @param inputComponent            The component to get the results to pass to both other components.
+	 * @param config
+	 *            The global configuration.
+	 * @param inputComponent
+	 *            The component to get the results to pass to both other components.
 	 */
 	public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent) {
 		super(config);
@@ -76,13 +89,15 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 		this.inputComponent = inputComponent;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#execute()
 	 */
 	@Override
 	protected void execute() {
 		HybridCache data;
-		
+
 		if ((data = inputComponent.getNextResult()) != null) {
 			try {
 				// Get models
@@ -128,7 +143,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
 	 */
 	@Override
@@ -139,28 +156,33 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	/**
 	 * The pseudo component that the next components will get as the input.
 	 *
-	 * @param <T> the generic type
+	 * @param <T>
+	 *            the generic type
 	 */
 	private class OutputComponent<T> extends AnalysisComponent<T> {
 
 		/** The done. */
 		private volatile boolean done;
-		
+
 		/** The name. */
 		private String name;
 
 		/**
 		 * Creates this output component.
 		 *
-		 * @param config            The global configuration.
-		 * @param name the name
+		 * @param config
+		 *            The global configuration.
+		 * @param name
+		 *            the name
 		 */
 		public OutputComponent(@NonNull Configuration config, String name) {
 			super(config);
 			this.name = name;
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#execute()
 		 */
 		@Override
@@ -183,13 +205,16 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 		 * Method to allow for access to {@link AnalysisComponent#addResult} from within
 		 * {@link HybridCacheAdapter}.
 		 *
-		 * @param result the result
+		 * @param result
+		 *            the result
 		 */
 		public void myAddResult(T result) {
 			this.addResult(result);
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
 		 */
 		@Override
