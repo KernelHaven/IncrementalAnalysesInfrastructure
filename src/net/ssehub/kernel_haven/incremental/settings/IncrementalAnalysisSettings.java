@@ -24,7 +24,7 @@ public class IncrementalAnalysisSettings {
 			FILE, true, "git.diff",
 			"Diff-file describing the changes from the previously analyzed increment to the next one.");
 	public static final Setting<String> CODE_MODEL_FILTER_CLASS = new Setting<String>("incremental.code.filter", STRING,
-			true, "net.ssehub.kernel_haven.incremental.preparation.DefaultFilters",
+			true, "net.ssehub.kernel_haven.incremental.preparation.DefaultFilter",
 			"name of the class used to filter the input for the code-model in the incremental analysis");
 	public static final Setting<String> VARIABILITY_MODEL_FILTER_CLASS = new Setting<String>(
 			"incremental.variability.filter", STRING, true,
