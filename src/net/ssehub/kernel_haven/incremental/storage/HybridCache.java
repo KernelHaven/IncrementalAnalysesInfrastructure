@@ -362,6 +362,7 @@ public class HybridCache {
 	 */
 	private void hybridAdd(File target) throws IOException {
 		File deleteOnRollback = addedFolder.toPath().resolve(target.toPath()).toFile();
+		deleteOnRollback.mkdirs();
 		deleteOnRollback.createNewFile();
 	}
 

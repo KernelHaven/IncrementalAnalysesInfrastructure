@@ -8,7 +8,8 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
 /**
- * The Class DiffIntegrationUtil.
+ * Helper class used as an interface to "git apply". 
+ * Requires git to be installed on the system.
  * 
  * @author Moritz
  */
@@ -24,7 +25,7 @@ public class DiffApplyUtil {
 	private final File inputDiff;
 
 	/**
-	 * Instantiates a new diff integration util.
+	 * Instantiates a new {@link DiffApplyUtil}.
 	 *
 	 * @param filesStorageDir the files storage dir
 	 * @param inputDiff the input diff
@@ -40,7 +41,7 @@ public class DiffApplyUtil {
 	 * @return true, if successful
 	 */
 	public boolean mergeChanges() {
-		LOGGER.logDebug("mergeChanges() called");
+		LOGGER.logDebug(this.getClass().getSimpleName() + ".mergeChanges() called");
 
 		boolean success = false;
 
@@ -83,7 +84,7 @@ public class DiffApplyUtil {
 	 * @return true, if successful
 	 */
 	public boolean revertChanges() {
-		LOGGER.logDebug("revertChanges() called");
+		LOGGER.logDebug(this.getClass().getSimpleName() + ".revertChanges() called");
 		boolean success = false;
 
 		if (filesStorageDir.isDirectory() && inputDiff.isFile()) {

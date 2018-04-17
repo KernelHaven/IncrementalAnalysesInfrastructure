@@ -16,35 +16,41 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * This class is an {@link AnalysisComponent} which handles the extraction of models within an incremental 
- * analysis pipeline. It should be used in conjunction with the preparation task {@link IncrementalPreparation}
- * The result is given as {@link HybridCache}.
+ * This class is an {@link AnalysisComponent} which handles the extraction of
+ * models within an incremental analysis pipeline. It should be used in
+ * conjunction with the preparation task {@link IncrementalPreparation} The
+ * result is given as {@link HybridCache}.
  */
 public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
 	/** The cm component. */
 	private AnalysisComponent<SourceFile> cmComponent;
-	
+
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
-	
+
 	/** The config. */
 	private Configuration config;
-	
+
 	/** The bm component. */
 	private AnalysisComponent<BuildModel> bmComponent;
-	
+
 	/** The vm component. */
 	private AnalysisComponent<VariabilityModel> vmComponent;
 
 	/**
 	 * Instantiates a new IncremenmtalPostExtraction.
 	 *
-	 * @param config the config
-	 * @param cmComponent the cm component
-	 * @param bmComponent the bm component
-	 * @param vmComponent the vm component
-	 * @throws SetUpException thrown if required parameters were not configured correctly.
+	 * @param config
+	 *            the config
+	 * @param cmComponent
+	 *            the cm component
+	 * @param bmComponent
+	 *            the bm component
+	 * @param vmComponent
+	 *            the vm component
+	 * @throws SetUpException
+	 *             thrown if required parameters were not configured correctly.
 	 */
 	public IncrementalPostExtraction(Configuration config, AnalysisComponent<SourceFile> cmComponent,
 			AnalysisComponent<BuildModel> bmComponent, AnalysisComponent<VariabilityModel> vmComponent)
@@ -57,7 +63,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		this.vmComponent = vmComponent;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#execute()
 	 */
 	@Override
@@ -83,7 +91,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	/**
 	 * Variability model extraction.
 	 *
-	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 * @param hybridCache
+	 *            the hybrid cache to write the extracated results to.
 	 */
 	private void variabilityModelExtraction(HybridCache hybridCache) {
 		VariabilityModel variabilityModel;
@@ -99,7 +108,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	/**
 	 * Builds the model extraction.
 	 *
-	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 * @param hybridCache
+	 *            the hybrid cache to write the extracated results to.
 	 */
 	private void buildModelExtraction(HybridCache hybridCache) {
 		BuildModel buildModel;
@@ -115,13 +125,15 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	/**
 	 * Code model extraction.
 	 *
-	 * @param hybridCache the hybrid cache to write the extracated results to.
+	 * @param hybridCache
+	 *            the hybrid cache to write the extracated results to.
 	 */
 	private void codeModelExtraction(HybridCache hybridCache) {
 		SourceFile file;
 		DiffFile diffFile;
 		try {
-			diffFile = new DiffFile(new SimpleDiffAnalyzer(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)));
+			diffFile = new DiffFile(
+					new SimpleDiffAnalyzer(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)));
 			for (FileEntry entry : diffFile.getEntries()) {
 				if (entry.getType().equals(FileEntry.Type.DELETION)) {
 					try {
@@ -134,11 +146,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 					}
 				}
 			}
-		} catch ( IllegalArgumentException | IOException e) {
-			// Does not happen as the existence of the file is already checked when through
-			// IncrementalAnalysisSettings.registerAllSettings(config);
-			LOGGER.logException("DiffFile was not found in method eventhough it got approved when "
-					+ "registerAllSettings was called.", e);
+		} catch (IOException e) {
+			//Should not happen but if it does, we want to know
+			LOGGER.logException(
+					"DiffFile \"" + config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
+							+ "\" could not be accessed eventhough it got approved when " + "registerAllSettings() was called.",
+					e);
 		}
 
 		while ((file = cmComponent.getNextResult()) != null) {
@@ -151,7 +164,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
 	 */
 	@Override

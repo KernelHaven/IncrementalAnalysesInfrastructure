@@ -18,11 +18,7 @@ import diff.FileDiff.FileType;
 import diff.ModelFileDiff;
 import diff.OtherFileDiff;
 import diff.SourceFileDiff;
-import main.ComAnLogger;
-import main.ComAnLogger.MessageType;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry.Type;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -414,22 +410,29 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 		List<String> diffList = null;
 
 		diffList = new ArrayList<String>();
-		List<String> fileLines = Files.readAllLines(commitFile.toPath());
+
 		StringBuilder diffInfoBuilder = new StringBuilder();
-		for (int i = 0; i < fileLines.size(); i++) {
-			String fileLine = fileLines.get(i);
-			// handle commit date if included in diff file
-			if (i == 0 && !fileLine.startsWith(DIFF_START_PATTERN)) {
-				parseCommitDate(fileLine);
-			} else if (fileLine.startsWith(DIFF_START_PATTERN)) {
-				if (diffInfoBuilder.length() > 0) {
-					// Save current diff info to list
-					diffList.add(diffInfoBuilder.toString());
+
+		// We can not read lines (e.g. via Files.readAllLines(path)) to an array/list
+		// and iterate over it as this fails
+		// for huge input-files such as the initial commit for a bigger software-project
+		try (BufferedReader br = new BufferedReader(new FileReader(commitFile))) {
+			boolean firstLine = true;
+			for (String fileLine; (fileLine = br.readLine()) != null;) {
+				if (firstLine && !fileLine.startsWith(DIFF_START_PATTERN)) {
+					parseCommitDate(fileLine);
+					firstLine = false;
+				} else if (fileLine.startsWith(DIFF_START_PATTERN)) {
+					firstLine = false;
+					if (diffInfoBuilder.length() > 0) {
+						// Save current diff info to list
+						diffList.add(diffInfoBuilder.toString());
+					}
+					diffInfoBuilder = new StringBuilder();
+					diffInfoBuilder.append(fileLine);
+				} else {
+					diffInfoBuilder.append("\n" + fileLine);
 				}
-				diffInfoBuilder = new StringBuilder();
-				diffInfoBuilder.append(fileLine);
-			} else {
-				diffInfoBuilder.append("\n" + fileLine);
 			}
 		}
 
