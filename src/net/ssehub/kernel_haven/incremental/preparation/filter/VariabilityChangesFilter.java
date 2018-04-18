@@ -47,11 +47,11 @@ public class VariabilityChangesFilter extends InputFilter {
 		DiffFile diffReader = new DiffFile(new ComAnDiffAnalyzer(diffFile));
 		Collection<Path> paths = new ArrayList<Path>();
 		for (FileEntry entry : diffReader.getEntries()) {
-			if (entry.getChange().equals(FileEntry.VariabilityChange.CHANGE)) {
+			if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.CHANGE)) {
 				paths.add(entry.getPath());
 			}
 			
-			if (entry.getChange().equals(FileEntry.VariabilityChange.NOT_ANALYZED)) {
+			if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.NOT_ANALYZED)) {
 				//Should not happen for this filter unless mistakes were made in the parse() method of the {@link Diff}
 				LOGGER.logError("The following FileEntry was not analyzed for variability-changes. "
 						+ this.getClass().getSimpleName() + " was used as filter. Perhaps the "

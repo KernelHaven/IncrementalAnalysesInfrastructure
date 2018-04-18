@@ -53,7 +53,7 @@ public class FileEntry {
 	/** The type. */
 	private Type type;
 
-	private VariabilityChange change;
+	private VariabilityChange variabilityChange;
 
 	/**
 	 * Instantiates a new file entry.
@@ -63,10 +63,10 @@ public class FileEntry {
 	 * @param type
 	 *            the type
 	 */
-	public FileEntry(Path file, Type type, VariabilityChange change) {
+	public FileEntry(Path file, Type type, VariabilityChange variabilityChange) {
 		this.file = file;
 		this.type = type;
-		this.change = change;
+		this.variabilityChange = variabilityChange;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class FileEntry {
 	public FileEntry(Path file, Type type) {
 		this.file = file;
 		this.type = type;
-		this.change = VariabilityChange.NOT_ANALYZED;
+		this.variabilityChange = VariabilityChange.NOT_ANALYZED;
 	}
 
 	/**
@@ -101,8 +101,8 @@ public class FileEntry {
 		return type;
 	}
 
-	public VariabilityChange getChange() {
-		return change;
+	public VariabilityChange getVariabilityChange() {
+		return variabilityChange;
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public class FileEntry {
         return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]")
                 .add("file = " + file)
                 .add("type = " + type)
-                .add("change = " + change)
+                .add("variabilityChange = " + variabilityChange)
                 .toString();
     }
 
@@ -118,7 +118,7 @@ public class FileEntry {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((change == null) ? 0 : change.hashCode());
+		result = prime * result + ((variabilityChange == null) ? 0 : variabilityChange.hashCode());
 		result = prime * result + ((file == null) ? 0 : file.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
@@ -133,7 +133,7 @@ public class FileEntry {
 		if (getClass() != obj.getClass())
 			return false;
 		FileEntry other = (FileEntry) obj;
-		if (change != other.change)
+		if (variabilityChange != other.variabilityChange)
 			return false;
 		if (file == null) {
 			if (other.file != null)
