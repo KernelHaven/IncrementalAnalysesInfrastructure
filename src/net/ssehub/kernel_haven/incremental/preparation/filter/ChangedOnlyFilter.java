@@ -12,7 +12,7 @@ import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.util.diff.analyzer.SimpleDiffAnalyzer;
 
 /**
- * The Class ChangedOnlyFilter. This is an InputFilter used to generate a set of
+ * This is an {@link InputFilter} used to generate a set of
  * files containing only those files matching the fileRegex which were changed.
  */
 public class ChangedOnlyFilter extends InputFilter {

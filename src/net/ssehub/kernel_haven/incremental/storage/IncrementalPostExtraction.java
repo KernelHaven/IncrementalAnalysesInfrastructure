@@ -1,13 +1,13 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
@@ -20,6 +20,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * models within an incremental analysis pipeline. It should be used in
  * conjunction with the preparation task {@link IncrementalPreparation} The
  * result is given as {@link HybridCache}.
+ * 
+ * @author moritz
  */
 public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
@@ -150,7 +152,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			//Should not happen but if it does, we want to know
 			LOGGER.logException(
 					"DiffFile \"" + config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
-							+ "\" could not be accessed eventhough it got approved when " + "registerAllSettings() was called.",
+							+ "\" could not be accessed eventhough it got approved when registerAllSettings() was called.",
 					e);
 		}
 

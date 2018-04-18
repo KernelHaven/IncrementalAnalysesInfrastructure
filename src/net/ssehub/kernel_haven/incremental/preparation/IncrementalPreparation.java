@@ -18,6 +18,15 @@ import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
 
+/**
+ * Preparation task for incremental analyses. This class is used to integrate
+ * a diff on the filebase of the source tree and subsequently select a subset
+ * of the resulting files for extraction and analyses.
+ * {@link IncrementalPreparation} must be used as preparation 
+ * when working with an incremental analysis.
+ * 
+ * @author moritz
+ */
 public class IncrementalPreparation implements IPreparation {
 
 	/**  Logger instance. */

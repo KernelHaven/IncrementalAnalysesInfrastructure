@@ -50,9 +50,14 @@ public class VariabilityChangesFilter extends InputFilter {
 			if (entry.getChange().equals(FileEntry.VariabilityChange.CHANGE)) {
 				paths.add(entry.getPath());
 			}
+			
 			if (entry.getChange().equals(FileEntry.VariabilityChange.NOT_ANALYZED)) {
-				LOGGER.logError("The following FileEntry was not analyzed for variability-changes eventhough "
-						+ this.getClass().getSimpleName() + " was used as filter. Please check your configuration.s");
+				//Should not happen for this filter unless mistakes were made in the parse() method of the {@link Diff}
+				LOGGER.logError("The following FileEntry was not analyzed for variability-changes. "
+						+ this.getClass().getSimpleName() + " was used as filter. Perhaps the "
+								+ "{@link net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer} "
+								+ "you used does not analyze for variability-changes . Please check your configuration. \n"
+								+ entry);
 			}
 		}
 		return filterPathsByRegex(paths, fileRegex);

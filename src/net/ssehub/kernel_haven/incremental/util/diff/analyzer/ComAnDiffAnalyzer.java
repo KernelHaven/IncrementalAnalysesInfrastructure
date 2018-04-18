@@ -22,7 +22,7 @@ import net.ssehub.kernel_haven.util.Logger;
 
 
 /* this class is a modification of diff.DiffAnalyzer-Implementation
- * from the ConAn project to suit the requirements of this project. */
+ * from the ComAn project to suit the requirements of this project. */
 
 /**
  * A {@link DiffAnalyzer}-Implementation that analyzes for 

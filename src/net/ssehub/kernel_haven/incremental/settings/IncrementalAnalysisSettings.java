@@ -14,10 +14,11 @@ import java.util.Set;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter;
 
 /**
- * The Class IncrementalAnalysisSettings.
+ * This class represents the settings for incremental analyses.
+ * 
+ * @author moritz
  */
 public class IncrementalAnalysisSettings {
 

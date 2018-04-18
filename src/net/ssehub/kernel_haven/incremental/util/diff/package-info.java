@@ -1,7 +1,7 @@
 /**
  * 
- */
-/**
+ * Contains classes related to the processing of information from git diff.
+ * 
  * @author moritz
  *
  */

@@ -11,6 +11,11 @@ import net.ssehub.kernel_haven.incremental.preparation.VariabilityChangesFilterT
 import net.ssehub.kernel_haven.incremental.util.ComAnDiffAnalyzerTest;
 import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtilTest;
 
+/**
+ * The Class AllTests.Contains all unit-tests of for incremental analyses.
+ * @author moritz
+ * 
+ */
 @RunWith(Suite.class)
 @SuiteClasses({
 ChangedOnlyFilterTest.class,

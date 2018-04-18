@@ -9,7 +9,7 @@ import net.ssehub.kernel_haven.incremental.storage.IncrementalPostExtraction;
 import net.ssehub.kernel_haven.undead_analyzer.DeadCodeFinder;
 
 /**
- * The Class IncrementalDeadCodeAnalysis.
+ * Incremental implementation of the {@link DeadCodeAnalysis}
  *
  * @author Moritz
  */

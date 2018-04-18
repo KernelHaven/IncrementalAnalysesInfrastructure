@@ -6,6 +6,8 @@ import java.util.StringJoiner;
 /**
  * Represents an entry for a file in the changeset. Used by {@link DiffFile} to
  * describe changes for a git-diff-file.
+ * 
+ * @author moritz
  */
 public class FileEntry {
 

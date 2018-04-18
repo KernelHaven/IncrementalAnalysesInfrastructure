@@ -7,7 +7,7 @@ import net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
- * The Class DiffFile. This class extracts information out of a diff-file.
+ * This class represents changes extracted from a diff-file.
  * 
  * @author Moritz
  */

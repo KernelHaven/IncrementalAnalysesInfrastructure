@@ -22,13 +22,17 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
  * HybridCache serves the purpose of storing two different versions of the
  * models. Starting off with the previously present model (an empty model is
  * also possible), one can add or delete elements within that model. When a
- * modification takes place, the changes are persisted allowing for continuous
- * access to the previous model. As a HybridCache only stores two models
+ * modification takes place, the original data is persisted along with the
+ * modification allowing for continuous
+ * access to the previous model. As {@link HybridCache} only stores two models,
  * clearing information for the previous model via
  * {@link HybridCache#clearChangeHistory()} offers you the option to clear the
  * change-history thereby resulting in the previous model being equivalent to
- * the current model at the time of the method-call. Any subsequent
- * modifications will then again be stored for the previous model.
+ * the current model at the time of the method-call (as all history-information
+ * is wiped you are left with the current model and no history). Any subsequent
+ * modifications will then again be stored within the history.
+ * 
+ * @author moritz
  * 
  */
 public class HybridCache {
@@ -45,8 +49,10 @@ public class HybridCache {
 	private static final Path REPLACED_CACHE_FOLDER = Paths.get("history/replaced/");
 
 	/**
-	 * The folder represented by this path stores cache-files that were added in the
-	 * current model and did not replace old files.
+	 * The folder represented by this path stores empty dummies of cache-files 
+	 * that were added in the current model and did not replace old files.
+	 * Those files only carry the name of the added files but do not contain any
+	 * content within the file itself.
 	 */
 	private static final Path ADDED_FOLDER = Paths.get("history/added/");
 

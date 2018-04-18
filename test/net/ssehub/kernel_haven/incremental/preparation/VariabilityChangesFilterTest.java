@@ -16,8 +16,14 @@ import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChanges
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+
+/**
+ * The Class VariabilityChangesFilterTest.
+ * @author moritz
+ */
 public class VariabilityChangesFilterTest {
 
+	/** The logger. */
 	private static Logger LOGGER = null;
 
 
@@ -31,9 +37,9 @@ public class VariabilityChangesFilterTest {
 	}
 
 	/**
-	 * Tests whether the doFilter method works if a file was completely changed
-	 * 
-	 * @throws IOException
+	 * Tests whether the doFilter method works if a file was completely changed.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testDoFilter_variability_change() throws IOException {

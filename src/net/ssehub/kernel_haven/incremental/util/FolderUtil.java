@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * The Class FolderUtil.
+ * Utility class for performing various actions with folders.
  * 
  * @author Moritz
  */

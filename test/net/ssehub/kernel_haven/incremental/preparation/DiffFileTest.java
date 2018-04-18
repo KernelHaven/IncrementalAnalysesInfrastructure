@@ -18,8 +18,17 @@ import net.ssehub.kernel_haven.incremental.util.diff.analyzer.SimpleDiffAnalyzer
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class DiffFileTest.
+ * @author moritz
+ */
 public class DiffFileTest {
+	
+	/** The logger. */
 	private static Logger LOGGER = null;
+	
+	/** The Constant DIFF_FILE. */
 	private static final File DIFF_FILE = new File("testdata/changed-only/git.diff");
 
 	/**
@@ -33,8 +42,8 @@ public class DiffFileTest {
 
 	/**
 	 * Tests whether the doFilter method works.
-	 * 
-	 * @throws IOException
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testGetEntries_modification() throws IOException {

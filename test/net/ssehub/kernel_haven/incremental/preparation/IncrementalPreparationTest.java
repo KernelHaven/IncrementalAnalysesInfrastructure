@@ -24,10 +24,20 @@ import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class IncrementalPreparationTest.
+ * @author moritz
+ */
 public class IncrementalPreparationTest extends IncrementalPreparation {
 
+	/** The logger. */
 	private static Logger LOGGER = null;
+	
+	/** The Constant MODIFIED_FOLDER. */
 	private static final File MODIFIED_FOLDER = new File("testdata/incremental-pipeline/modified");
+	
+	/** The Constant DIFF_FILE. */
 	private static final File DIFF_FILE = new File("testdata/incremental-pipeline/git.diff");
 
 	/**
@@ -54,6 +64,12 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 		}
 	}
 
+	/**
+	 * Test run.
+	 *
+	 * @throws SetUpException the set up exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Test
 	public void testRun() throws SetUpException, IOException {
 

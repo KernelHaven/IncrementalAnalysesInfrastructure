@@ -15,7 +15,7 @@ import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 public class DefaultFilter extends InputFilter {
 
 	/**
-	 * Instantiates a new Default filter.
+	 * Instantiates a new {@link DefaultFilter}.
 	 *
 	 * @param sourceDirectory
 	 *            the source directory

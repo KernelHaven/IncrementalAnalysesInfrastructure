@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
- * The Class FileUtil.
+ * Utility class for files.
  * 
  * @author Moritz
  */

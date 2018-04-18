@@ -17,10 +17,19 @@ import net.ssehub.kernel_haven.incremental.preparation.filter.ChangedOnlyFilter;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+/**
+ * The Class ChangedOnlyFilterTest.
+ * @author moritz
+ */
 public class ChangedOnlyFilterTest {
 
+	/** The logger. */
 	private static Logger LOGGER = null;
+	
+	/** The Constant MODIFIED_FOLDER. */
 	private static final File MODIFIED_FOLDER = new File("testdata/changed-only/modified");
+	
+	/** The Constant DIFF_FILE. */
 	private static final File DIFF_FILE = new File("testdata/changed-only/git.diff");
 
 	/**
@@ -34,8 +43,8 @@ public class ChangedOnlyFilterTest {
 
 	/**
 	 * Tests whether the doFilter method works.
-	 * 
-	 * @throws IOException
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testDoFilter() throws IOException {

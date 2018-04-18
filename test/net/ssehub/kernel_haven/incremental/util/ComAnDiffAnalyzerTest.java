@@ -2,26 +2,26 @@ package net.ssehub.kernel_haven.incremental.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.regex.Pattern;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.preparation.filter.ChangedOnlyFilter;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.util.diff.analyzer.ComAnDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ComAnDiffAnalyzerTest.
+ */
 public class ComAnDiffAnalyzerTest {
 
+	/** The logger. */
 	private static Logger LOGGER = null;
 
 	/**
@@ -35,8 +35,8 @@ public class ComAnDiffAnalyzerTest {
 
 	/**
 	 * Tests whether the doFilter method works.
-	 * 
-	 * @throws IOException
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testParse_modification_no_variability_change() throws IOException {
@@ -56,8 +56,8 @@ public class ComAnDiffAnalyzerTest {
 	
 	/**
 	 * Tests whether the doFilter method works.
-	 * 
-	 * @throws IOException
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testParse_variability_change() throws IOException {

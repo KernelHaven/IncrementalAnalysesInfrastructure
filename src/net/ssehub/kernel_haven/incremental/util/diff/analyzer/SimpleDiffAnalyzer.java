@@ -17,6 +17,9 @@ import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
  * information. {@link ComAnDiffAnalyzer} will also analyze for
  * variability-changes within the file-change but will take up
  * more resources than {@link SimpleDiffAnalyzer} for the task.
+ * 
+ * @author moritz
+ * 
  */
 public class SimpleDiffAnalyzer extends DiffAnalyzer {
 

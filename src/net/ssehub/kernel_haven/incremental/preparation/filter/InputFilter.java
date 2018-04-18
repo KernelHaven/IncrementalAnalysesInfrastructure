@@ -8,9 +8,11 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class InputFilter.
+ * Filter class for files located in the source tree. Classes extending this class
+ * filter the files according to their own criteria such as changed only files or 
+ * files where variability did change. {@link InputFilter}-Implementations filter
+ * for the regular expression passed to the filter. 
  */
 public abstract class InputFilter {
 
