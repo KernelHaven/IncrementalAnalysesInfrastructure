@@ -1,33 +1,26 @@
-# ModelStoragePipeline
+# IncrementalAnalyses
 
 <!-- ![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=TODO) -->
 
 Support for incremental anlyses in [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
-<!--
-## Usage
+This plugin is currently under development. More information will be published here shortly.
 
-Place [`ModelStoragePipeline.jar`](TODO: jenkins URL) in the plugins folder of KernelHaven.
+## Usage
+Place [`IncrementalAnalyses.jar`](TODO: jenkins URL) in the plugins folder of KernelHaven.
 
 To use the preparation, set `preparation.class.0` to `net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation` in the KernelHaven properties.
 
-The following analysis components can be used as part of a `ConfiguredPipelineAnalysis`:
-* `net.ssehub.kernel_haven.incremental.storage.modelstore.CodeModelStoragePipeline`
+Alternatively `analysis.class` needs to be set to a class that can handle HybridCache as input.
+An existing example is:
+* analysis.class = net.ssehub.kernel_haven.incremental.analysis.IncrementalDeadCodeAnalysis
 
-Alternatively `analysis.class` can be set to one of
-* `net.ssehub.kernel_haven.incremental.storage.modelstore.StoragePipeline`
--->
+The IncrementalDeadCodeAnalyis-example also shows you how to wrap an existing analysis so that it can accept HybridCache as input via the HybridCacheAdapter.
 
-<!--
-## Dependencies
-
-This plugin has no additional dependencies other than KernelHaven.
-
-OR:
 
 In addition to KernelHaven, this plugin has the following dependencies:
-* [CnfUtils](https://github.com/KernelHaven/CnfUtils)
--->
+* [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer)
+* [ComAn](https://github.com/KernelHaven/ComAn)
 
 ## License
 
