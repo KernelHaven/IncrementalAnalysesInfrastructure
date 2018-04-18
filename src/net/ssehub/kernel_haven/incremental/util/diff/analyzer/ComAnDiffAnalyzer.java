@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,20 +20,23 @@ import diff.SourceFileDiff;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
+
+/* this class is a modification of diff.DiffAnalyzer-Implementation
+ * from the ConAn project to suit the requirements of this project. */
+
 /**
- * This class implements a general diff analyzer.<br>
- * <br>
- * 
- * This class is used to provide the numbers of changed lines in different file
- * types of a specific commit. In turn, this class uses the different file diff
- * classes depending on the type of file changed by the given commit.
- * 
- * 
- * @author Christian Kroeher
+ * A {@link DiffAnalyzer}-Implementation that analyzes for 
+ * variability-changes as well as the type of modification 
+ * (Addition / Deletion / Modification of a file).
+ * Use {@link SimpleDiffAnalyzer} if you do not need information
+ * about variability change as the performance penalty is lower.
+ *  
+ * @author Christian Kroeher, Moritz Floeter
  *
  */
 public class ComAnDiffAnalyzer extends DiffAnalyzer {
 
+	/** The logger. */
 	private static Logger LOGGER = Logger.get();
 
 	/**
@@ -163,11 +165,6 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 
 	/**
 	 * Construct a new {@link ComAnDiffAnalyzer}.<br>
-	 * <br>
-	 * 
-	 * <b>Important</b>: to work as expected the given file name must indicate a
-	 * commit SHA and has to contain diff information only. Refer to
-	 * {@link #commitFile} for further information.<br>
 	 * 
 	 * @param commitFile
 	 *            the {@link File} containing diff information.
@@ -179,12 +176,9 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 
 	}
 
-	/**
-	 * Analyze the diff information of the given commit (file).
-	 * 
-	 * @return <code>true</code> if the analysis of the given commit was successful,
-	 *         <code>false</code> otherwise, e.g. if given commit file does not
-	 *         match expected name, extension, or does not include changes
+	
+	/* (non-Javadoc)
+	 * @see net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer#parse()
 	 */
 	public Collection<FileEntry> parse() throws IOException {
 		Collection<FileEntry> fileEntries = new ArrayList<FileEntry>();
@@ -222,7 +216,7 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 			fileDiff = createFileDiff(diff);
 			if (fileDiff != null) {
 				if (!fileDiff.getFileType().equals(FileType.OTHER)) {
-					// if the does contain conent representing the variability, build or code-model
+					// if the file does contain content representing the variability, build or code-model
 					// check for changes in variability
 					if (getChangedLines(fileDiff, true) > 0) {
 						change = FileEntry.VariabilityChange.CHANGE;
@@ -400,10 +394,10 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 
 	/**
 	 * Create a list of diff information read from the defined commit file.
-	 * 
+	 *
 	 * @return a {@link List} of strings, each containing a diff information (single
 	 *         file diff)
-	 * @throws IOException
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @see {@link #DiffAnalyzer(File)}
 	 */
 	private List<String> createDiffList() throws IOException {
@@ -414,10 +408,11 @@ public class ComAnDiffAnalyzer extends DiffAnalyzer {
 		StringBuilder diffInfoBuilder = new StringBuilder();
 
 		// We can not read lines (e.g. via Files.readAllLines(path)) to an array/list
-		// and iterate over it as this fails
+		// and iterate over it as this fails with a for (int i = ...) loop
 		// for huge input-files such as the initial commit for a bigger software-project
 		try (BufferedReader br = new BufferedReader(new FileReader(commitFile))) {
 			boolean firstLine = true;
+			// loop over lines
 			for (String fileLine; (fileLine = br.readLine()) != null;) {
 				if (firstLine && !fileLine.startsWith(DIFF_START_PATTERN)) {
 					parseCommitDate(fileLine);
