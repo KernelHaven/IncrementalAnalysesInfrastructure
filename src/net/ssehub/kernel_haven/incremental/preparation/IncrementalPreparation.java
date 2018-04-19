@@ -178,6 +178,8 @@ public class IncrementalPreparation implements IPreparation {
 			@SuppressWarnings("rawtypes")
 			Class analyzerClass = Class.forName(analyzerClassName);
 			Method getFilteredResultMethod = analyzerClass.getMethod("generateDiffFile", File.class);
+			LOGGER.logInfo("Analyzing git-diff with " + analyzerClass.getSimpleName()
+					+ ". This may take a while for large git-diffs.");
 			diffFile = (DiffFile) getFilteredResultMethod.invoke(null, inputGitDiff);
 
 		} catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException
