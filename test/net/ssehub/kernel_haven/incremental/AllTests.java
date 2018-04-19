@@ -12,19 +12,14 @@ import net.ssehub.kernel_haven.incremental.util.ComAnDiffAnalyzerTest;
 import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtilTest;
 
 /**
- * The Class AllTests.Contains all unit-tests of for incremental analyses.
+ * The Class AllTests. Contains all unit-tests of for incremental analyses.
+ * 
  * @author moritz
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({
-ChangedOnlyFilterTest.class,
-DiffFileTest.class,
-IncrementalPreparationTest.class,
-DiffIntegrationUtilTest.class,
-ComAnDiffAnalyzerTest.class,
-VariabilityChangesFilterTest.class
-})
+@SuiteClasses({ ChangedOnlyFilterTest.class, DiffFileTest.class, IncrementalPreparationTest.class,
+		DiffIntegrationUtilTest.class, ComAnDiffAnalyzerTest.class, VariabilityChangesFilterTest.class })
 public class AllTests {
 
 }

@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
+
 /**
  * Filter class for files located in the source tree. Classes extending this class
  * filter the files according to their own criteria such as changed only files or 
@@ -27,7 +29,7 @@ public abstract class InputFilter {
 	 * @param fileRegex the file regex
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public InputFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
+	public InputFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		this.result = this.doFilter(sourceDirectory, diffFile, fileRegex);
 	}
 	
@@ -60,7 +62,7 @@ public abstract class InputFilter {
 	 * @return the collection
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	protected abstract Collection<Path> doFilter(File sourceDirectory, File diffFile, Pattern fileRegex)
+	protected abstract Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex)
 			throws IOException;
 
 	/**

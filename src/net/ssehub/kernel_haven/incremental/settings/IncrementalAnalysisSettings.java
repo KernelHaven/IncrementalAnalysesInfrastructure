@@ -28,6 +28,12 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<String> CODE_MODEL_FILTER_CLASS = new Setting<String>("incremental.code.filter", STRING,
 			true, "net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
 			"name of the class used to filter the input for the code-model in the incremental analysis");
+
+	public static final Setting<String> DIFF_ANALYZER_CLASS_NAME = new Setting<String>(
+			"incremental.code.diff_analyzer_class", STRING, true,
+			"net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzer",
+			"name of the class used to analyze the git-diff file");
+
 	public static final Setting<String> VARIABILITY_MODEL_FILTER_CLASS = new Setting<String>(
 			"incremental.variability.filter", STRING, true,
 			"net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",

@@ -8,25 +8,15 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 
 /**
  * A filter which does only filter the regex-pattern.
  */
 public class DefaultFilter extends InputFilter {
 
-	/**
-	 * Instantiates a new {@link DefaultFilter}.
-	 *
-	 * @param sourceDirectory
-	 *            the source directory
-	 * @param diffFile
-	 *            the diff file
-	 * @param fileRegex
-	 *            the file regex
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public DefaultFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
+
+	public DefaultFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		super(sourceDirectory, diffFile, fileRegex);
 	}
 
@@ -38,7 +28,7 @@ public class DefaultFilter extends InputFilter {
 	 * File, java.io.File, java.util.regex.Pattern)
 	 */
 	@Override
-	protected Collection<Path> doFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
+	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 
 		Collection<File> files = FolderUtil.listRelativeFiles(sourceDirectory, true);
 		Collection<Path> paths = new ArrayList<Path>();
@@ -50,5 +40,4 @@ public class DefaultFilter extends InputFilter {
 
 		return paths;
 	}
-
 }

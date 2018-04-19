@@ -1,0 +1,1 @@
+{"diffFile":{"changeSet":[{"file":"modify/Kbuild","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"},{"file":"modify/Kconfig","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"},{"file":"modify/a-code-file.c","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"}]}}

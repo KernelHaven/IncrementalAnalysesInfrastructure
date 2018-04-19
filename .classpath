@@ -7,5 +7,13 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/UnDeadAnalyzer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ComAn"/>
+	<classpathentry kind="lib" path="libs/eclipselink-2.7.1.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.persistence.moxy-2.7.1.jar"/>
+	<classpathentry kind="lib" path="libs/commonj.sdo-2.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/javax.persistence-2.2.0.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.persistence.asm-2.7.1.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.persistence.core-2.7.1.jar"/>
+	<classpathentry kind="lib" path="libs/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="libs/javax.json-1.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

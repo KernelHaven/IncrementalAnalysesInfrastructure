@@ -1,0 +1,21 @@
+diff --git a/modify/Kbuild b/modify/Kbuild
+index 323fae0..646640d 100644
+--- a/modify/Kbuild
++++ b/modify/Kbuild
+@@ -1 +1,2 @@
+ foobar
++modification
+diff --git a/modify/Kconfig b/modify/Kconfig
+index 323fae0..646640d 100644
+--- a/modify/Kconfig
++++ b/modify/Kconfig
+@@ -1 +1,2 @@
+ foobar
++modification
+diff --git a/modify/a-code-file.c b/modify/a-code-file.c
+index 323fae0..646640d 100644
+--- a/modify/a-code-file.c
++++ b/modify/a-code-file.c
+@@ -1 +1,2 @@
+ foobar
++modification

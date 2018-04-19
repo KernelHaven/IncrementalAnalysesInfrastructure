@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.ComAnDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -31,7 +31,7 @@ public class VariabilityChangesFilter extends InputFilter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public VariabilityChangesFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
+	public VariabilityChangesFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		super(sourceDirectory, diffFile, fileRegex);
 	}
 
@@ -43,10 +43,9 @@ public class VariabilityChangesFilter extends InputFilter {
 	 * File, java.io.File, java.util.regex.Pattern)
 	 */
 	@Override
-	protected Collection<Path> doFilter(File sourceDirectory, File diffFile, Pattern fileRegex) throws IOException {
-		DiffFile diffReader = new DiffFile(new ComAnDiffAnalyzer(diffFile));
+	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		Collection<Path> paths = new ArrayList<Path>();
-		for (FileEntry entry : diffReader.getEntries()) {
+		for (FileEntry entry : diffFile.getEntries()) {
 			if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.CHANGE)) {
 				paths.add(entry.getPath());
 			}
@@ -62,5 +61,6 @@ public class VariabilityChangesFilter extends InputFilter {
 		}
 		return filterPathsByRegex(paths, fileRegex);
 	}
+
 
 }

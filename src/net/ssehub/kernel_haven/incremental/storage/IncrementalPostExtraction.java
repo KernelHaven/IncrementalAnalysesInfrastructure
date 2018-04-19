@@ -1,6 +1,9 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
+import java.io.File;
 import java.io.IOException;
+
+import javax.xml.bind.JAXBException;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -128,14 +131,33 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	 * Code model extraction.
 	 *
 	 * @param hybridCache
-	 *            the hybrid cache to write the extracated results to.
+	 *            the hybrid cache to write the extracted results to.
 	 */
 	private void codeModelExtraction(HybridCache hybridCache) {
 		SourceFile file;
-		DiffFile diffFile;
+		DiffFile diffFile = null;
+		File originalDiffFile = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
+		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath() + ".parsed");
 		try {
-			diffFile = new DiffFile(
-					new SimpleDiffAnalyzer(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)));
+			// Try to reuse existing parsed diff if available from preparation
+			if (parsedDiffFile.exists()) {
+				try {
+					diffFile = DiffFile.load(parsedDiffFile);
+				} catch (JAXBException e) {
+					LOGGER.logException("Could no load diff from parsed diff file. Will redo parsing of original file.",
+							e);
+				}
+			}
+			// If no parsed diff was available for reuse, generate a new DiffFile-Object
+			if (diffFile == null) {
+				diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
+				try {
+					diffFile.save(parsedDiffFile);
+				} catch (JAXBException e) {
+					LOGGER.logException("Could no save parsed diff file.", e);
+				}
+			}
+
 			for (FileEntry entry : diffFile.getEntries()) {
 				if (entry.getType().equals(FileEntry.Type.DELETION)) {
 					try {
@@ -148,12 +170,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 					}
 				}
 			}
+			throw new IOException();
 		} catch (IOException e) {
-			//Should not happen but if it does, we want to know
-			LOGGER.logException(
-					"DiffFile \"" + config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
-							+ "\" could not be accessed eventhough it got approved when registerAllSettings() was called.",
-					e);
+			// Should not happen but if it does, we want to know
+			LOGGER.logException("DiffFile \""
+					+ config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
+					+ "\" could not be accessed eventhough it got approved when registerAllSettings() was called.", e);
 		}
 
 		while ((file = cmComponent.getNextResult()) != null) {

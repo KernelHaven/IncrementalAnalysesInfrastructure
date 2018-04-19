@@ -8,37 +8,27 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
 
 /**
  * A simple {@link DiffAnalyzer}-Implementation that only analyzes
  * the type of change (that is Addition, Deletion or Modification) for
  * each file. Use {@link SimpleDiffAnalyzer} if you only need this
- * information. {@link ComAnDiffAnalyzer} will also analyze for
+ * information. {@link VariabilityDiffAnalyzer} will also analyze for
  * variability-changes within the file-change but will take up
  * more resources than {@link SimpleDiffAnalyzer} for the task.
  * 
  * @author moritz
  * 
  */
-public class SimpleDiffAnalyzer extends DiffAnalyzer {
+public class SimpleDiffAnalyzer implements DiffAnalyzer {
 
-	/** The file that is to be parsed. */
-	private File file;
-
-	/**
-	 * Instantiates a new {@link SimpleDiffAnalyzer}.
-	 * @param diffFile the file that is to be parsed. Should be in the git-diff format.
-	 */
-	public SimpleDiffAnalyzer(File diffFile) {
-		this.file = diffFile;
-	}
 
 	/* (non-Javadoc)
 	 * @see net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer#parse()
 	 */
-	@Override
-	public Collection<FileEntry> parse() throws IOException {
+	public static DiffFile generateDiffFile(File file) throws IOException {
 		Collection<FileEntry> changed = new ArrayList<FileEntry>();
 
 		// We can not read lines (e.g. via Files.readAllLines(path)) to an array/list and iterate over it as this fails
@@ -63,7 +53,7 @@ public class SimpleDiffAnalyzer extends DiffAnalyzer {
 				currentLine = nextLine;
 			}
 		}
-		return changed;
+		return new DiffFile(changed);
 	}
 
 }

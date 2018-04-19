@@ -1,12 +1,15 @@
 package net.ssehub.kernel_haven.incremental.preparation;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXBException;
 
 import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
@@ -15,21 +18,21 @@ import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.util.Logger;
 
-
 /**
- * Preparation task for incremental analyses. This class is used to integrate
- * a diff on the filebase of the source tree and subsequently select a subset
- * of the resulting files for extraction and analyses.
- * {@link IncrementalPreparation} must be used as preparation 
- * when working with an incremental analysis.
+ * Preparation task for incremental analyses. This class is used to integrate a
+ * diff on the filebase of the source tree and subsequently select a subset of
+ * the resulting files for extraction and analyses.
+ * {@link IncrementalPreparation} must be used as preparation when working with
+ * an incremental analysis.
  * 
  * @author moritz
  */
 public class IncrementalPreparation implements IPreparation {
 
-	/**  Logger instance. */
+	/** Logger instance. */
 	private static final Logger LOGGER = Logger.get();
 
 	/*
@@ -57,12 +60,25 @@ public class IncrementalPreparation implements IPreparation {
 					+ "Stopping execution of KernelHaven.");
 			throw new SetUpException("Could not merge provided diff with existing input files!");
 		} else {
+			DiffFile diffFile = generateDiffFile(config.getValue(IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
+					inputDiff);
+			try {
+				try {
+					diffFile.save(new File(inputDiff.getAbsolutePath() + ".parsed"));
+				} catch (JAXBException e) {
+					LOGGER.logDebug("Could not store parsed version of DiffFile."
+							+ " A complete parse will be performed when access to the diff-file"
+							+ " is needed after model extraction.");
+				}
+			} catch (IOException e) {
+				throw new SetUpException("Could not analyze Diff File", e);
+			}
 
 			//////////////////////////
 			// Filter for codemodel //
 			//////////////////////////
 			Collection<Path> filteredPaths = filterInput(
-					config.getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS), inputSourceDir, inputDiff,
+					config.getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS), inputSourceDir, diffFile,
 					config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
 
 			if (!filteredPaths.isEmpty()) {
@@ -79,42 +95,47 @@ public class IncrementalPreparation implements IPreparation {
 			// Filter for variability model //
 			//////////////////////////////////
 			filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
-					inputSourceDir, inputDiff, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX));
+					inputSourceDir, diffFile, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX));
 			config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, !filteredPaths.isEmpty());
 
 			////////////////////////////
 			// Filter for build model //
 			////////////////////////////
 			filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
-					inputSourceDir, inputDiff, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
+					inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
 			config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, !filteredPaths.isEmpty());
 
 		}
-		
+
 		// Finish and let KernelHaven run
 		LOGGER.logInfo("IncrementalPreparation finished");
 	}
 
 	/**
-	 * Filters input using the class defined by filterClassName. This should be a class available in the classpath and
-	 * implementing InputFilter.
+	 * Filters input using the class defined by filterClassName. This should be a
+	 * class available in the classpath and implementing InputFilter.
 	 *
-	 * @param filterClassName the filter class name
-	 * @param inputSourceDir the input source dir
-	 * @param inputDiff the input diff
-	 * @param regex the regex
+	 * @param filterClassName
+	 *            the filter class name
+	 * @param inputSourceDir
+	 *            the input source dir
+	 * @param inputDiff
+	 *            the input diff
+	 * @param regex
+	 *            the regex
 	 * @return the collection
-	 * @throws SetUpException the set up exception
+	 * @throws SetUpException
+	 *             the set up exception
 	 */
 	@SuppressWarnings("unchecked")
-	protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, File inputDiff, Pattern regex)
-			throws SetUpException {
+	protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, DiffFile inputDiff,
+			Pattern regex) throws SetUpException {
 		Collection<Path> paths = null;
 		// Call the method getFilteredResult for filterClassName via reflection-api
 		try {
 			@SuppressWarnings("rawtypes")
 			Class filterClass = Class.forName(filterClassName);
-			Object filterObject = filterClass.getConstructor(File.class, File.class, Pattern.class)
+			Object filterObject = filterClass.getConstructor(File.class, DiffFile.class, Pattern.class)
 					.newInstance(inputSourceDir, inputDiff, regex);
 			if (filterObject instanceof InputFilter) {
 				Method getFilteredResultMethod = filterClass.getMethod("getFilteredResult");
@@ -130,6 +151,41 @@ public class IncrementalPreparation implements IPreparation {
 			throw new SetUpException("The specified filter could not be used: " + e.getMessage());
 		}
 		return paths;
+
+	}
+
+	/**
+	 * Filters input using the class defined by filterClassName. This should be a
+	 * class available in the classpath and implementing InputFilter.
+	 *
+	 * @param filterClassName
+	 *            the filter class name
+	 * @param inputSourceDir
+	 *            the input source dir
+	 * @param inputDiff
+	 *            the input diff
+	 * @param regex
+	 *            the regex
+	 * @return the collection
+	 * @throws SetUpException
+	 *             the set up exception
+	 */
+	@SuppressWarnings("unchecked")
+	protected DiffFile generateDiffFile(String analyzerClassName, File inputGitDiff) throws SetUpException {
+		DiffFile diffFile = null;
+		// Call the method getFilteredResult for filterClassName via reflection-api
+		try {
+			@SuppressWarnings("rawtypes")
+			Class analyzerClass = Class.forName(analyzerClassName);
+			Method getFilteredResultMethod = analyzerClass.getMethod("generateDiffFile", File.class);
+			diffFile = (DiffFile) getFilteredResultMethod.invoke(null, inputGitDiff);
+
+		} catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException
+				| InvocationTargetException e) {
+			throw new SetUpException("The specified DiffAnalyzer class \"" + analyzerClassName
+					+ "\" could not be used: " + e.getClass().getName() + "\n" + e.getMessage());
+		}
+		return diffFile;
 
 	}
 

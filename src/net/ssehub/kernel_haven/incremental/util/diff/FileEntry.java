@@ -3,12 +3,18 @@ package net.ssehub.kernel_haven.incremental.util.diff;
 import java.nio.file.Path;
 import java.util.StringJoiner;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Represents an entry for a file in the changeset. Used by {@link DiffFile} to
  * describe changes for a git-diff-file.
  * 
  * @author moritz
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class FileEntry {
 
 	/**
@@ -35,14 +41,14 @@ public class FileEntry {
 		NO_CHANGE,
 
 		/**
-		 * Indicates that the file was not considered a file carrying variability
+		 * Indicates that the file was not considered to be a file carrying variability
 		 * information
 		 */
 		NOT_A_VARIABILITY_FILE,
 
 		/**
 		 * Indicates that no analysis on variability information was performed on the
-		 * file represented by this FileEntry
+		 * file represented by this {@link FileEntry}
 		 */
 		NOT_ANALYZED
 	}
@@ -67,6 +73,11 @@ public class FileEntry {
 		this.file = file;
 		this.type = type;
 		this.variabilityChange = variabilityChange;
+	}
+
+	/** Required for use with {@link Marshaller} */
+	@SuppressWarnings("unused")
+	private FileEntry() {
 	}
 
 	/**
@@ -104,15 +115,12 @@ public class FileEntry {
 	public VariabilityChange getVariabilityChange() {
 		return variabilityChange;
 	}
-	
+
 	@Override
-    public String toString() {
-        return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]")
-                .add("file = " + file)
-                .add("type = " + type)
-                .add("variabilityChange = " + variabilityChange)
-                .toString();
-    }
+	public String toString() {
+		return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]").add("file = " + file)
+				.add("type = " + type).add("variabilityChange = " + variabilityChange).toString();
+	}
 
 	@Override
 	public int hashCode() {
@@ -144,8 +152,5 @@ public class FileEntry {
 			return false;
 		return true;
 	}
-
-
-	
 
 }

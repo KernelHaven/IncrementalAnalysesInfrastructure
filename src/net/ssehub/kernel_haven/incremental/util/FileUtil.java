@@ -3,11 +3,13 @@ package net.ssehub.kernel_haven.incremental.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * Utility class for files.
@@ -39,7 +41,8 @@ public class FileUtil {
 	 * @param file
 	 *            the file
 	 * @return the hash
-	 * @throws IOException occurs if file is not present or can not be accessed.
+	 * @throws IOException
+	 *             occurs if file is not present or can not be accessed.
 	 */
 	public static String getSha256Hash(File file) throws IOException {
 		MessageDigest md;
@@ -57,5 +60,25 @@ public class FileUtil {
 		}
 
 		return result;
+	}
+
+	public static String readFile(File file) throws IOException {
+		StringBuilder fileContents = new StringBuilder();
+		Scanner scanner = new Scanner(file);
+		String lineSeparator = System.getProperty("line.separator");
+		try {
+			while (scanner.hasNextLine()) {
+				fileContents.append(scanner.nextLine() + lineSeparator);
+			}
+			return fileContents.toString();
+		} finally {
+			scanner.close();
+		}
+	}
+
+	public static void writeFile(File file, String content) throws IOException {
+		try (PrintWriter out = new PrintWriter(file)) {
+			out.println(content);
+		}
 	}
 }
