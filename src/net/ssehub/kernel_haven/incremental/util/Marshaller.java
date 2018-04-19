@@ -12,7 +12,6 @@ import javax.xml.bind.Unmarshaller;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.eclipse.persistence.jaxb.JAXBContextProperties;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Marshaller. Helper class to convert any java object with
  * corresponding annotations from or to a json-String.
@@ -27,6 +26,8 @@ import org.eclipse.persistence.jaxb.JAXBContextProperties;
  *    ...
  * }
  * </pre>
+ * 
+ * @author moritz
  */
 public class Marshaller {
 
