@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.preparation;
+package net.ssehub.kernel_haven.incremental.util.diff;
 
 import java.io.File;
 import java.io.IOException;

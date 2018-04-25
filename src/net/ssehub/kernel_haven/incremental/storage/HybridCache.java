@@ -367,7 +367,8 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	private void hybridAdd(File target) throws IOException {
-		File deleteOnRollback = addedFolder.toPath().resolve(target.toPath()).toFile();
+		Path targetPath = currentFolder.toPath().relativize(target.toPath());
+		File deleteOnRollback = addedFolder.toPath().resolve(targetPath).toFile();
 		deleteOnRollback.mkdirs();
 		deleteOnRollback.createNewFile();
 	}
@@ -383,7 +384,8 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	private void hybridDelete(File target) throws IOException {
-		File fileToDelete = currentFolder.toPath().resolve(target.toPath()).toFile();
+		Path targetPath = currentFolder.toPath().relativize(target.toPath());
+		File fileToDelete = currentFolder.toPath().resolve(targetPath).toFile();
 		boolean doDelete = fileToDelete.exists();
 		if (doDelete) {
 			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(target.toPath()));

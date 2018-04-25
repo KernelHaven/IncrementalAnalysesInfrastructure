@@ -4,12 +4,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import net.ssehub.kernel_haven.incremental.preparation.ChangedOnlyFilterTest;
-import net.ssehub.kernel_haven.incremental.preparation.DiffFileTest;
 import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparationTest;
-import net.ssehub.kernel_haven.incremental.preparation.VariabilityChangesFilterTest;
-import net.ssehub.kernel_haven.incremental.util.ComAnDiffAnalyzerTest;
-import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtilTest;
+import net.ssehub.kernel_haven.incremental.preparation.filter.ChangedOnlyFilterTest;
+import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilterTest;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFileTest;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtilTest;
+import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzerTest;
 
 /**
  * The Class AllTests. Contains all unit-tests of for incremental analyses.
@@ -19,7 +19,7 @@ import net.ssehub.kernel_haven.incremental.util.DiffIntegrationUtilTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ ChangedOnlyFilterTest.class, DiffFileTest.class, IncrementalPreparationTest.class,
-		DiffIntegrationUtilTest.class, ComAnDiffAnalyzerTest.class, VariabilityChangesFilterTest.class })
+		DiffApplyUtilTest.class, VariabilityDiffAnalyzerTest.class, VariabilityChangesFilterTest.class })
 public class AllTests {
 
 }

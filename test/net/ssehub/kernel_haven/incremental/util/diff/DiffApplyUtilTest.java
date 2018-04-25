@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util;
+package net.ssehub.kernel_haven.incremental.util.diff;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
@@ -18,7 +19,7 @@ import net.ssehub.kernel_haven.util.Logger.Level;
  * 
  * @author moritz
  */
-public class DiffIntegrationUtilTest {
+public class DiffApplyUtilTest {
 
 	/** The Constant ORIGINAL_FOLDER. */
 	private static final File ORIGINAL_FOLDER = new File("testdata/diff-integration/original");

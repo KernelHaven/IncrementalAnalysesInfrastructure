@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util;
+package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import net.ssehub.kernel_haven.util.Logger.Level;
 /**
  * The Class ComAnDiffAnalyzerTest.
  */
-public class ComAnDiffAnalyzerTest {
+public class VariabilityDiffAnalyzerTest {
 
 	/** The logger. */
 	private static Logger LOGGER = null;

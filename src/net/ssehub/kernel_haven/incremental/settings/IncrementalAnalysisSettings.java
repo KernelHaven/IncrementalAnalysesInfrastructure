@@ -53,6 +53,7 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<Boolean> EXTRACT_BUILD_MODEL = new Setting<Boolean>("incremental.build.extract_bm",
 			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
 
+	
 	/**
 	 * Instantiates a new incremental analysis settings.
 	 */
