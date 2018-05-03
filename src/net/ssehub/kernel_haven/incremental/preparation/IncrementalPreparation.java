@@ -81,29 +81,37 @@ public class IncrementalPreparation implements IPreparation {
 					config.getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS), inputSourceDir, diffFile,
 					config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
 
+			boolean extractCm = false;
 			if (!filteredPaths.isEmpty()) {
-				config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, true);
+				extractCm = true;
 				ArrayList<String> pathStrings = new ArrayList<String>();
 				filteredPaths.forEach(path -> pathStrings.add(path.toString()));
 				config.setValue(DefaultSettings.CODE_EXTRACTOR_FILES, pathStrings);
 				// If no paths are included after filtering, the extraction does not need to run
-			} else {
-				config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, false);
 			}
+
+			config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, extractCm);
 
 			//////////////////////////////////
 			// Filter for variability model //
 			//////////////////////////////////
 			filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
 					inputSourceDir, diffFile, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX));
-			config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, !filteredPaths.isEmpty());
+			boolean extractVm = !filteredPaths.isEmpty();
+			config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, extractVm);
 
 			////////////////////////////
 			// Filter for build model //
 			////////////////////////////
 			filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
 					inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
-			config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, !filteredPaths.isEmpty());
+			boolean extractBm = !filteredPaths.isEmpty();
+			config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
+
+			// only start extractory preemptively if all extractors need to run
+			if (!extractCm || !extractCm || !extractVm) {
+				config.setValue(DefaultSettings.ANALYSIS_PIPELINE_START_EXTRACTORS, false);
+			}
 
 		}
 

@@ -66,12 +66,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 			boolean changeSetOnlyForCm) {
 		super(config);
 		this.config = config;
-		bmComponent = new OutputComponent<BuildModel>(config,
-				"HybridCacheAdapter-bmComponent");
-		vmComponent = new OutputComponent<VariabilityModel>(config,
-				"HybridCacheAdapter-vmComponent");
-		cmComponent = new OutputComponent<SourceFile>(config,
-				"HybridCacheAdapter-cmComponent");
+		bmComponent = new OutputComponent<BuildModel>(config, "HybridCacheAdapter-bmComponent");
+		vmComponent = new OutputComponent<VariabilityModel>(config, "HybridCacheAdapter-vmComponent");
+		cmComponent = new OutputComponent<SourceFile>(config, "HybridCacheAdapter-cmComponent");
 		this.inputComponent = inputComponent;
 		this.changeSetOnlyForCm = changeSetOnlyForCm;
 	}
@@ -106,17 +103,38 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 				// Get models
 				Collection<SourceFile> codeModel;
 				if (changeSetOnlyForCm) {
-					codeModel = data.readChangedCm();
+					codeModel = data.readCmChangeSet();
 				} else {
 					codeModel = data.readAllCm();
 				}
+
 				BuildModel buildModel = data.readBm();
 				VariabilityModel varModel = data.readVm();
 
+				if (codeModel.isEmpty()) {
+					LOGGER.logWarning(
+							HybridCacheAdapter.class.getSimpleName() + " contains empty code model after execute()");
+				}
+
+				if (buildModel.getSize() == 0) {
+					LOGGER.logWarning(
+							HybridCacheAdapter.class.getSimpleName() + " contains empty build model after execute()");
+				}
+
+				if (varModel.getVariables().size() == 0) {
+					LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
+							+ " contains empty variability model after execute()");
+				}
+
 				// add Models to components
 				for (SourceFile srcFile : codeModel) {
-					cmComponent.myAddResult(srcFile);
+					if (srcFile == null) {
+						throw new NullPointerException("SourceFile was null - this should never happen");
+					} else {
+						cmComponent.myAddResult(srcFile);
+					}
 				}
+
 				if (buildModel != null) {
 					bmComponent.myAddResult(buildModel);
 				}

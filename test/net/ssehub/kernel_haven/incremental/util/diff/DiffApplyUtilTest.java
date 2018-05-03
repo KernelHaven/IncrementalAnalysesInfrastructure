@@ -23,13 +23,13 @@ public class DiffApplyUtilTest {
 
 	/** The Constant ORIGINAL_FOLDER. */
 	private static final File ORIGINAL_FOLDER = new File("testdata/diff-integration/original");
-	
+
 	/** The Constant MODIFIED_FOLDER. */
 	private static final File MODIFIED_FOLDER = new File("testdata/diff-integration/modified");
-	
+
 	/** The Constant DIFF_FILE. */
 	private static final File DIFF_FILE = new File("testdata/diff-integration/git.diff");
-	
+
 	/** The logger. */
 	private static Logger LOGGER = null;
 
@@ -46,7 +46,8 @@ public class DiffApplyUtilTest {
 	/**
 	 * Tests whether the call to git apply works.
 	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testMerge_positive() throws IOException {
@@ -58,6 +59,7 @@ public class DiffApplyUtilTest {
 		// Check preconditions
 		Assert.assertTrue(tempFolder.toFile().exists());
 		Assert.assertTrue(DIFF_FILE.exists());
+		Assert.assertTrue(!FolderUtil.folderContentEquals(tempFolder.toFile(), MODIFIED_FOLDER));
 
 		// Merge action
 
@@ -75,7 +77,8 @@ public class DiffApplyUtilTest {
 	 * already been applied. This is effectively the same as trying to "apply" on a
 	 * folder that does not contain the files assumed by the diff-file.
 	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testMerge_negative_alreadyMerged() throws IOException {
@@ -102,7 +105,8 @@ public class DiffApplyUtilTest {
 	/**
 	 * Tests whether the call to git apply -- reverse works.
 	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testRevert_positive() throws IOException {
@@ -131,7 +135,8 @@ public class DiffApplyUtilTest {
 	 * was not applied before. This is effectively the same as trying to "apply
 	 * --revert" on a folder that does not fit the diff-file.
 	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testRevert_negative_noDiffApplied() throws IOException {

@@ -77,17 +77,66 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	protected void execute() {
 
 		HybridCache hybridCache = new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+
+		// start threads for each model-type so they can run parallel
+
+		Thread cmThread = null;
 		if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
-			codeModelExtraction(hybridCache);
-		} else
+			cmThread = new Thread() {
+				public void run() {
+					codeModelExtraction(hybridCache);
+				}
+			};
+			cmThread.start();
+		}
 
+		Thread vmThread = null;
 		if (config.getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL)) {
-			variabilityModelExtraction(hybridCache);
+			vmThread = new Thread() {
+				public void run() {
+					variabilityModelExtraction(hybridCache);
+				}
+			};
+			vmThread.start();
 		}
 
+		Thread bmThread = null;
 		if (config.getValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL)) {
-			buildModelExtraction(hybridCache);
+			bmThread = new Thread() {
+				public void run() {
+					buildModelExtraction(hybridCache);
+				}
+			};
+			bmThread.start();
 		}
+
+		// wait for all model-threads to finish
+
+		if (cmThread != null) {
+			try {
+				cmThread.join();
+			} catch (InterruptedException e) {
+				LOGGER.logException("Thread interrupted", e);
+			}
+		}
+
+		if (vmThread != null) {
+			try {
+				vmThread.join();
+			} catch (InterruptedException e) {
+				LOGGER.logException("Thread interrupted", e);
+			}
+		}
+
+		if (bmThread != null) {
+			try {
+				bmThread.join();
+			} catch (InterruptedException e) {
+				LOGGER.logException("Thread interrupted", e);
+			}
+		}
+
+		// add results
 
 		this.addResult(hybridCache);
 
@@ -135,12 +184,21 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	 */
 	private void codeModelExtraction(HybridCache hybridCache) {
 		SourceFile file;
+
+		// We need access to the diff-file because we need to know which files were
+		// removed through the diff
 		DiffFile diffFile = null;
 		File originalDiffFile = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
 		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath() + ".parsed");
+
+		///////////////////////////////////////////////////////////
+		// Deletion of models for files removed in the diff-file //
+		///////////////////////////////////////////////////////////
+
 		try {
 			// Try to reuse existing parsed diff if available from preparation
 			if (parsedDiffFile.exists()) {
+				LOGGER.logInfo("Reusing parsed diff-file: " + parsedDiffFile.getAbsolutePath());
 				try {
 					diffFile = DiffFile.load(parsedDiffFile);
 				} catch (JAXBException e) {
@@ -150,6 +208,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			}
 			// If no parsed diff was available for reuse, generate a new DiffFile-Object
 			if (diffFile == null) {
+				LOGGER.logInfo("Parsing diff-file: " + parsedDiffFile.getAbsolutePath());
 				diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
 				try {
 					diffFile.save(parsedDiffFile);
@@ -158,6 +217,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 				}
 			}
 
+			// with the help of the diffFile, remove all models corresponding to deleted
+			// files
 			for (FileEntry entry : diffFile.getEntries()) {
 				if (entry.getType().equals(FileEntry.Type.DELETION)) {
 					try {
@@ -170,13 +231,16 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 					}
 				}
 			}
-			throw new IOException();
 		} catch (IOException e) {
 			// Should not happen but if it does, we want to know
 			LOGGER.logException("DiffFile \""
 					+ config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
 					+ "\" could not be accessed eventhough it got approved when registerAllSettings() was called.", e);
 		}
+
+		///////////////////////////////////
+		// Add new models to hybridCache //
+		///////////////////////////////////
 
 		while ((file = cmComponent.getNextResult()) != null) {
 			try {
@@ -185,7 +249,6 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 				LOGGER.logException("Could not write sourcefile to HybridCache", e);
 			}
 		}
-
 	}
 
 	/*

@@ -8,7 +8,6 @@ import net.ssehub.kernel_haven.incremental.storage.HybridCacheAdapter;
 import net.ssehub.kernel_haven.incremental.storage.IncrementalPostExtraction;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
-// TODO: Auto-generated Javadoc
 /**
  * 
  * An Analysis that really does nothing in terms of a real Analysis. This only runs

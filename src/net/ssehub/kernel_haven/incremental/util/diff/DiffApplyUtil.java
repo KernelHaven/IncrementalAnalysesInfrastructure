@@ -8,27 +8,29 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
 /**
- * Helper class used as an interface to "git apply". 
- * Requires git to be installed on the system.
+ * Helper class used as an interface to "git apply". Requires git to be
+ * installed on the system.
  * 
  * @author Moritz
  */
 public class DiffApplyUtil {
-	
+
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
 
 	/** The files storage dir. */
 	private final File filesStorageDir;
-	
+
 	/** The input diff. */
 	private final File inputDiff;
 
 	/**
 	 * Instantiates a new {@link DiffApplyUtil}.
 	 *
-	 * @param filesStorageDir the files storage dir
-	 * @param inputDiff the input diff
+	 * @param filesStorageDir
+	 *            the files storage dir
+	 * @param inputDiff
+	 *            the input diff
 	 */
 	public DiffApplyUtil(File filesStorageDir, File inputDiff) {
 		this.filesStorageDir = filesStorageDir;
@@ -41,12 +43,13 @@ public class DiffApplyUtil {
 	 * @return true, if successful
 	 */
 	public boolean mergeChanges() {
-		LOGGER.logDebug(this.getClass().getSimpleName() + ".mergeChanges() called");
-
 		boolean success = false;
 
 		if (filesStorageDir.isDirectory() && inputDiff.isFile()) {
-			ProcessBuilder processBuilder = new ProcessBuilder("git", "apply", inputDiff.getAbsolutePath());
+			LOGGER.logDebug(
+					"Executing external git command on working directory: " + this.filesStorageDir.getAbsolutePath(),
+					"git apply --no-index " + inputDiff.getAbsolutePath());
+			ProcessBuilder processBuilder = new ProcessBuilder("git", "apply","--no-index",  inputDiff.getAbsolutePath());
 			processBuilder.directory(filesStorageDir);
 
 			ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
@@ -64,10 +67,10 @@ public class DiffApplyUtil {
 				if (!success) {
 					LOGGER.logError(("git apply stderr:\n" + stderr).split("\n"));
 				} else {
-					LOGGER.logDebug(("git apply stderr:\n" + stderr).split("\n"));	
+					LOGGER.logDebug(("git apply stderr:\n" + stderr).split("\n"));
 				}
-			} 
-			
+			}
+
 			if ((stdout != null && !stdout.equals(""))) {
 				LOGGER.logDebug(("git apply stout:\n" + stdout).split("\n"));
 			}
@@ -84,11 +87,14 @@ public class DiffApplyUtil {
 	 * @return true, if successful
 	 */
 	public boolean revertChanges() {
-		LOGGER.logDebug(this.getClass().getSimpleName() + ".revertChanges() called");
 		boolean success = false;
 
 		if (filesStorageDir.isDirectory() && inputDiff.isFile()) {
-			ProcessBuilder processBuilder = new ProcessBuilder("git", "apply", "--reverse",
+			LOGGER.logDebug(
+					"Executing external git command on working directory: " + this.filesStorageDir.getAbsolutePath(),
+					"git apply --no-index --reverse " + inputDiff.getAbsolutePath());
+			
+			ProcessBuilder processBuilder = new ProcessBuilder("git", "apply","--no-index", "--reverse",
 					inputDiff.getAbsolutePath());
 			processBuilder.directory(filesStorageDir);
 
@@ -107,10 +113,10 @@ public class DiffApplyUtil {
 				if (!success) {
 					LOGGER.logError(("git apply --reverse stderr:\n" + stderr).split("\n"));
 				} else {
-					LOGGER.logDebug(("git apply --reverse stderr:\n" + stderr).split("\n"));	
+					LOGGER.logDebug(("git apply --reverse stderr:\n" + stderr).split("\n"));
 				}
-			} 
-			
+			}
+
 			if ((stdout != null && !stdout.equals(""))) {
 				LOGGER.logDebug(("git apply --reverse stout:\n" + stdout).split("\n"));
 			}

@@ -35,7 +35,7 @@ public class IncrementalDeadCodeAnalysis extends PipelineAnalysis {
 	protected AnalysisComponent<?> createPipeline() throws SetUpException {
 		
 		HybridCacheAdapter hca = new HybridCacheAdapter(config,
-				new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), true);
+				new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), false);
 
 		LOGGER.logInfo("Starting Dead Code Finder");
 		

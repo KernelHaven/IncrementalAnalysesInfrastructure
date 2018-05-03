@@ -152,6 +152,7 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 					String nextLine = lines.get(i + 1);
 					filePath = currentLine.substring(currentLine.indexOf("a/") + "a/".length(),
 							currentLine.indexOf(" b/"));
+					LOGGER.logDebug("Analyzing commit entry for file " + filePath.toString());
 					if (nextLine.startsWith("new file mode")) {
 						type = FileEntry.Type.ADDITION;
 						break;
@@ -283,8 +284,6 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 					 */
 					fileDiff = new OtherFileDiff(diffLines, changesStartLine);
 				}
-			} else {
-				LOGGER.logDebug("No changes found analyzing the following commit-String", diff);
 			}
 		}
 		return fileDiff;
