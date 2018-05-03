@@ -256,12 +256,12 @@ public class HybridCache {
 	 *            the cached file
 	 * @return the original file
 	 */
-	private File getOriginalFile(File cachedFile) {
+	private static File getOriginalFile(File cachedFile) {
 		String cachedFilePath = cachedFile.getPath();
 		String originalFilePath = null;
 		File originalFile = null;
 
-		Matcher matcher = Pattern.compile("^([\\S]+)(\\..+)(\\.cache)$").matcher(cachedFilePath);
+		Matcher matcher = Pattern.compile("^([\\S]+)(\\.[^\\.]+)(\\.cache)$").matcher(cachedFilePath);
 
 		if (matcher.find()) {
 			if (matcher.groupCount() >= 2) {
@@ -272,6 +272,7 @@ public class HybridCache {
 
 		return originalFile;
 	}
+	
 
 	/**
 	 * Read bm in current version.
