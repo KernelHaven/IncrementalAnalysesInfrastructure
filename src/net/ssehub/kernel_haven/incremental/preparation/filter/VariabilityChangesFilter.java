@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**

@@ -4,6 +4,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCacheAdapter;
 import net.ssehub.kernel_haven.incremental.storage.IncrementalPostExtraction;
 import net.ssehub.kernel_haven.undead_analyzer.DeadCodeAnalysis;
@@ -34,9 +35,14 @@ public class IncrementalDeadCodeAnalysis extends PipelineAnalysis {
 	@Override
 	protected AnalysisComponent<?> createPipeline() throws SetUpException {
 		
+		boolean updatedBuildModel = config.getValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL);
+		boolean updatedVariabilityModel = config.getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL);
+		
+		boolean partialAnalysis = !updatedBuildModel && !updatedVariabilityModel;
+		
 		HybridCacheAdapter hca = new HybridCacheAdapter(config,
-				new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), false);
-
+					new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), partialAnalysis);
+		
 		LOGGER.logInfo("Starting Dead Code Finder");
 		
 		DeadCodeFinder dcf = new DeadCodeFinder(config, hca.getVmComponent(), hca.getBmComponent(),

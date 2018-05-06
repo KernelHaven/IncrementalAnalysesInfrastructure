@@ -77,6 +77,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	protected void execute() {
 
 		HybridCache hybridCache = new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+		hybridCache.clearChangeHistory();
 
 		// start threads for each model-type so they can run parallel
 
