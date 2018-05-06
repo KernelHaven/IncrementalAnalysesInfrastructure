@@ -428,7 +428,7 @@ public class HybridCache {
 		File fileToDelete = currentFolder.toPath().resolve(targetPath).toFile();
 		boolean doDelete = fileToDelete.exists();
 		if (doDelete) {
-			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(target.toPath()));
+			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(targetPath));
 		}
 	}
 
