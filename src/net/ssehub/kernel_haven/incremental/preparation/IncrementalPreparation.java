@@ -64,7 +64,7 @@ public class IncrementalPreparation implements IPreparation {
 					inputDiff);
 			try {
 				try {
-					diffFile.save(new File(inputDiff.getAbsolutePath() + ".parsed"));
+					diffFile.save(new File(inputDiff.getAbsolutePath() + config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX)));
 				} catch (JAXBException e) {
 					LOGGER.logDebug("Could not store parsed version of DiffFile."
 							+ " A complete parse will be performed when access to the diff-file"

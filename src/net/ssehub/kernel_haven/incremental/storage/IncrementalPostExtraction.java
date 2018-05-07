@@ -190,7 +190,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		// removed through the diff
 		DiffFile diffFile = null;
 		File originalDiffFile = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
-		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath() + ".parsed");
+		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath() + config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX));
 
 		///////////////////////////////////////////////////////////
 		// Deletion of models for files removed in the diff-file //

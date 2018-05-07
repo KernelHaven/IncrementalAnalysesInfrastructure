@@ -25,6 +25,11 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<File> SOURCE_TREE_DIFF_FILE = new Setting<File>("incremental.input.source_tree_diff",
 			FILE, true, "git.diff",
 			"Diff-file describing the changes from the previously analyzed increment to the next one.");
+	
+	public static final Setting<String> PARSED_DIFF_FILE_SUFFIX = new Setting<String>("incremental.input.source_tree_diff.parsed_suffix",
+			STRING, true, ".parsed", "This setting defines the suffix for the parsed version of the diff file. A parsed diff file is generated during the execution of an incremental analysis.");
+
+	
 	public static final Setting<String> CODE_MODEL_FILTER_CLASS = new Setting<String>("incremental.code.filter", STRING,
 			true, "net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
 			"name of the class used to filter the input for the code-model in the incremental analysis");
@@ -38,6 +43,7 @@ public class IncrementalAnalysisSettings {
 			"incremental.variability.filter", STRING, true,
 			"net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
 			"name of the class used to filter the input for the variability-model in the incremental analysis");
+	
 	public static final Setting<String> BUILD_MODEL_FILTER_CLASS = new Setting<String>("incremental.build.filter",
 			STRING, true, "net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
 			"name of the class used to filter the input for the build-model in the incremental analysis");
@@ -52,6 +58,7 @@ public class IncrementalAnalysisSettings {
 			"This setting automatically gets set by IncrementalPreparation");
 	public static final Setting<Boolean> EXTRACT_BUILD_MODEL = new Setting<Boolean>("incremental.build.extract_bm",
 			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
+	
 
 	
 	/**
