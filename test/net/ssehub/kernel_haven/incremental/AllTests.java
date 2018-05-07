@@ -7,8 +7,9 @@ import org.junit.runners.Suite.SuiteClasses;
 import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparationTest;
 import net.ssehub.kernel_haven.incremental.preparation.filter.ChangedOnlyFilterTest;
 import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilterTest;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFileTest;
+import net.ssehub.kernel_haven.incremental.storage.HybridCacheTest;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtilTest;
+import net.ssehub.kernel_haven.incremental.util.diff.DiffFileTest;
 import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzerTest;
 
 /**
@@ -19,7 +20,7 @@ import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAna
  */
 @RunWith(Suite.class)
 @SuiteClasses({ ChangedOnlyFilterTest.class, DiffFileTest.class, IncrementalPreparationTest.class,
-		DiffApplyUtilTest.class, VariabilityDiffAnalyzerTest.class, VariabilityChangesFilterTest.class })
+		DiffApplyUtilTest.class, VariabilityDiffAnalyzerTest.class, VariabilityChangesFilterTest.class, HybridCacheTest.class })
 public class AllTests {
 
 }
