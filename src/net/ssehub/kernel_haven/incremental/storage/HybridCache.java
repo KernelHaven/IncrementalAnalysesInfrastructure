@@ -129,6 +129,11 @@ public class HybridCache {
 	 */
 	private BuildModelCache replacedBmCache;
 
+	
+	protected HybridCache() {
+		//Empty constructor for JUnit-Tests only
+	}
+	
 	/**
 	 * Instantiates a new hybrid cache.
 	 *
@@ -343,10 +348,10 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public BuildModel readPreviousBm() throws FormatException, IOException {
-		boolean existsInPrevious = existsInReplaced(BM_CACHE_FILES);
+		boolean previousModelExists = existsInReplaced(BM_CACHE_FILES);
 
 		BuildModel result = null;
-		if (existsInPrevious) {
+		if (previousModelExists) {
 			result = replacedBmCache.read(new File("bmCache"));
 		} else {
 			result = currentBmCache.read(new File("bmCache"));
@@ -365,10 +370,10 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public VariabilityModel readPreviousVm() throws FormatException, IOException {
-		boolean existsInPrevious = existsInReplaced(VM_CACHE_FILES);
+		boolean previousModelExists = existsInReplaced(VM_CACHE_FILES);
 
 		VariabilityModel result = null;
-		if (existsInPrevious) {
+		if (previousModelExists) {
 			result = previousVmCache.read(new File("vmCache"));
 		} else {
 			result = currentVmCache.read(new File("vmCache"));
@@ -406,9 +411,9 @@ public class HybridCache {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void hybridAdd(File target) throws IOException {
-		Path targetPath = currentFolder.toPath().relativize(target.toPath());
-		File deleteOnRollback = addedFolder.toPath().resolve(targetPath).toFile();
+	protected void hybridAdd(File target) throws IOException {
+		File deleteOnRollback = addedFolder.toPath().resolve(target.toPath()).toFile();
+		System.out.println(deleteOnRollback.getAbsolutePath());
 		deleteOnRollback.getParentFile().mkdirs();
 		deleteOnRollback.createNewFile();
 	}
@@ -423,12 +428,11 @@ public class HybridCache {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void hybridDelete(File target) throws IOException {
-		Path targetPath = currentFolder.toPath().relativize(target.toPath());
-		File fileToDelete = currentFolder.toPath().resolve(targetPath).toFile();
+	protected void hybridDelete(File target) throws IOException {
+		File fileToDelete = currentFolder.toPath().resolve(target.toPath()).toFile();
 		boolean doDelete = fileToDelete.exists();
 		if (doDelete) {
-			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(targetPath));
+			Files.move(fileToDelete.toPath(), replacedFolder.toPath().resolve(target.toPath()));
 		}
 	}
 
