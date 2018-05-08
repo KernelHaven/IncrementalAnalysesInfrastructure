@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/KernelHaven"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/UnDeadAnalyzer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ComAn"/>
 	<classpathentry kind="lib" path="libs/eclipselink-2.7.1.jar"/>
 	<classpathentry kind="lib" path="libs/org.eclipse.persistence.moxy-2.7.1.jar"/>
