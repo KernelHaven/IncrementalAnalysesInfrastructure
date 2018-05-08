@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import diff.DiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
@@ -53,7 +54,7 @@ public class VariabilityChangesFilter extends InputFilter {
 				//Should not happen for this filter unless mistakes were made in the parse() method of the {@link Diff}
 				LOGGER.logError("The following FileEntry was not analyzed for variability-changes. "
 						+ this.getClass().getSimpleName() + " was used as filter. Perhaps the "
-								+ "{@link net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer} "
+								+ DiffAnalyzer.class.getSimpleName()
 								+ "you used does not analyze for variability-changes . Please check your configuration. \n"
 								+ entry);
 			}

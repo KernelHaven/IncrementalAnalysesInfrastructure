@@ -78,6 +78,7 @@ public class DiffFileTest {
 	@Test
 	public void testLoad() throws IOException, JAXBException {
 		DiffFile referenceDiffFile = SimpleDiffAnalyzer.generateDiffFile(GIT_DIFF);
+
 		DiffFile loadedDiffFile = DiffFile.load(DIFF_FILE);
 
 		Assert.assertThat(loadedDiffFile, CoreMatchers.equalTo(referenceDiffFile));

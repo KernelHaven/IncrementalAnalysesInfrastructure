@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.util.Logger;
 
 /**
  * A simple {@link DiffAnalyzer}-Implementation that only analyzes
@@ -45,6 +46,9 @@ public class SimpleDiffAnalyzer implements DiffAnalyzer {
 						type = FileEntry.Type.ADDITION;
 					} else if (nextLine.startsWith("deleted file mode")) {
 						type = FileEntry.Type.DELETION;
+						if (filePath == null) {
+							Logger.get().logDebug("Deletion with no filepath : ", currentLine, nextLine);
+						} 
 					} else {
 						type = FileEntry.Type.MODIFICATION;
 					}

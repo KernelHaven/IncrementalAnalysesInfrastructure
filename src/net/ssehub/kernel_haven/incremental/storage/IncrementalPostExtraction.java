@@ -3,8 +3,6 @@ package net.ssehub.kernel_haven.incremental.storage;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.bind.JAXBException;
-
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
@@ -190,7 +188,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		// removed through the diff
 		DiffFile diffFile = null;
 		File originalDiffFile = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
-		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath() + config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX));
+		File parsedDiffFile = new File(originalDiffFile.getAbsolutePath()
+				+ config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX));
 
 		///////////////////////////////////////////////////////////
 		// Deletion of models for files removed in the diff-file //
@@ -200,22 +199,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			// Try to reuse existing parsed diff if available from preparation
 			if (parsedDiffFile.exists()) {
 				LOGGER.logInfo("Reusing parsed diff-file: " + parsedDiffFile.getAbsolutePath());
-				try {
-					diffFile = DiffFile.load(parsedDiffFile);
-				} catch (JAXBException e) {
-					LOGGER.logException("Could no load diff from parsed diff file. Will redo parsing of original file.",
-							e);
-				}
+				diffFile = DiffFile.load(parsedDiffFile);
 			}
 			// If no parsed diff was available for reuse, generate a new DiffFile-Object
 			if (diffFile == null) {
-				LOGGER.logInfo("Parsing diff-file: " + parsedDiffFile.getAbsolutePath());
+				LOGGER.logInfo("Parsing diff-file: " + originalDiffFile.getAbsolutePath());
 				diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
-				try {
-					diffFile.save(parsedDiffFile);
-				} catch (JAXBException e) {
-					LOGGER.logException("Could no save parsed diff file.", e);
-				}
 			}
 
 			// with the help of the diffFile, remove all models corresponding to deleted
@@ -223,6 +212,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			for (FileEntry entry : diffFile.getEntries()) {
 				if (entry.getType().equals(FileEntry.Type.DELETION)) {
 					try {
+						LOGGER.logDebug("Deleting model because of DiffEntry: " + entry);
 						hybridCache.deleteCodeModel(entry.getPath().toFile());
 					} catch (IOException exception) {
 						LOGGER.logException("Could not delete CodeModel-File. "

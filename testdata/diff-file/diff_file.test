@@ -1,1 +1,4 @@
-{"diffFile":{"changeSet":[{"file":"modify/Kbuild","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"},{"file":"modify/Kconfig","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"},{"file":"modify/a-code-file.c","type":"MODIFICATION","variabilityChange":"NOT_ANALYZED"}]}}
+modify/Kbuild,MODIFICATION,NOT_ANALYZED
+modify/Kconfig,MODIFICATION,NOT_ANALYZED
+modify/a-code-file.c,MODIFICATION,NOT_ANALYZED
+

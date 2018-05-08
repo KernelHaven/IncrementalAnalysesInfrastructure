@@ -105,7 +105,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 				if (changeSetOnlyForCm) {
 					codeModel = data.readCmChangeSet();
 				} else {
-					codeModel = data.readAllCm();
+					codeModel = data.readCm();
 				}
 
 				BuildModel buildModel = data.readBm();

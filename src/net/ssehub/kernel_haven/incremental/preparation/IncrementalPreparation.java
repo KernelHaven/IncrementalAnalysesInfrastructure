@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-
 import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -63,15 +61,10 @@ public class IncrementalPreparation implements IPreparation {
 			DiffFile diffFile = generateDiffFile(config.getValue(IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
 					inputDiff);
 			try {
-				try {
-					diffFile.save(new File(inputDiff.getAbsolutePath() + config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX)));
-				} catch (JAXBException e) {
-					LOGGER.logDebug("Could not store parsed version of DiffFile."
-							+ " A complete parse will be performed when access to the diff-file"
-							+ " is needed after model extraction.");
-				}
+				diffFile.save(new File(inputDiff.getAbsolutePath()
+						+ config.getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX)));
 			} catch (IOException e) {
-				throw new SetUpException("Could not analyze Diff File", e);
+				throw new SetUpException("Could not save parsed version of diff-file", e);
 			}
 
 			//////////////////////////

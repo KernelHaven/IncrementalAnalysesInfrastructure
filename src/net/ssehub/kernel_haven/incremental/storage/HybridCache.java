@@ -129,11 +129,13 @@ public class HybridCache {
 	 */
 	private BuildModelCache replacedBmCache;
 
-	
+	/**
+	 * Instantiates a new hybrid cache.
+	 */
 	protected HybridCache() {
-		//Empty constructor for JUnit-Tests only
+		// Empty constructor for JUnit-Tests only
 	}
-	
+
 	/**
 	 * Instantiates a new hybrid cache.
 	 *
@@ -157,7 +159,8 @@ public class HybridCache {
 	}
 
 	/**
-	 * Removes all files representing the previous model.
+	 * Removes all information for the previous model from cache. Only keeps current
+	 * model.
 	 */
 	public void clearChangeHistory() {
 		FolderUtil.deleteFolderContents(replacedFolder);
@@ -168,7 +171,7 @@ public class HybridCache {
 	 * Write a {@link SourceFile} to the cache replacing any existing model
 	 * accessible via {@link HybridCache#readCm()} with the same
 	 * {@link SourceFile#getPath()}. The previous model can thereafter be accessed
-	 * through {@link HybridCache#readPreviousCm(File)}
+	 * through {@link HybridCache#readPreviousCmCacheFile(File)}
 	 * 
 	 *
 	 * @param file
@@ -180,9 +183,9 @@ public class HybridCache {
 		String fileNameInCache = file.getPath().toString().replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX;
 		File fileToAdd = currentFolder.toPath().resolve(fileNameInCache).toFile();
 		if (fileToAdd.exists()) {
-			hybridDelete(fileToAdd);
+			hybridDelete(new File(fileNameInCache));
 		} else {
-			hybridAdd(fileToAdd);
+			hybridAdd(new File(fileNameInCache));
 		}
 		currentCmCache.write(file);
 	}
@@ -198,12 +201,12 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public void write(VariabilityModel vmModel) throws IOException {
-		for (Path add : VM_CACHE_FILES) {
-			File fileToAdd = currentFolder.toPath().resolve(add).toFile();
+		for (Path vmCacheFile : VM_CACHE_FILES) {
+			File fileToAdd = currentFolder.toPath().resolve(vmCacheFile).toFile();
 			if (fileToAdd.exists()) {
-				hybridDelete(fileToAdd);
+				hybridDelete(vmCacheFile.toFile());
 			} else {
-				hybridAdd(fileToAdd);
+				hybridAdd(vmCacheFile.toFile());
 			}
 		}
 		currentVmCache.write(vmModel);
@@ -220,12 +223,12 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public void write(BuildModel buildModel) throws IOException {
-		for (Path add : BM_CACHE_FILES) {
-			File fileToAdd = currentFolder.toPath().resolve(add).toFile();
+		for (Path bmCacheFile : BM_CACHE_FILES) {
+			File fileToAdd = currentFolder.toPath().resolve(bmCacheFile).toFile();
 			if (fileToAdd.exists()) {
-				hybridDelete(fileToAdd);
+				hybridDelete(bmCacheFile.toFile());
 			} else {
-				hybridAdd(fileToAdd);
+				hybridAdd(bmCacheFile.toFile());
 			}
 		}
 		currentBmCache.write(buildModel);
@@ -244,7 +247,7 @@ public class HybridCache {
 	 * @throws FormatException
 	 *             the format exception
 	 */
-	public SourceFile readCm(File cacheFile) throws IOException, FormatException {
+	protected SourceFile readCmCacheFile(File cacheFile) throws IOException, FormatException {
 		File originalFile = getOriginalFile(cacheFile);
 		if (originalFile != null) {
 			return currentCmCache.read(originalFile);
@@ -261,7 +264,7 @@ public class HybridCache {
 	 *            the cached file
 	 * @return the original file
 	 */
-	private static File getOriginalFile(File cachedFile) {
+	protected File getOriginalFile(File cachedFile) {
 		String cachedFilePath = cachedFile.getPath();
 		String originalFilePath = null;
 		File originalFile = null;
@@ -277,10 +280,9 @@ public class HybridCache {
 
 		return originalFile;
 	}
-	
 
 	/**
-	 * Read bm in current version.
+	 * Read build model in current version.
 	 *
 	 * @return the builds the model
 	 * @throws FormatException
@@ -294,7 +296,7 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read vm in current version.
+	 * Read variability model in current version.
 	 *
 	 * @return the variability model
 	 * @throws FormatException
@@ -308,19 +310,20 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read cm in previous version.
-	 *
+	 * Read code model in previous version from a cache-file.
+	 * 
 	 * @param target
-	 *            the target
+	 *            File object representing a cache-file.
 	 * @return the source file
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 * @throws FormatException
 	 *             the format exception
 	 */
-	public SourceFile readPreviousCm(File target) throws IOException, FormatException {
+	protected SourceFile readPreviousCmCacheFile(File target) throws IOException, FormatException {
 
 		SourceFile result = null;
+
 		// read from replaced folder if file was deleted or got replaced through the
 		// current version
 		if (replacedFolder.toPath().resolve(target.toPath()).toFile().exists()) {
@@ -339,7 +342,7 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read bm in previous version.
+	 * Read build model in previous version.
 	 *
 	 * @return the builds the model
 	 * @throws FormatException
@@ -361,7 +364,7 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read vm in previous version.
+	 * Read variability model in previous version.
 	 *
 	 * @return the variability model
 	 * @throws FormatException
@@ -389,7 +392,7 @@ public class HybridCache {
 	 *            the paths
 	 * @return true, if successful
 	 */
-	private boolean existsInReplaced(Path[] paths) {
+	protected boolean existsInReplaced(Path[] paths) {
 		boolean existsInPrevious = true;
 		for (Path bmFile : paths) {
 			if (existsInPrevious) {
@@ -412,14 +415,15 @@ public class HybridCache {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	protected void hybridAdd(File target) throws IOException {
-		File deleteOnRollback = addedFolder.toPath().resolve(target.toPath()).toFile();
-		deleteOnRollback.getParentFile().mkdirs();
-		deleteOnRollback.createNewFile();
+		File addedFile = addedFolder.toPath().resolve(target.toPath()).toFile();
+		addedFile.getParentFile().mkdirs();
+		addedFile.createNewFile();
 	}
 
 	/**
 	 * Moves a file that is deleted from the current model so that it can be
-	 * accessed via functions like {@link HybridCache#readPreviousCm(File)},
+	 * accessed via functions like
+	 * {@link HybridCache#readPreviousCmCacheFile(File)},
 	 * {@link HybridCache#readPreviousVm()} or {@link HybridCache#readPreviousBm()}.
 	 *
 	 * @param target
@@ -449,7 +453,7 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read all previous cm.
+	 * Read complete previous code model.
 	 *
 	 * @return the collection
 	 * @throws IOException
@@ -457,37 +461,77 @@ public class HybridCache {
 	 * @throws FormatException
 	 *             the format exception
 	 */
-	public Collection<SourceFile> readAllPreviousCm() throws IOException, FormatException {
+	public Collection<SourceFile> readPreviousCm() throws IOException, FormatException {
+		// list all files in the current folder
 		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
+
+		// add all files in the replaced folder as the replaced folder also contains
+		// files that were deleted in the current model
 		files.addAll(FolderUtil.listRelativeFiles(replacedFolder, false));
+
+		// remove all files that were newly added in the current model
 		files.removeAll(FolderUtil.listRelativeFiles(addedFolder, false));
+
+		// read models for the files
 		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
 		for (File file : files) {
 			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-				sourceFiles.add(readPreviousCm(file));
+				sourceFiles.add(readPreviousCmCacheFile(file));
 			}
 		}
 		return sourceFiles;
 	}
 
 	/**
-	 * Read all cm.
+	 * Read complete current code model.
 	 *
-	 * @return the collection
+	 * @return the collection representing the model
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 * @throws FormatException
 	 *             the format exception
 	 */
-	public Collection<SourceFile> readAllCm() throws IOException, FormatException {
+	public Collection<SourceFile> readCm() throws IOException, FormatException {
 		Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
 		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
 		for (File file : files) {
 			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-				sourceFiles.add(readCm(file));
+				sourceFiles.add(readCmCacheFile(file));
 			}
 		}
 		return sourceFiles;
+	}
+
+	/**
+	 * Reads current code model for a single file within the source-tree from cache.
+	 *
+	 * @param file
+	 *            relative file within the source-tree
+	 * @return the source file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws FormatException
+	 *             the format exception
+	 */
+	public SourceFile readCm(File file) throws IOException, FormatException {
+		return readCmCacheFile(new File(file.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX));
+	}
+
+	/**
+	 * Reads previous code model for a single file within the source-tree from
+	 * cache.
+	 *
+	 * @param file
+	 *            relative file within the source-tree
+	 * @return the source file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws FormatException
+	 *             the format exception
+	 */
+	public SourceFile readPreviousCm(File file) throws IOException, FormatException {
+		return readPreviousCmCacheFile(
+				new File(file.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX));
 	}
 
 	/**
@@ -505,7 +549,7 @@ public class HybridCache {
 		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
 		for (File file : files) {
 			if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-				sourceFiles.add(readCm(file));
+				sourceFiles.add(readCmCacheFile(file));
 			}
 		}
 		return sourceFiles;
