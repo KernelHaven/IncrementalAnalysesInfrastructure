@@ -195,38 +195,43 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 		// Deletion of models for files removed in the diff-file //
 		///////////////////////////////////////////////////////////
 
-		try {
-			// Try to reuse existing parsed diff if available from preparation
-			if (parsedDiffFile.exists()) {
-				LOGGER.logInfo("Reusing parsed diff-file: " + parsedDiffFile.getAbsolutePath());
+		if (parsedDiffFile.exists()) {
+			LOGGER.logInfo("Reusing parsed diff-file: " + parsedDiffFile.getAbsolutePath());
+			try {
 				diffFile = DiffFile.load(parsedDiffFile);
+			} catch (IOException e) {
+				LOGGER.logError("Could not reuse parsed diff-file: " + parsedDiffFile.getAbsolutePath());
 			}
+		}
+
+		if (diffFile == null) {
+			// Try to reuse existing parsed diff if available from preparati
 			// If no parsed diff was available for reuse, generate a new DiffFile-Object
 			if (diffFile == null) {
-				LOGGER.logInfo("Parsing diff-file: " + originalDiffFile.getAbsolutePath());
-				diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
-			}
-
-			// with the help of the diffFile, remove all models corresponding to deleted
-			// files
-			for (FileEntry entry : diffFile.getEntries()) {
-				if (entry.getType().equals(FileEntry.Type.DELETION)) {
-					try {
-						LOGGER.logDebug("Deleting model because of DiffEntry: " + entry);
-						hybridCache.deleteCodeModel(entry.getPath().toFile());
-					} catch (IOException exception) {
-						LOGGER.logException("Could not delete CodeModel-File. "
-								+ "This may result in an inconsistent state of Hybridcache. "
-								+ "To fix an inconsistent state you can either do a rollback "
-								+ "or extract all models from scratch.", exception);
-					}
+				LOGGER.logInfo("Parsing original diff-file: " + originalDiffFile.getAbsolutePath());
+				try {
+					diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
+				} catch (IOException e) {
+					LOGGER.logError("Could not parse diff-file: " + originalDiffFile.getAbsolutePath(),
+							"This is a major problem as it might result in an inconsistent state of your HybridCache-directory.");
 				}
 			}
-		} catch (IOException e) {
-			// Should not happen but if it does, we want to know
-			LOGGER.logException("DiffFile \""
-					+ config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE).getAbsolutePath()
-					+ "\" could not be accessed eventhough it got approved when registerAllSettings() was called.", e);
+		}
+
+		// with the help of the diffFile, remove all models corresponding to deleted
+		// files
+		for (FileEntry entry : diffFile.getEntries()) {
+			if (entry.getType().equals(FileEntry.Type.DELETION)) {
+				try {
+					LOGGER.logDebug("Deleting model because of DiffEntry: " + entry);
+					hybridCache.deleteCodeModel(entry.getPath().toFile());
+				} catch (IOException exception) {
+					LOGGER.logException("Could not delete CodeModel-File. "
+							+ "This may result in an inconsistent state of Hybridcache. "
+							+ "To fix an inconsistent state you can either do a rollback "
+							+ "or extract all models from scratch.", exception);
+				}
+			}
 		}
 
 		///////////////////////////////////
