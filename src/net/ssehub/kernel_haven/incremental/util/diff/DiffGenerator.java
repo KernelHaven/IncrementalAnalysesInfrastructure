@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
-public class DiffGenerationUtil {
+public class DiffGenerator {
 
 	public static final String EMPTY_REPOSITORY_HASH = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 	public static final String CURRENT_COMMIT_HASH = "HEAD";
@@ -20,7 +21,7 @@ public class DiffGenerationUtil {
 	private static final Logger LOGGER = Logger.get();
 	private File gitRepository;
 
-	public DiffGenerationUtil(File gitRepository) {
+	public DiffGenerator(File gitRepository) {
 		this.gitRepository = gitRepository;
 	}
 
@@ -48,8 +49,6 @@ public class DiffGenerationUtil {
 				LOGGER.logDebug(("git apply stderr:\n" + stderr).split("\n"));
 			}
 		}
-
-
 
 		return success;
 	}
@@ -116,25 +115,37 @@ public class DiffGenerationUtil {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File linuxRepo = new File("/home/moritz/Schreibtisch/linux-repo/linux");
-		File outputDir = new File("/home/moritz/Schreibtisch/linux-repo/diffs");
 
-		System.out.println("started");
-		DiffGenerationUtil diffGen = new DiffGenerationUtil(linuxRepo);
-		System.out.println("Creating list of commits in range ...");
-		List<String> commits = diffGen.listAllCommitsInRange("4fbd8d194f06c8a3fd2af1ce560ddb31f7ec8323",
-				"d8a5b80568a9cb66810e75b182018e9edb68e8ff");
+		System.out.println("Enter path to Linux repo:");
+		Scanner scanner = new Scanner(System.in);
+		String linuxRepoString = scanner.nextLine();
+		System.out.println("Enter path to store diffs to:");
+		String outputDirString = scanner.nextLine();
 
-		System.out.println("Creating list of commits with empty start ...");
+		File linuxRepo = new File(linuxRepoString);
+		File outputDir = new File(outputDirString);
+
+		DiffGenerator diffGen = new DiffGenerator(linuxRepo);
+
+		System.out.println("Enter the commit hash of the commit that you want to be considered the initial commit:");
+
+		String commitStart = scanner.nextLine();
+
+		System.out.println("Enter the commit hash of the commit that you want to be considered the last commit:");
+
+		String commitEnd = scanner.nextLine();
+
+		System.out.println("Creating list of commits ...");
+		List<String> commits = diffGen.listAllCommitsInRange(commitStart, commitEnd);
 		List<String> commitsWithEmptyStart = new ArrayList<String>();
 		commitsWithEmptyStart.add(EMPTY_REPOSITORY_HASH);
 
 		commitsWithEmptyStart.addAll(commits);
 
-		System.out.println("Generating diffs for following commit-hashes:" +
-				Arrays.toString(commitsWithEmptyStart.toArray()));
-
+		System.out.println("Generating diffs for commits ...");
 		diffGen.generateDiffs(commitsWithEmptyStart, outputDir);
+
+		scanner.close();
 	}
 
 }
