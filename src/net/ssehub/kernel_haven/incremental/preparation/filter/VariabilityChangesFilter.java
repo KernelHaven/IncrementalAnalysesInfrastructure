@@ -55,7 +55,7 @@ public class VariabilityChangesFilter extends InputFilter {
 				LOGGER.logError("The following FileEntry was not analyzed for variability-changes. "
 						+ this.getClass().getSimpleName() + " was used as filter. Perhaps the "
 								+ DiffAnalyzer.class.getSimpleName()
-								+ "you used does not analyze for variability-changes . Please check your configuration. \n"
+								+ " you used does not analyze for variability-changes . Please check your configuration. \n"
 								+ entry);
 			}
 		}

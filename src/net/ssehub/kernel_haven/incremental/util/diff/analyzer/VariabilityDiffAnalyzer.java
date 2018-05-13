@@ -19,6 +19,7 @@ import diff.OtherFileDiff;
 import diff.SourceFileDiff;
 import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.util.diff.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.util.Logger;
 
 /* this class is a modification of diff.DiffAnalyzer-Implementation
@@ -146,22 +147,26 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 
 			// Analyze for change Type
 			List<String> lines = Arrays.asList(diff.split("\\r?\\n"));
-			for (int i = 0; i + 1 < lines.size(); i++) {
-				String currentLine = lines.get(i);
-				if (currentLine.startsWith(DIFF_START_PATTERN)) {
-					String nextLine = lines.get(i + 1);
-					filePath = currentLine.substring(currentLine.indexOf("a/") + "a/".length(),
-							currentLine.indexOf(" b/"));
-					LOGGER.logDebug("Analyzing commit entry for file " + filePath.toString());
-					if (nextLine.startsWith("new file mode")) {
-						type = FileEntry.Type.ADDITION;
-						break;
-					} else if (nextLine.startsWith("deleted file mode")) {
-						type = FileEntry.Type.DELETION;
-						break;
-					} else {
-						type = FileEntry.Type.MODIFICATION;
-						break;
+			String currentLine = null;
+			String nextLine = null;
+			for (String line : lines) {
+				currentLine = nextLine;
+				nextLine = line;
+				if (currentLine != null) {
+					if (currentLine.startsWith(DIFF_START_PATTERN)) {
+						filePath = currentLine.substring(currentLine.indexOf("a/") + "a/".length(),
+								currentLine.indexOf(" b/"));
+						LOGGER.logDebug("Analyzing commit entry for file " + filePath.toString());
+						if (nextLine.startsWith("new file mode")) {
+							type = FileEntry.Type.ADDITION;
+							break;
+						} else if (nextLine.startsWith("deleted file mode")) {
+							type = FileEntry.Type.DELETION;
+							break;
+						} else {
+							type = FileEntry.Type.MODIFICATION;
+							break;
+						}
 					}
 				}
 			}
@@ -170,9 +175,6 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 			fileDiff = createFileDiff(diff);
 			if (fileDiff != null) {
 				if (!fileDiff.getFileType().equals(FileType.OTHER)) {
-					// if the file does contain content representing the variability, build or
-					// code-model
-					// check for changes in variability
 					if (getChangedLines(fileDiff, true) > 0) {
 						change = FileEntry.VariabilityChange.CHANGE;
 					} else {
@@ -181,6 +183,14 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 				} else {
 					change = FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE;
 				}
+			} else {
+				// When the ComAn-Logic fails to determine the type of change it is better to
+				// risk a false positive as this
+				// should always result in a correct analysis of the artifacts within the
+				// incremental infrastructure.
+				// However false positives result in a more costly analysis.
+				LOGGER.logWarning("variability change type could not be determined for enty: " + filePath,
+						"Marking entry as " + VariabilityChange.CHANGE + " to ensure a correct extraction of the model.");
 			}
 
 			// Add new entry for the file currently considered

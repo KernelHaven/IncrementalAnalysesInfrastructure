@@ -77,6 +77,12 @@ public class FileUtil {
 	}
 
 	public static void writeFile(File file, String content) throws IOException {
+		if (file.exists()) {
+			file.delete();
+		}
+
+		file.createNewFile();
+
 		try (PrintWriter out = new PrintWriter(file)) {
 			out.println(content);
 		}
