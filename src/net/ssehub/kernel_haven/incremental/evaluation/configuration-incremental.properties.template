@@ -1,0 +1,77 @@
+######################################
+#    General Pipeline Parameters     #
+######################################
+
+resource_dir = res/
+output_dir = output-incremental/
+plugins_dir = plugins/
+cache_dir = cache/
+archive = true
+archive.dir = archive-incremental/
+### Logging ###
+log.dir = log-incremental/
+log.console = true
+log.file = true
+log.level = DEBUG
+
+
+##############################
+#     Analysis Parameters    #
+##############################
+
+analysis.class = net.ssehub.kernel_haven.incremental.analysis.IncrementalDeadCodeAnalysis
+
+incremental.hybrid_cache.dir = hybrid_cache/
+incremental.input.source_tree_diff = ${diff.file}
+preparation.class.0 = net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation
+
+#incremental.code.diff_analyzer_class = net.ssehub.kernel_haven.incremental.util.diff.analyzer.ParsedDiffAnalyzer
+
+incremental.code.filter = net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilter
+incremental.build.filter = net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilter
+incremental.variability.filter = net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilter
+
+analysis.pipeline.preemptively_start_extractors = false
+
+#####################################
+#    Common Extractor Parameters    #
+#####################################
+
+source_tree = source-code/linux/
+arch = x86
+
+
+################################
+#     Code Model Parameters    #
+################################
+
+code.provider.timeout = 0
+code.provider.cache.write = false
+code.provider.cache.read = false
+code.extractor.class = net.ssehub.kernel_haven.block_extractor.CodeBlockExtractor
+
+# Typechef parses header files indirectly via macro expansion
+code.extractor.file_regex = .*\.c
+code.extractor.parse_to_ast = true
+code.extractor.threads = 1
+code.extractor.process_ram = 500m
+code.extractor.fuzzy_parsing = true
+
+
+################################
+#    Build Model Parameters    #
+################################
+
+build.provider.timeout = 0
+build.provider.cache.write = false
+build.provider.cache.read = false
+build.extractor.class = net.ssehub.kernel_haven.kbuildminer.KbuildMinerExtractor
+
+#######################################
+#     Variability Model Parameters    #
+#######################################
+
+variability.provider.timeout = 0
+variability.provider.cache.write = false
+variability.provider.cache.read = false
+variability.extractor.class = net.ssehub.kernel_haven.kconfigreader.KconfigReaderExtractor

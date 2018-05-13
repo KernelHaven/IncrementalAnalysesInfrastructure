@@ -1,0 +1,66 @@
+######################################
+#    General Pipeline Parameters     #
+######################################
+
+resource_dir = res/
+output_dir = output/
+plugins_dir = plugins/
+cache_dir = cache/
+archive = true
+archive.dir = archive-recerence/
+### Logging ###
+log.dir = log-reference/
+log.console = true
+log.file = true
+log.level = DEBUG
+
+
+##############################
+#     Analysis Parameters    #
+##############################
+
+analysis.class = net.ssehub.kernel_haven.undead_analyzer.DeadCodeAnalysis
+
+
+#####################################
+#    Common Extractor Parameters    #
+#####################################
+
+source_tree = source-code/linux/
+arch = x86
+
+
+################################
+#     Code Model Parameters    #
+################################
+
+code.provider.timeout = 0
+code.provider.cache.write = false
+code.provider.cache.read = false
+code.extractor.class = net.ssehub.kernel_haven.block_extractor.CodeBlockExtractor
+
+# Typechef parses header files indirectly via macro expansion
+code.extractor.file_regex = .*\.c
+code.extractor.parse_to_ast = true
+code.extractor.threads = 1
+code.extractor.process_ram = 500m
+code.extractor.fuzzy_parsing = true
+
+
+################################
+#    Build Model Parameters    #
+################################
+
+build.provider.timeout = 0
+build.provider.cache.write = false
+build.provider.cache.read = false
+build.extractor.class = net.ssehub.kernel_haven.kbuildminer.KbuildMinerExtractor
+
+#######################################
+#     Variability Model Parameters    #
+#######################################
+
+variability.provider.timeout = 0
+variability.provider.cache.write = false
+variability.provider.cache.read = false
+variability.extractor.class = net.ssehub.kernel_haven.kconfigreader.KconfigReaderExtractor
