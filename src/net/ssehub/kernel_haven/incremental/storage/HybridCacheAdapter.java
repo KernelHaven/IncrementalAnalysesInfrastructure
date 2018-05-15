@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
@@ -96,6 +97,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	 */
 	@Override
 	protected void execute() {
+		long start = System.nanoTime();
 		HybridCache data;
 
 		if ((data = inputComponent.getNextResult()) != null) {
@@ -161,6 +163,10 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 		synchronized (bmComponent) {
 			bmComponent.notifyAll();
 		}
+
+		
+		long totalTime = System.nanoTime() - start;
+		LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"  + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
 
 	}
 

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.IPreparation;
@@ -41,8 +42,10 @@ public class IncrementalPreparation implements IPreparation {
 	 */
 	@Override
 	public void run(Configuration config) throws SetUpException {
+		long start = System.nanoTime();
+		
 		IncrementalAnalysisSettings.registerAllSettings(config);
-		LOGGER.logInfo("IncrementalPreparation started");
+
 
 		File inputDiff = (File) config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
 		File inputSourceDir = (File) config.getValue(DefaultSettings.SOURCE_TREE);
@@ -108,8 +111,9 @@ public class IncrementalPreparation implements IPreparation {
 
 		}
 
+		long totalTime =  System.nanoTime() - start;
 		// Finish and let KernelHaven run
-		LOGGER.logInfo("IncrementalPreparation finished");
+		LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"  + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
 	}
 
 	/**

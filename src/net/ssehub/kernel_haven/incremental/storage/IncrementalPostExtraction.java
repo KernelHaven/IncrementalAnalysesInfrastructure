@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -73,12 +74,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	 */
 	@Override
 	protected void execute() {
+		long start = System.nanoTime();
 
 		HybridCache hybridCache = new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
 		hybridCache.clearChangeHistory();
 
 		// start threads for each model-type so they can run parallel
-
 		Thread cmThread = null;
 		if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
 			cmThread = new Thread() {
@@ -134,10 +135,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 				LOGGER.logException("Thread interrupted", e);
 			}
 		}
-
 		// add results
 
 		this.addResult(hybridCache);
+		
+		long totalTime = System.nanoTime() - start;
+		LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"  + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
 
 	}
 
