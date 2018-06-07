@@ -59,6 +59,10 @@ public class IncrementalAnalysisSettings {
 	public static final Setting<Boolean> EXTRACT_BUILD_MODEL = new Setting<Boolean>("incremental.build.extract_bm",
 			BOOLEAN, true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
 	
+	public static final Setting<Boolean> ROLLBACK = new Setting<Boolean>("incremental.rollback",
+			BOOLEAN, true, "FALSE", "This setting defines whether a rollback sould be performed");
+	
+	
 
 	
 	/**
