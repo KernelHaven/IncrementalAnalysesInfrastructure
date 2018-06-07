@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util.diff;
+package net.ssehub.kernel_haven.incremental.diff;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +15,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
@@ -53,7 +53,7 @@ public class DiffFileTest {
 	 */
 	@Test
 	public void testGetEntries_modification() throws IOException {
-		DiffFile diffFile = SimpleDiffAnalyzer.generateDiffFile(GIT_DIFF);
+		DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
 		Collection<Path> paths = new ArrayList<Path>();
 		for (FileEntry entry : diffFile.getEntries()) {
 			if (entry.getType().equals(FileEntry.Type.MODIFICATION)) {
@@ -68,7 +68,7 @@ public class DiffFileTest {
 
 	@Test
 	public void testSave() throws IOException, JAXBException {
-		DiffFile diffFile = SimpleDiffAnalyzer.generateDiffFile(GIT_DIFF);
+		DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
 		File file = Files.createTempFile("git-diff", "temp").toFile();
 		file.deleteOnExit();
 		diffFile.save(file);
@@ -77,7 +77,7 @@ public class DiffFileTest {
 
 	@Test
 	public void testLoad() throws IOException, JAXBException {
-		DiffFile referenceDiffFile = SimpleDiffAnalyzer.generateDiffFile(GIT_DIFF);
+		DiffFile referenceDiffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
 
 		DiffFile loadedDiffFile = DiffFile.load(DIFF_FILE);
 

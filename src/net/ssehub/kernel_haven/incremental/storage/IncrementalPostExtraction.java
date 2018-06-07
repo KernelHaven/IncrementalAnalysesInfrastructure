@@ -9,11 +9,11 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -75,7 +75,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	@Override
 	protected void execute() {
 		long start = System.nanoTime();
-
+		
 		HybridCache hybridCache = new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
 		hybridCache.clearChangeHistory();
 
@@ -152,28 +152,40 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	 */
 	private void variabilityModelExtraction(HybridCache hybridCache) {
 		VariabilityModel variabilityModel;
-		while ((variabilityModel = vmComponent.getNextResult()) != null) {
+		if ((variabilityModel = vmComponent.getNextResult()) != null) {
 			try {
 				hybridCache.write(variabilityModel);
 			} catch (IOException e) {
 				LOGGER.logException("Could not write variability-model to HybridCache", e);
 			}
+		} else {
+			try {
+				hybridCache.deleteVariabilityModel();
+			} catch (IOException e) {
+				LOGGER.logException("Could not delete variability-model from HybridCache", e);
+			}
 		}
 	}
 
 	/**
-	 * Builds the model extraction.
+	 * Build model extraction.
 	 *
 	 * @param hybridCache
 	 *            the hybrid cache to write the extracated results to.
 	 */
 	private void buildModelExtraction(HybridCache hybridCache) {
 		BuildModel buildModel;
-		while ((buildModel = bmComponent.getNextResult()) != null) {
+		if ((buildModel = bmComponent.getNextResult()) != null) {
 			try {
 				hybridCache.write(buildModel);
 			} catch (IOException e) {
 				LOGGER.logException("Could not write build-model to HybridCache", e);
+			}
+		} else {
+			try {
+				hybridCache.deleteBuildModel();
+			} catch (IOException e) {
+				LOGGER.logException("Could not delete build-model from HybridCache", e);
 			}
 		}
 	}
@@ -213,7 +225,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			if (diffFile == null) {
 				LOGGER.logInfo("Parsing original diff-file: " + originalDiffFile.getAbsolutePath());
 				try {
-					diffFile = SimpleDiffAnalyzer.generateDiffFile(originalDiffFile);
+					diffFile = new SimpleDiffAnalyzer().generateDiffFile(originalDiffFile);
 				} catch (IOException e) {
 					LOGGER.logError("Could not parse diff-file: " + originalDiffFile.getAbsolutePath(),
 							"This is a major problem as it might result in an inconsistent state of your HybridCache-directory.");

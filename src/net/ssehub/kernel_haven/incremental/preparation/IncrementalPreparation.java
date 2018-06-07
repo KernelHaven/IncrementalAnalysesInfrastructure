@@ -14,10 +14,10 @@ import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.diff.DiffApplyUtil;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffApplyUtil;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -182,13 +182,15 @@ public class IncrementalPreparation implements IPreparation {
 		try {
 			@SuppressWarnings("rawtypes")
 			Class analyzerClass = Class.forName(analyzerClassName);
+			Object analyzerObject = analyzerClass.getConstructor()
+					.newInstance();
 			Method getFilteredResultMethod = analyzerClass.getMethod("generateDiffFile", File.class);
 			LOGGER.logInfo("Analyzing git-diff with " + analyzerClass.getSimpleName()
 					+ ". This may take a while for large git-diffs.");
-			diffFile = (DiffFile) getFilteredResultMethod.invoke(null, inputGitDiff);
+			diffFile = (DiffFile) getFilteredResultMethod.invoke(analyzerObject, inputGitDiff);
 
-		} catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException
-				| InvocationTargetException e) {
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
+				| InvocationTargetException e){
 			throw new SetUpException("The specified DiffAnalyzer class \"" + analyzerClassName
 					+ "\" could not be used: " + e.getClass().getName() + "\n" + e.getMessage());
 		}

@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,9 +17,9 @@ import diff.FileDiff.FileType;
 import diff.ModelFileDiff;
 import diff.OtherFileDiff;
 import diff.SourceFileDiff;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry.VariabilityChange;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.util.Logger;
 
 /* this class is a modification of diff.DiffAnalyzer-Implementation
@@ -34,7 +34,7 @@ import net.ssehub.kernel_haven.util.Logger;
  * @author Christian Kroeher, Moritz Floeter
  *
  */
-public class VariabilityDiffAnalyzer implements DiffAnalyzer {
+public class VariabilityDiffAnalyzer extends DiffAnalyzer {
 
 	/** The logger. */
 	private static Logger LOGGER = Logger.get();
@@ -134,7 +134,7 @@ public class VariabilityDiffAnalyzer implements DiffAnalyzer {
 	 * @see
 	 * net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer#parse()
 	 */
-	public static DiffFile generateDiffFile(File file) throws IOException {
+	public DiffFile generateDiffFile(File file) throws IOException {
 		Collection<FileEntry> fileEntries = new ArrayList<FileEntry>();
 		// Create list off diff entries where each entry in the list represents changes
 		// for a single file

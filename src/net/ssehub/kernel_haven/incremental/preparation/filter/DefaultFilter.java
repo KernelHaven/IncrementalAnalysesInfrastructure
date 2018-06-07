@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
 
 /**
  * A filter which does only filter the regex-pattern.

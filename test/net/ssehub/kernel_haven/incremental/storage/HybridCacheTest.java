@@ -62,18 +62,18 @@ public class HybridCacheTest extends HybridCache {
 	}
 
 	@Test
-	public void testGetOriginalFile() throws Exception {
-		Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
-
-		HybridCache cache = new HybridCache(tempFolder.toFile());
-
-		Assert.assertThat(cache.getOriginalFile(new File("cached.file.c.cache")),
-				CoreMatchers.equalTo(new File("cached/file.c")));
-
-		Assert.assertThat(cache.getOriginalFile(new File("dir.cached.file.c.cache")),
-				CoreMatchers.equalTo(new File("dir/cached/file.c")));
-
-	}
+		public void testGetOriginalCodeModelFile() throws Exception {
+			Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
+	
+			HybridCache cache = new HybridCache(tempFolder.toFile());
+	
+			Assert.assertThat(cache.getOriginalCodeModelFile(new File("cached.file.c.cache")),
+					CoreMatchers.equalTo(new File("cached/file.c")));
+	
+			Assert.assertThat(cache.getOriginalCodeModelFile(new File("dir.cached.file.c.cache")),
+					CoreMatchers.equalTo(new File("dir/cached/file.c")));
+	
+		}
 
 	@Test
 	public void testWriteSourceFile_addedFile() throws Exception {

@@ -1,10 +1,10 @@
-package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
 import java.io.File;
 import java.io.IOException;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 
 /**
  * Abstract Analyzer class that can create a {@link FileEntry}-collection. Each
@@ -13,7 +13,11 @@ import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
  * @author moritz floeter
  * 
  */
-public interface DiffAnalyzer {
+public abstract class DiffAnalyzer {
+
+	public DiffAnalyzer() {
+		
+	}
 
 	/**
 	 * Parses the input given to the {@link DiffAnalyzer} and creates a
@@ -23,9 +27,6 @@ public interface DiffAnalyzer {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public static DiffFile generateDiffFile(File file) throws IOException {
-		return null;
-
-	}
+	public abstract DiffFile generateDiffFile(File file) throws IOException;
 
 }

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 
 /**
  * This is an {@link InputFilter} used to generate a set of

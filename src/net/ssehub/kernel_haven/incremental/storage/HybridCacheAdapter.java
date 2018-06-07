@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
+// TODO: Auto-generated Javadoc
 /**
  * Special adapter class to enable any pipeline-analysis to run as an
  * incremental analysis.
@@ -34,6 +35,19 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 
+	/**
+	 * The Enum CodeModelProcessing.
+	 */
+	public enum CodeModelProcessing {
+
+		/** The complete. */
+		COMPLETE,
+		/** The partial. */
+		PARTIAL,
+		/** The partial optimized. */
+		PARTIAL_OPTIMIZED;
+	}
+
 	/** The config. */
 	private @NonNull Configuration config;
 
@@ -50,7 +64,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	private OutputComponent<SourceFile> cmComponent;
 
 	/** The change set only for cm. */
-	private boolean changeSetOnlyForCm = false;
+	private CodeModelProcessing cmProcessing;
 
 	/**
 	 * Creates this double analysis component with the given input component.
@@ -59,19 +73,18 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	 *            The global configuration.
 	 * @param inputComponent
 	 *            The component to get the results to pass to both other components.
-	 * @param changeSetOnlyForCm
-	 *            defines whether only the newly extracted files of the codemodel
-	 *            should be used.
+	 * @param cmProcessing
+	 *            the processing strategy for the codemodel
 	 */
 	public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent,
-			boolean changeSetOnlyForCm) {
+			CodeModelProcessing cmProcessing) {
 		super(config);
 		this.config = config;
 		bmComponent = new OutputComponent<BuildModel>(config, "HybridCacheAdapter-bmComponent");
 		vmComponent = new OutputComponent<VariabilityModel>(config, "HybridCacheAdapter-vmComponent");
 		cmComponent = new OutputComponent<SourceFile>(config, "HybridCacheAdapter-cmComponent");
 		this.inputComponent = inputComponent;
-		this.changeSetOnlyForCm = changeSetOnlyForCm;
+		this.cmProcessing = cmProcessing;
 	}
 
 	/**
@@ -85,9 +98,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	 *            The component to get the results to pass to both other components.
 	 */
 	public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent) {
-		super(config);
-		this.config = config;
-		this.inputComponent = inputComponent;
+		this(config, inputComponent, CodeModelProcessing.COMPLETE);
 	}
 
 	/*
@@ -104,10 +115,10 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 			try {
 				// Get models
 				Collection<SourceFile> codeModel;
-				if (changeSetOnlyForCm) {
-					codeModel = data.readCmChangeSet();
-				} else {
+				if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
 					codeModel = data.readCm();
+				} else {
+					codeModel = data.readCmNewlyWrittenParts();
 				}
 
 				BuildModel buildModel = data.readBm();
@@ -133,7 +144,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 					if (srcFile == null) {
 						throw new NullPointerException("SourceFile was null - this should never happen");
 					} else {
-						cmComponent.myAddResult(srcFile);
+						
+					    if (cmProcessing.equals(CodeModelProcessing.PARTIAL_OPTIMIZED)
+								&& !srcFile.equals(data.readPreviousCm(srcFile.getPath()))) {
+							cmComponent.myAddResult(srcFile);
+					    } else {
+					    	cmComponent.myAddResult(srcFile);
+					    }
+			
 					}
 				}
 
@@ -164,9 +182,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 			bmComponent.notifyAll();
 		}
 
-		
 		long totalTime = System.nanoTime() - start;
-		LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"  + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
+		LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"
+				+ TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
 
 	}
 

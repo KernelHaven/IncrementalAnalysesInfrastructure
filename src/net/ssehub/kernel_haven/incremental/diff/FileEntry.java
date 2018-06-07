@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util.diff;
+package net.ssehub.kernel_haven.incremental.diff;
 
 import java.nio.file.Path;
 import java.util.StringJoiner;

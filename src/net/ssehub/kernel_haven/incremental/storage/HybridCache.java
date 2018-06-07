@@ -15,6 +15,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.build_model.BuildModelCache;
 import net.ssehub.kernel_haven.code_model.CodeModelCache;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.incremental.util.FileUtil;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -248,7 +249,7 @@ public class HybridCache {
 	 *             the format exception
 	 */
 	protected SourceFile readCmCacheFile(File cacheFile) throws IOException, FormatException {
-		File originalFile = getOriginalFile(cacheFile);
+		File originalFile = getOriginalCodeModelFile(cacheFile);
 		if (originalFile != null) {
 			return currentCmCache.read(originalFile);
 		} else {
@@ -264,7 +265,7 @@ public class HybridCache {
 	 *            the cached file
 	 * @return the original file
 	 */
-	protected File getOriginalFile(File cachedFile) {
+	protected File getOriginalCodeModelFile(File cachedFile) {
 		String cachedFilePath = cachedFile.getPath();
 		String originalFilePath = null;
 		File originalFile = null;
@@ -321,13 +322,11 @@ public class HybridCache {
 	 *             the format exception
 	 */
 	protected SourceFile readPreviousCmCacheFile(File target) throws IOException, FormatException {
-
 		SourceFile result = null;
-
 		// read from replaced folder if file was deleted or got replaced through the
 		// current version
 		if (replacedFolder.toPath().resolve(target.toPath()).toFile().exists()) {
-			result = replacedCmCache.read(getOriginalFile(target));
+			result = replacedCmCache.read(getOriginalCodeModelFile(target));
 
 			/*
 			 * read from current folder if file was not newly added as the file was not
@@ -335,7 +334,7 @@ public class HybridCache {
 			 */
 		} else if (currentFolder.toPath().resolve(target.toPath()).toFile().exists()
 				&& !(addedFolder.toPath().resolve(target.toPath()).toFile().exists())) {
-			result = currentCmCache.read(getOriginalFile(target));
+			result = currentCmCache.read(getOriginalCodeModelFile(target));
 		}
 		return result;
 
@@ -394,9 +393,9 @@ public class HybridCache {
 	 */
 	protected boolean existsInReplaced(Path[] paths) {
 		boolean existsInPrevious = true;
-		for (Path bmFile : paths) {
+		for (Path path : paths) {
 			if (existsInPrevious) {
-				existsInPrevious = REPLACED_CACHE_FOLDER.resolve(bmFile).toFile().exists();
+				existsInPrevious = REPLACED_CACHE_FOLDER.resolve(path).toFile().exists();
 				if (!existsInPrevious) {
 					break;
 				}
@@ -519,7 +518,7 @@ public class HybridCache {
 
 	/**
 	 * Reads previous code model for a single file within the source-tree from
-	 * cache.
+	 * the cache.
 	 *
 	 * @param file
 	 *            relative file within the source-tree
@@ -535,7 +534,9 @@ public class HybridCache {
 	}
 
 	/**
-	 * Read changed cm.
+	 * Read the part of the codemodel that got written to the cache since the last time
+	 * {@link HybridCache#clearChangeHistory()} was called. This also includes
+	 * cached models where the models themselves did not change.
 	 *
 	 * @return the collection
 	 * @throws IOException
@@ -543,7 +544,7 @@ public class HybridCache {
 	 * @throws FormatException
 	 *             the format exception
 	 */
-	public Collection<SourceFile> readCmChangeSet() throws IOException, FormatException {
+	public Collection<SourceFile> readCmNewlyWrittenParts() throws IOException, FormatException {
 		Collection<File> files = FolderUtil.listRelativeFiles(replacedFolder, false);
 		files.addAll(FolderUtil.listRelativeFiles(addedFolder, false));
 		Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
@@ -554,7 +555,7 @@ public class HybridCache {
 		}
 		return sourceFiles;
 	}
-
+	
 	/**
 	 * Delete build model.
 	 *

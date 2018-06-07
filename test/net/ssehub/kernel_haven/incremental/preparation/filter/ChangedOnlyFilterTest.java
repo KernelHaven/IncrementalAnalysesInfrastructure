@@ -13,8 +13,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.preparation.filter.ChangedOnlyFilter;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
@@ -49,7 +49,7 @@ public class ChangedOnlyFilterTest {
 	 */
 	@Test
 	public void testDoFilter() throws IOException {
-		ChangedOnlyFilter filter = new ChangedOnlyFilter(MODIFIED_FOLDER, VariabilityDiffAnalyzer.generateDiffFile(DIFF_FILE), Pattern.compile(".*"));
+		ChangedOnlyFilter filter = new ChangedOnlyFilter(MODIFIED_FOLDER, new VariabilityDiffAnalyzer().generateDiffFile(DIFF_FILE), Pattern.compile(".*"));
 		Collection<Path> paths = filter.getFilteredResult();
 		LOGGER.logDebug(Arrays.toString(paths.toArray()));
 		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kbuild")));

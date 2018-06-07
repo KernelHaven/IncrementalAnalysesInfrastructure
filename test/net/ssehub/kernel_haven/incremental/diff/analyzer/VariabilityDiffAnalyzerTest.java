@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,13 +9,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.util.diff.analyzer.VariabilityDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ComAnDiffAnalyzerTest.
  */
@@ -42,7 +41,7 @@ public class VariabilityDiffAnalyzerTest {
 	@Test
 	public void testParse_modification_no_variability_change() throws IOException {
 		File inputFile = new File("testdata/variability-changes/no-variability-changes.diff");
-		DiffFile diffFile = VariabilityDiffAnalyzer.generateDiffFile(inputFile);
+		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
 		LOGGER.logDebug("The following entries were found: ");
 		diffFile.getEntries().forEach(entry -> LOGGER.logDebug(entry.toString()));
 
@@ -64,7 +63,7 @@ public class VariabilityDiffAnalyzerTest {
 	@Test
 	public void testParse_variability_change() throws IOException {
 		File inputFile = new File("testdata/variability-changes/some-variability-changes.diff");
-		DiffFile diffFile = VariabilityDiffAnalyzer.generateDiffFile(inputFile);
+		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
 		LOGGER.logDebug("The following entries were found: ");
 		diffFile.getEntries().forEach(entry -> LOGGER.logDebug(entry.toString()));
 

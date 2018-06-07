@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,31 +8,34 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
- * A simple {@link DiffAnalyzer}-Implementation that only analyzes
- * the type of change (that is Addition, Deletion or Modification) for
- * each file. Use {@link SimpleDiffAnalyzer} if you only need this
- * information. {@link VariabilityDiffAnalyzer} will also analyze for
- * variability-changes within the file-change but will take up
- * more resources than {@link SimpleDiffAnalyzer} for the task.
+ * A simple {@link DiffAnalyzer}-Implementation that only analyzes the type of
+ * change (that is Addition, Deletion or Modification) for each file. Use
+ * {@link SimpleDiffAnalyzer} if you only need this information.
+ * {@link VariabilityDiffAnalyzer} will also analyze for variability-changes
+ * within the file-change but will take up more resources than
+ * {@link SimpleDiffAnalyzer} for the task.
  * 
  * @author moritz
  * 
  */
-public class SimpleDiffAnalyzer implements DiffAnalyzer {
+public class SimpleDiffAnalyzer extends DiffAnalyzer {
 
-
-	/* (non-Javadoc)
-	 * @see net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer#parse()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.ssehub.kernel_haven.incremental.util.diff.analyzer.DiffAnalyzer#parse()
 	 */
-	public static DiffFile generateDiffFile(File file) throws IOException {
+	public DiffFile generateDiffFile(File file) throws IOException {
 		Collection<FileEntry> changed = new ArrayList<FileEntry>();
 
-		// We can not read lines (e.g. via Files.readAllLines(path)) to an array/list and iterate over it as this fails
+		// We can not read lines (e.g. via Files.readAllLines(path)) to an array/list
+		// and iterate over it as this fails
 		// for huge input-files such as the initial commit for a bigger software-project
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String currentLine = br.readLine();
@@ -48,7 +51,7 @@ public class SimpleDiffAnalyzer implements DiffAnalyzer {
 						type = FileEntry.Type.DELETION;
 						if (filePath == null) {
 							Logger.get().logDebug("Deletion with no filepath : ", currentLine, nextLine);
-						} 
+						}
 					} else {
 						type = FileEntry.Type.MODIFICATION;
 					}

@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 
 import diff.DiffAnalyzer;
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.util.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**

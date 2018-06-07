@@ -1,14 +1,14 @@
-package net.ssehub.kernel_haven.incremental.util.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
 import java.io.File;
 import java.io.IOException;
 
-import net.ssehub.kernel_haven.incremental.util.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.util.Logger;
 
-public class ParsedDiffAnalyzer implements DiffAnalyzer {
+public class ParsedDiffAnalyzer extends DiffAnalyzer {
 
-	public static DiffFile generateDiffFile(File file) throws IOException {
+	public  DiffFile generateDiffFile(File file) throws IOException {
 		Logger.get().logWarning(
 				"You are using the " + ParsedDiffAnalyzer.class.getSimpleName()
 						+ " which assumes that the diff-file already got parsed and is stored in a file named \""
