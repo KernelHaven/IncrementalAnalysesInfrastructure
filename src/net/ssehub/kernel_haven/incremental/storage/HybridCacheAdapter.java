@@ -39,14 +39,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	 * The Enum CodeModelProcessing.
 	 */
 	public enum CodeModelProcessing {
-
-		/** The complete. */
+		/** Provides the complete codemodel to the next component. */
 		COMPLETE,
-		/** The partial. */
+		/** Provides a partial codemodel to the next component containing only newly extracted parts of the model. */
 		PARTIAL,
-		/** The partial optimized. */
+		/** Provides a partial codemodel to the next component containing only those parts of the codemodel that did change */
 		PARTIAL_OPTIMIZED;
 	}
+	
 
 	/** The config. */
 	private @NonNull Configuration config;
