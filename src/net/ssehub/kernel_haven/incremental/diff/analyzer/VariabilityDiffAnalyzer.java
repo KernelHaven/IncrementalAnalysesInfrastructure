@@ -170,34 +170,27 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
 				}
 			}
 
-			// Mark all additions as change (even a sourcefile without #ifdef-blocks might change variability as it
-			// may be included or excluded in compilation through the KBuild-System). Consequently a deletion might also change variability.
-			if (type.equals(FileEntry.Type.ADDITION) || type.equals(FileEntry.Type.DELETION)) {
-				change = FileEntry.VariabilityChange.CHANGE;
-			} else {
-				// if the file was modified (Type.MODIFICATION), check if variability was modified within the file
-				// this is done by using the code of the ComAn-project
-				FileDiff fileDiff = createFileDiff(diff);
-				if (fileDiff != null) {
-					if (!fileDiff.getFileType().equals(FileType.OTHER)) {
-						if (getChangedLines(fileDiff, true) > 0) {
-							change = FileEntry.VariabilityChange.CHANGE;
-						} else {
-							change = FileEntry.VariabilityChange.NO_CHANGE;
-						}
+			//Check for Variability Changes
+			FileDiff fileDiff = createFileDiff(diff);
+			if (fileDiff != null) {
+				if (!fileDiff.getFileType().equals(FileType.OTHER)) {
+					if (getChangedLines(fileDiff, true) > 0) {
+						change = FileEntry.VariabilityChange.CHANGE;
 					} else {
-						change = FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE;
+						change = FileEntry.VariabilityChange.NO_CHANGE;
 					}
 				} else {
-					// When the ComAn-Logic fails to determine the type of change it is better to
-					// risk a false positive as this
-					// should always result in a correct analysis of the artifacts within the
-					// incremental infrastructure.
-					// However false positives result in a more costly analysis.
-					LOGGER.logWarning("variability change type could not be determined for enty: " + filePath,
-							"Marking entry as " + VariabilityChange.CHANGE
-									+ " to ensure a correct extraction of the model.");
+					change = FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE;
 				}
+			} else {
+				// When the ComAn-Logic fails to determine the type of change it is better to
+				// risk a false positive as this
+				// should always result in a correct analysis of the artifacts within the
+				// incremental infrastructure.
+				// However false positives result in a more costly analysis.
+				LOGGER.logWarning("variability change type could not be determined for enty: " + filePath,
+						"Marking entry as " + VariabilityChange.CHANGE
+								+ " to ensure a correct extraction of the model.");
 			}
 
 			// Add new entry for the file currently considered
