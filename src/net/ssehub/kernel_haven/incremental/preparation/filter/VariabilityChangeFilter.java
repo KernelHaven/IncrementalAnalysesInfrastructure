@@ -16,7 +16,7 @@ import net.ssehub.kernel_haven.util.Logger;
  * The Class ChangedOnlyFilter. This is an InputFilter used to generate a set of
  * files containing only those files matching the fileRegex which were changed.
  */
-public class VariabilityChangesFilter extends InputFilter {
+public class VariabilityChangeFilter extends InputFilter {
 	private static final Logger LOGGER = Logger.get();
 
 	/**
@@ -31,7 +31,7 @@ public class VariabilityChangesFilter extends InputFilter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public VariabilityChangesFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
+	public VariabilityChangeFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		super(sourceDirectory, diffFile, fileRegex);
 	}
 

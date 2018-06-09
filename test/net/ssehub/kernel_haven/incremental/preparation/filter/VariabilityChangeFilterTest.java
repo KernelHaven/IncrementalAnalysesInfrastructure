@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
-import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangesFilter;
+import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangeFilter;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
@@ -23,7 +23,7 @@ import net.ssehub.kernel_haven.util.Logger.Level;
  * The Class VariabilityChangesFilterTest.
  * @author moritz
  */
-public class VariabilityChangesFilterTest {
+public class VariabilityChangeFilterTest {
 
 	/** The logger. */
 	private static Logger LOGGER = null;
@@ -46,7 +46,7 @@ public class VariabilityChangesFilterTest {
 	@Test
 	public void testDoFilter_variability_change() throws IOException {
 		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(new File("testdata/variability-changes/some-variability-changes.diff"));
-		VariabilityChangesFilter filter = new VariabilityChangesFilter(null, diffFile, Pattern.compile(".*"));
+		VariabilityChangeFilter filter = new VariabilityChangeFilter(null, diffFile, Pattern.compile(".*"));
 		Collection<Path> paths = filter.getFilteredResult();
 		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("drivers/crypto/caam/ctrl.c")));
 

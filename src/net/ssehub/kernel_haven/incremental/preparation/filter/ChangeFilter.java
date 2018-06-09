@@ -14,10 +14,10 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
  * This is an {@link InputFilter} used to generate a set of
  * files containing only those files matching the fileRegex which were changed.
  */
-public class ChangedOnlyFilter extends InputFilter {
+public class ChangeFilter extends InputFilter {
 
 
-	public ChangedOnlyFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
+	public ChangeFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
 		super(sourceDirectory, diffFile, fileRegex);
 	}
 
