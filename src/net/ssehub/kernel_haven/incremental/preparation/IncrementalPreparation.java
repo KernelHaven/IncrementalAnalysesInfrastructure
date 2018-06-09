@@ -52,23 +52,24 @@ public class IncrementalPreparation implements IPreparation {
 		DiffApplyUtil gitApplyUtil = new DiffApplyUtil(inputSourceDir, inputDiff);
 
 		if (config.getValue(IncrementalAnalysisSettings.ROLLBACK) == true) {
-			// Handle rollback 
+			// Handle rollback
 			boolean revertSuccessful = gitApplyUtil.revertChanges();
-			HybridCache hybridCache = new HybridCache((File) config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+			HybridCache hybridCache = new HybridCache(
+					(File) config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
 			try {
 				hybridCache.rollback();
 			} catch (IOException e) {
 				revertSuccessful = false;
 				LOGGER.logException("Could not revert changes in HybridCache.", e);
 			}
-			
-			//Stop execution after rollback
+
+			// Stop execution after rollback
 			if (revertSuccessful) {
 				System.exit(0);
 			} else {
 				System.exit(1);
 			}
-			
+
 		} else {
 			// Merge changes
 			boolean mergeSuccessful = gitApplyUtil.mergeChanges();
@@ -118,10 +119,15 @@ public class IncrementalPreparation implements IPreparation {
 				////////////////////////////
 				// Filter for build model //
 				////////////////////////////
-				filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
-						inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
-				boolean extractBm = !filteredPaths.isEmpty();
-				config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
+				if (extractVm) {
+					//if vm was updated, always extract bm aswell as it depends on the vm
+					config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, true);
+				} else {
+					filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
+							inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
+					boolean extractBm = !filteredPaths.isEmpty();
+					config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
+				}
 
 				// only start extractory preemptively if all extractors need to run
 				if (!extractCm || !extractCm || !extractVm) {
