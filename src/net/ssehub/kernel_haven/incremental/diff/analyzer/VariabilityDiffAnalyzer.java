@@ -187,6 +187,7 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
 				LOGGER.logWarning("variability change type could not be determined for enty: " + filePath,
 						"Marking entry as " + VariabilityChange.CHANGE
 								+ " to ensure a correct extraction of the model.");
+				change = FileEntry.VariabilityChange.CHANGE;
 			}
 
 			// Add new entry for the file currently considered
