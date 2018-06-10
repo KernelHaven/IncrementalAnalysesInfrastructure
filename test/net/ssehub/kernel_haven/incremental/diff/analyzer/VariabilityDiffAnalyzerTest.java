@@ -70,7 +70,7 @@ public class VariabilityDiffAnalyzerTest {
 		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("include/linux/compat.h"),
 				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
 		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get(".mailmap"),
-				FileEntry.Type.DELETION, FileEntry.VariabilityChange.CHANGE)));
+				FileEntry.Type.DELETION, FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE)));
 		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("include/linux/bitmap.h"),
 				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
 		Assert.assertThat(diffFile.getEntries(),

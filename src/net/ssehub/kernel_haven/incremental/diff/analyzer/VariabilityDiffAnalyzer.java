@@ -151,26 +151,22 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
 			for (String line : lines) {
 				currentLine = nextLine;
 				nextLine = line;
-				if (currentLine != null) {
-					if (currentLine.startsWith(DIFF_START_PATTERN)) {
-						filePath = currentLine.substring(currentLine.indexOf("a/") + "a/".length(),
-								currentLine.indexOf(" b/"));
-						LOGGER.logDebug("Analyzing commit entry for file " + filePath.toString());
-						if (nextLine.startsWith("new file mode")) {
-							type = FileEntry.Type.ADDITION;
-							break;
-						} else if (nextLine.startsWith("deleted file mode")) {
-							type = FileEntry.Type.DELETION;
-							break;
-						} else {
-							type = FileEntry.Type.MODIFICATION;
-							break;
-						}
+				if (currentLine != null && currentLine.startsWith(DIFF_START_PATTERN)) {
+					filePath = currentLine.substring(currentLine.indexOf("a/") + "a/".length(),
+							currentLine.indexOf(" b/"));
+					LOGGER.logDebug("Analyzing commit entry for file " + filePath.toString());
+					if (nextLine.startsWith("new file mode")) {
+						type = FileEntry.Type.ADDITION;
+					} else if (nextLine.startsWith("deleted file mode")) {
+						type = FileEntry.Type.DELETION;
+					} else {
+						type = FileEntry.Type.MODIFICATION;
 					}
+					break;
 				}
 			}
 
-			//Check for Variability Changes
+			// Check for Variability Changes
 			FileDiff fileDiff = createFileDiff(diff);
 			if (fileDiff != null) {
 				if (!fileDiff.getFileType().equals(FileType.OTHER)) {
