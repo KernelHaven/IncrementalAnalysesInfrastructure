@@ -121,7 +121,7 @@ public class IncrementalPreparation implements IPreparation {
 				////////////////////////////
 				if (extractVm) {
 					//if vm was updated, always extract bm aswell as it depends on the vm
-					config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, true);
+					config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, true);
 				} else {
 					filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
 							inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
