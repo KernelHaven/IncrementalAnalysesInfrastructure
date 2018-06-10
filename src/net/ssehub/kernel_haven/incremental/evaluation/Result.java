@@ -1,5 +1,11 @@
 package net.ssehub.kernel_haven.incremental.evaluation;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Result {
 
 	enum ResultQuality {
@@ -8,54 +14,33 @@ public class Result {
 
 	private String resultFileName;
 
-	private int timeForAnalysis;
-	private int timeForExtraction;
-
-	private int analysisExtractionOverlap;
-
-	private int timeForPreparation;
-	private int timeForPostExtraction;
 
 	private ResultQuality resultQuality;
 	
-	public int getTimeForAnalysis() {
-		return timeForAnalysis;
+
+
+	private Map<String, List<Long>> analysisComponentTime = new HashMap<String, List<Long>>();
+	
+	private LocalDateTime startPreparationPhaseTime = null;
+	private LocalDateTime finishPreparationPhasTime = null;
+	private LocalDateTime startExtractionPhaseTime = null;
+	private LocalDateTime endExtractionPhaseTime = null;
+	private LocalDateTime startAnalysisPhaseTime = null;
+	private LocalDateTime endAnalysisPhaseTime = null;
+	private LocalDateTime endTime = null;
+	private LocalDateTime startTime = null;
+
+	public List<Long> getAnalysisComponentTime(String component) {
+		return analysisComponentTime.get(component);
 	}
 
-	public void setTimeForAnalysis(int timeForAnalysis) {
-		this.timeForAnalysis = timeForAnalysis;
+	public void addAnalysisComponentTime(String component, long time) {
+		this.analysisComponentTime.putIfAbsent(component, new ArrayList<Long>());
+		this.analysisComponentTime.get(component).add(time);
 	}
 
-	public int getTimeForExtraction() {
-		return timeForExtraction;
-	}
-
-	public void setTimeForExtraction(int timeForExtraction) {
-		this.timeForExtraction = timeForExtraction;
-	}
-
-	public int getTimeForPreparation() {
-		return timeForPreparation;
-	}
-
-	public void setTimeForPreparation(int timeForPreparation) {
-		this.timeForPreparation = timeForPreparation;
-	}
-
-	public int getTimeForPostExtraction() {
-		return timeForPostExtraction;
-	}
-
-	public void setTimeForPostExtraction(int timeForPostExtraction) {
-		this.timeForPostExtraction = timeForPostExtraction;
-	}
-
-	public int getAnalysisExtractionOverlap() {
-		return analysisExtractionOverlap;
-	}
-
-	public void setAnalysisExtractionOverlap(int analysisExtractionOverlap) {
-		this.analysisExtractionOverlap = analysisExtractionOverlap;
+	public void setResultFileName(String resultFileName) {
+		this.resultFileName = resultFileName;
 	}
 
 	public String getResultFileName() {

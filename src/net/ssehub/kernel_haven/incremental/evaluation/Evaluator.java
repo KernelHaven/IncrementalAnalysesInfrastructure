@@ -1,10 +1,14 @@
 package net.ssehub.kernel_haven.incremental.evaluation;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.util.Logger;
 
@@ -27,14 +33,14 @@ public class Evaluator {
 	private Map<String, Result> referenceResults = new HashMap<String, Result>();
 
 	private static final Logger LOGGER = Logger.get();
-	
+
 	public Evaluator(Path path) {
 		this.baseDir = path;
 
 	}
 
 	public static void main(String[] args) throws IOException {
-		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-variability-change/");
+		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-variability-change");
 		if (args.length == 1) {
 			baseDir = Paths.get(args[0]);
 		}
@@ -71,6 +77,10 @@ public class Evaluator {
 		Result referenceResult = new Result(diffFileName);
 		Result incrementalResult = new Result(diffFileName);
 
+		///////////////////
+		// Handle result //
+		///////////////////
+
 		File previousReferenceOutputFile = null;
 
 		if (previousDiffFileName != null) {
@@ -96,17 +106,94 @@ public class Evaluator {
 			LOGGER.logInfo("Marked " + incrementalResult.getResultFileName() + " as DIFFERENT");
 		}
 
+		////////////////////////
+		// Handle Performance //
+		////////////////////////
+		File referenceLogFile = baseDir.resolve(LOG_REFERENCE_DIR).resolve("log-" + diffFileName + ".log").toFile();
+		File incrementalLogFile = baseDir.resolve(LOG_INCREMENTAL_DIR).resolve("log-" + diffFileName + ".log").toFile();
+
+		extractTimes(referenceLogFile, incrementalResult);
+
 		incrementalResults.put(diffFileName, incrementalResult);
 		referenceResults.put(diffFileName, incrementalResult);
 
 	}
 
-	private List<String> reduceToFileName(Collection<String> listOfResults) {
+	private void extractTimes(File logFile, Result result) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+			String currentLine = br.readLine();
+			LocalDateTime startTime = extractDateFromLogLine(currentLine);
+			LocalDateTime currentTime = startTime;
+			LocalDateTime startPreparationPhase = null;
+			LocalDateTime finishPreparationPhase = null;
+			LocalDateTime startExtractionPhase = null;
+			LocalDateTime endExtractionPhase = null;
+			LocalDateTime startAnalysisPhase = null;
+			LocalDateTime endAnalysisPhase = null;
+			LocalDateTime endTime = null;
+
+			for (String nextLine; (nextLine = br.readLine()) != null;) {
+				// Update the time to always reflect the most recent timestamp
+				LocalDateTime timeFromCurrentLine = extractDateFromLogLine(currentLine);
+				if (timeFromCurrentLine != null) {
+					currentTime = timeFromCurrentLine;
+				}
+
+				if (currentLine.contains("[Setup] Running preparation")) {
+					startPreparationPhase = currentTime;
+				} else if (currentLine.contains("IncrementalPreparation duration:")) {
+					finishPreparationPhase = currentTime;
+				} else if (startExtractionPhase == null && currentLine.contains("ExtractorThread]")) {
+					startExtractionPhase = currentTime;
+				} else if (currentLine.contains("ExtractorThread] All threads done")) {
+					endExtractionPhase = currentTime;
+				} else if (startAnalysisPhase == null
+						&& currentLine.contains("[info   ] [OrderPreservingParallelizer-Worker")) {
+					startAnalysisPhase = currentTime;
+				} else if (currentLine.contains("[info   ] [Setup] Analysis has finished")) {
+					endAnalysisPhase = currentTime;
+				}
+				if (currentLine.matches(".*Analysis component .* done")) {
+					Pattern componentPattern = Pattern.compile(".*Analysis component (.*) done");
+					Matcher componentMatcher = componentPattern.matcher(currentLine);
+					componentMatcher.find();
+					String finishedComponent = componentMatcher.group(1);
+					Pattern timePattern = Pattern.compile(".\\s*Execution took (\\d*)");
+					Matcher timeMatcher = timePattern.matcher(nextLine);
+					timeMatcher.find();
+					long componentTime = Long.parseLong(timeMatcher.group(1));
+					result.addAnalysisComponentTime(finishedComponent, componentTime);
+				}
+
+				currentLine = nextLine;
+			}
+			endTime = currentTime;
+
+		}
+
+	}
+
+	private LocalDateTime extractDateFromLogLine(String logLine) {
+		Pattern pattern = Pattern.compile("\\[(\\d{4}-\\d{2}-\\d{2}\\s{1}\\d{2}:\\d{2}:\\d{2})\\]");
+		Matcher matcher = pattern.matcher(logLine);
+
+		LocalDateTime time = null;
+
+		if (matcher.find()) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			String timeString = matcher.group(1);
+			time = LocalDateTime.parse(timeString, formatter);
+		}
+		return time;
+	}
+
+	private List<String> removeLineNumbers(Collection<String> listOfResults) {
 		List<String> newList = new ArrayList<String>();
 		for (String entry : listOfResults) {
 			String[] entryParts = entry.split(";");
 			if (entryParts.length == 5) {
-				entry = entryParts[0] + ";" + entryParts[1] + ";" + entryParts[4];
+				entry = entryParts[0]; // + ";" + entryParts[1] + ";" + entryParts[4];
 			}
 			newList.add(entry);
 		}
@@ -114,8 +201,8 @@ public class Evaluator {
 	}
 
 	private boolean contentIdentical(File referenceResult, File incrementalResult) throws IOException {
-		List<String> referenceLines = reduceToFileName(Files.readAllLines(referenceResult.toPath()));
-		List<String> incrementalLines = reduceToFileName(Files.readAllLines(incrementalResult.toPath()));
+		List<String> referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
+		List<String> incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
 
 		return referenceLines.containsAll(incrementalLines) && incrementalLines.containsAll(referenceLines);
 	}
@@ -123,13 +210,13 @@ public class Evaluator {
 	private boolean contentEquivalent(File referenceResult, File previousReferenceResult, File incrementalResult)
 			throws IOException {
 
-		List<String> referenceLines = reduceToFileName(Files.readAllLines(referenceResult.toPath()));
+		List<String> referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
 		List<String> previousReferenceLines = null;
 		if (previousReferenceResult != null) {
-			previousReferenceLines = reduceToFileName(Files.readAllLines(previousReferenceResult.toPath()));
+			previousReferenceLines = removeLineNumbers(Files.readAllLines(previousReferenceResult.toPath()));
 		}
 
-		List<String> incrementalLines = reduceToFileName(Files.readAllLines(incrementalResult.toPath()));
+		List<String> incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
 
 		// first make sure that the result of the reference analysis contains all
 		// entries that the incremental analysis produced
@@ -149,7 +236,8 @@ public class Evaluator {
 				StringJoiner joiner = new StringJoiner("\n");
 				referenceWithoutIncrementalLines.forEach(line -> joiner.add(line));
 				LOGGER.logInfo("Results in reference analysis for " + referenceResult.getName()
-				+ " contained new results (compared to the previous reference) that were not present for the incremental result : ", joiner.toString());
+						+ " contained new results (compared to the previous reference) that were not present for the incremental result : ",
+						joiner.toString());
 			}
 		} else {
 			List<String> incrementalWithoutRefLines = new ArrayList<String>(incrementalLines);
@@ -157,7 +245,7 @@ public class Evaluator {
 			StringJoiner joiner = new StringJoiner("\n");
 			incrementalWithoutRefLines.forEach(line -> joiner.add(line));
 			LOGGER.logInfo("Results in incremental analysis for " + referenceResult.getName()
-			+ " contained results that were not present for the reference : ", joiner.toString());
+					+ " contained results that were not present for the reference : ", joiner.toString());
 		}
 
 		return isEquivalent;
