@@ -49,18 +49,18 @@ public class VariabilityChangeFilter extends InputFilter {
 			if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.CHANGE)) {
 				paths.add(entry.getPath());
 			}
-			
+
 			if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.NOT_ANALYZED)) {
-				//Should not happen for this filter unless mistakes were made in the parse() method of the {@link Diff}
-				LOGGER.logError("The following FileEntry was not analyzed for variability-changes. "
-						+ this.getClass().getSimpleName() + " was used as filter. Perhaps the "
-								+ DiffAnalyzer.class.getSimpleName()
-								+ " you used does not analyze for variability-changes . Please check your configuration. \n"
-								+ entry);
+				// This only happens when the VariabilityChangeFilter did not process the file
+				// correctly
+				LOGGER.logError("The following FileEntry was not analyzed for variability-changes.\nPerhaps the "
+						+ DiffAnalyzer.class.getSimpleName()
+						+ " you used does not analyze for variability-changes.\nFallback: including file for extraction.\n"
+						+ entry);
+				paths.add(entry.getPath());
 			}
 		}
 		return filterPathsByRegex(paths, fileRegex);
 	}
-
 
 }
