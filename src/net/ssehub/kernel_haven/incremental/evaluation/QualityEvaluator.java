@@ -1,14 +1,10 @@
 package net.ssehub.kernel_haven.incremental.evaluation;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,37 +12,79 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.util.Logger;
 
-public class Evaluator {
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Evaluator.
+ */
+public class QualityEvaluator {
 
+	/** The Constant LOG_INCREMENTAL_DIR. */
 	public static final Path LOG_INCREMENTAL_DIR = Paths.get("log/incremental");
+	
+	/** The Constant LOG_REFERENCE_DIR. */
 	public static final Path LOG_REFERENCE_DIR = Paths.get("log/reference");
+	
+	/** The Constant RESULTS_INCREMENTAL_DIR. */
 	public static final Path RESULTS_INCREMENTAL_DIR = Paths.get("output/incremental");
+	
+	/** The Constant RESULTS_REFERENCE_DIR. */
 	public static final Path RESULTS_REFERENCE_DIR = Paths.get("output/reference");
+	
+	/** The base dir. */
 	private Path baseDir;
 
-	private Map<String, Result> incrementalResults = new HashMap<String, Result>();
-	private Map<String, Result> referenceResults = new HashMap<String, Result>();
+	/** The incremental results. */
+	private Map<String, QualityResult> incrementalResults = new HashMap<String, QualityResult>();
+	
+	/** The reference results. */
+	private Map<String, QualityResult> referenceResults = new HashMap<String, QualityResult>();
 
+	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
+	
+	/** The variability evaluation mode. */
+	private boolean variabilityEvaluationMode;
 
-	public Evaluator(Path path) {
+	/**
+	 * Instantiates a new evaluator.
+	 *
+	 * @param variabilityEvaluationMode the variability evaluation mode
+	 * @param path the path
+	 */
+	public QualityEvaluator(boolean variabilityEvaluationMode, Path path) {
+		this.variabilityEvaluationMode = variabilityEvaluationMode;
 		this.baseDir = path;
 
 	}
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public static void main(String[] args) throws IOException {
 		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-variability-change");
+		boolean variabiltyMode = true;
+
+		// Parse arguments
 		if (args.length == 1) {
 			baseDir = Paths.get(args[0]);
+		} else if (args.length == 2) {
+			baseDir = Paths.get(args[1]);
+			if (args[0].equals("-variability") || args[0].equals("-v")) {
+				variabiltyMode = true;
+			} else {
+				LOGGER.logError("unknown option " + args[0]);
+				System.exit(1);
+			}
 		}
 
 		if (baseDir != null) {
-			Evaluator evaluator = new Evaluator(baseDir);
+			QualityEvaluator evaluator = new QualityEvaluator(variabiltyMode, baseDir);
 			List<String> extractedDiffFilenames = evaluator.extractDiffFilenamesFromReferenceResults();
 			Collections.sort(extractedDiffFilenames);
 
@@ -63,6 +101,11 @@ public class Evaluator {
 
 	}
 
+	/**
+	 * Extract diff filenames from reference results.
+	 *
+	 * @return the list
+	 */
 	public List<String> extractDiffFilenamesFromReferenceResults() {
 		List<String> diffFileNames = new ArrayList<String>();
 		for (File file : baseDir.resolve(RESULTS_REFERENCE_DIR).toFile().listFiles()) {
@@ -72,10 +115,17 @@ public class Evaluator {
 		return diffFileNames;
 	}
 
+	/**
+	 * Compare for input diff name.
+	 *
+	 * @param diffFileName the diff file name
+	 * @param previousDiffFileName the previous diff file name
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void compareForInputDiffName(String diffFileName, String previousDiffFileName) throws IOException {
 
-		Result referenceResult = new Result(diffFileName);
-		Result incrementalResult = new Result(diffFileName);
+		QualityResult referenceResult = new QualityResult(diffFileName);
+		QualityResult incrementalResult = new QualityResult(diffFileName);
 
 		///////////////////
 		// Handle result //
@@ -93,130 +143,96 @@ public class Evaluator {
 		File incrementalResultFile = baseDir.resolve(RESULTS_INCREMENTAL_DIR).resolve("output-" + diffFileName + ".csv")
 				.toFile();
 
-		referenceResult.setResultQuality(Result.ResultQuality.BASELINE);
-		incrementalResult.setResultQuality(Result.ResultQuality.DIFFERENT);
+		referenceResult.setResultQuality(QualityResult.ResultQuality.BASELINE);
+		incrementalResult.setResultQuality(QualityResult.ResultQuality.DIFFERENT);
 
 		if (contentIdentical(referenceOutputFile, incrementalResultFile)) {
-			incrementalResult.setResultQuality(Result.ResultQuality.SAME);
+			incrementalResult.setResultQuality(QualityResult.ResultQuality.SAME);
 			LOGGER.logInfo("Marked " + incrementalResult.getResultFileName() + " as SAME");
 		} else if (contentEquivalent(referenceOutputFile, previousReferenceOutputFile, incrementalResultFile)) {
-			incrementalResult.setResultQuality(Result.ResultQuality.EQUIVALENT);
+			incrementalResult.setResultQuality(QualityResult.ResultQuality.EQUIVALENT);
 			LOGGER.logInfo("Marked " + incrementalResult.getResultFileName() + " as EQUIVALENT");
 		} else {
 			LOGGER.logInfo("Marked " + incrementalResult.getResultFileName() + " as DIFFERENT");
 		}
-
-		////////////////////////
-		// Handle Performance //
-		////////////////////////
-		File referenceLogFile = baseDir.resolve(LOG_REFERENCE_DIR).resolve("log-" + diffFileName + ".log").toFile();
-		File incrementalLogFile = baseDir.resolve(LOG_INCREMENTAL_DIR).resolve("log-" + diffFileName + ".log").toFile();
-
-		extractTimes(referenceLogFile, incrementalResult);
-
+		
 		incrementalResults.put(diffFileName, incrementalResult);
 		referenceResults.put(diffFileName, incrementalResult);
 
 	}
 
-	private void extractTimes(File logFile, Result result) throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
-			String currentLine = br.readLine();
-			LocalDateTime startTime = extractDateFromLogLine(currentLine);
-			LocalDateTime currentTime = startTime;
-			LocalDateTime startPreparationPhase = null;
-			LocalDateTime finishPreparationPhase = null;
-			LocalDateTime startExtractionPhase = null;
-			LocalDateTime endExtractionPhase = null;
-			LocalDateTime startAnalysisPhase = null;
-			LocalDateTime endAnalysisPhase = null;
-			LocalDateTime endTime = null;
 
-			for (String nextLine; (nextLine = br.readLine()) != null;) {
-				// Update the time to always reflect the most recent timestamp
-				LocalDateTime timeFromCurrentLine = extractDateFromLogLine(currentLine);
-				if (timeFromCurrentLine != null) {
-					currentTime = timeFromCurrentLine;
-				}
-
-				if (currentLine.contains("[Setup] Running preparation")) {
-					startPreparationPhase = currentTime;
-				} else if (currentLine.contains("IncrementalPreparation duration:")) {
-					finishPreparationPhase = currentTime;
-				} else if (startExtractionPhase == null && currentLine.contains("ExtractorThread]")) {
-					startExtractionPhase = currentTime;
-				} else if (currentLine.contains("ExtractorThread] All threads done")) {
-					endExtractionPhase = currentTime;
-				} else if (startAnalysisPhase == null
-						&& currentLine.contains("[info   ] [OrderPreservingParallelizer-Worker")) {
-					startAnalysisPhase = currentTime;
-				} else if (currentLine.contains("[info   ] [Setup] Analysis has finished")) {
-					endAnalysisPhase = currentTime;
-				}
-				if (currentLine.matches(".*Analysis component .* done")) {
-					Pattern componentPattern = Pattern.compile(".*Analysis component (.*) done");
-					Matcher componentMatcher = componentPattern.matcher(currentLine);
-					componentMatcher.find();
-					String finishedComponent = componentMatcher.group(1);
-					Pattern timePattern = Pattern.compile(".\\s*Execution took (\\d*)");
-					Matcher timeMatcher = timePattern.matcher(nextLine);
-					timeMatcher.find();
-					long componentTime = Long.parseLong(timeMatcher.group(1));
-					result.addAnalysisComponentTime(finishedComponent, componentTime);
-				}
-
-				currentLine = nextLine;
-			}
-			endTime = currentTime;
-
-		}
-
-	}
-
-	private LocalDateTime extractDateFromLogLine(String logLine) {
-		Pattern pattern = Pattern.compile("\\[(\\d{4}-\\d{2}-\\d{2}\\s{1}\\d{2}:\\d{2}:\\d{2})\\]");
-		Matcher matcher = pattern.matcher(logLine);
-
-		LocalDateTime time = null;
-
-		if (matcher.find()) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-			String timeString = matcher.group(1);
-			time = LocalDateTime.parse(timeString, formatter);
-		}
-		return time;
-	}
-
+	/**
+	 * Removes the line numbers.
+	 *
+	 * @param listOfResults the list of results
+	 * @return the list
+	 */
 	private List<String> removeLineNumbers(Collection<String> listOfResults) {
 		List<String> newList = new ArrayList<String>();
 		for (String entry : listOfResults) {
 			String[] entryParts = entry.split(";");
 			if (entryParts.length == 5) {
-				entry = entryParts[0]; // + ";" + entryParts[1] + ";" + entryParts[4];
+				entry = entryParts[0] + ";" + entryParts[1] + ";" + entryParts[4];
 			}
 			newList.add(entry);
 		}
 		return newList;
 	}
 
+	/**
+	 * Content identical.
+	 *
+	 * @param referenceResult the reference result
+	 * @param incrementalResult the incremental result
+	 * @return true, if successful
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private boolean contentIdentical(File referenceResult, File incrementalResult) throws IOException {
-		List<String> referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
-		List<String> incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
+
+		List<String> referenceLines = null;
+		List<String> incrementalLines = null;
+
+		if (this.variabilityEvaluationMode) {
+			referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
+			incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
+		} else {
+			referenceLines = Files.readAllLines(referenceResult.toPath());
+			incrementalLines = Files.readAllLines(incrementalResult.toPath());
+		}
 
 		return referenceLines.containsAll(incrementalLines) && incrementalLines.containsAll(referenceLines);
 	}
 
+	/**
+	 * Content equivalent.
+	 *
+	 * @param referenceResult the reference result
+	 * @param previousReferenceResult the previous reference result
+	 * @param incrementalResult the incremental result
+	 * @return true, if successful
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private boolean contentEquivalent(File referenceResult, File previousReferenceResult, File incrementalResult)
 			throws IOException {
 
-		List<String> referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
+		List<String> referenceLines = null;
+		List<String> incrementalLines = null;
 		List<String> previousReferenceLines = null;
-		if (previousReferenceResult != null) {
-			previousReferenceLines = removeLineNumbers(Files.readAllLines(previousReferenceResult.toPath()));
+
+		if (this.variabilityEvaluationMode) {
+			referenceLines = removeLineNumbers(Files.readAllLines(referenceResult.toPath()));
+			incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
+		} else {
+			referenceLines = Files.readAllLines(referenceResult.toPath());
+			incrementalLines = Files.readAllLines(incrementalResult.toPath());
 		}
 
-		List<String> incrementalLines = removeLineNumbers(Files.readAllLines(incrementalResult.toPath()));
+		if (previousReferenceResult != null && this.variabilityEvaluationMode) {
+			previousReferenceLines = removeLineNumbers(Files.readAllLines(previousReferenceResult.toPath()));
+		} else if (previousReferenceResult != null) {
+			previousReferenceLines = Files.readAllLines(previousReferenceResult.toPath());
+		}
 
 		// first make sure that the result of the reference analysis contains all
 		// entries that the incremental analysis produced
@@ -229,6 +245,12 @@ public class Evaluator {
 			if (previousReferenceLines != null) {
 				referenceChanges.removeAll(previousReferenceLines);
 			}
+
+			if (this.variabilityEvaluationMode) {
+				// remove all lines that represent non-variability relevant information
+				referenceChanges = removeNonVariabilityLines(referenceChanges);
+			}
+
 			isEquivalent = incrementalLines.containsAll(referenceChanges);
 			if (!isEquivalent) {
 				List<String> referenceWithoutIncrementalLines = new ArrayList<String>(referenceChanges);
@@ -249,6 +271,25 @@ public class Evaluator {
 		}
 
 		return isEquivalent;
+	}
+
+	/**
+	 * Removes the non variability lines by looking at the presence condition.
+	 * Discards lines where the presence Condition does not start with CONFIG_.
+	 *
+	 * @param lines the lines
+	 * @return the list
+	 */
+	private List<String> removeNonVariabilityLines(List<String> lines) {
+		List<String> newList = new ArrayList<String>();
+		for (String entry : lines) {
+			String[] entryParts = entry.split(";");
+			String presenceCondition = entryParts[entryParts.length - 1];
+			if (presenceCondition.startsWith("CONFIG_")) {
+				newList.add(entry);
+			}
+		}
+		return newList;
 	}
 
 }
