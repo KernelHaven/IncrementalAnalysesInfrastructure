@@ -163,7 +163,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 					vmComponent.myAddResult(varModel);
 				}
 			} catch (IOException | FormatException e) {
-				LOGGER.logException("Could not get code model from HybridCache", e);
+				LOGGER.logException("Could not get models from HybridCache", e);
 			}
 		}
 
