@@ -129,14 +129,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 							HybridCacheAdapter.class.getSimpleName() + " contains empty code model after execute()");
 				}
 
-				if (buildModel.getSize() == 0) {
+				if (buildModel == null || buildModel.getSize() == 0) {
 					LOGGER.logWarning(
-							HybridCacheAdapter.class.getSimpleName() + " contains empty build model after execute()");
+							HybridCacheAdapter.class.getSimpleName() + " contains none or an empty build model after execute()");
 				}
 
-				if (varModel.getVariables().size() == 0) {
+				if (varModel == null ||  varModel.getVariables().size() == 0) {
 					LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
-							+ " contains empty variability model after execute()");
+							+ " contains none or empty variability model after execute()");
 				}
 
 				// add Models to components
