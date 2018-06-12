@@ -9,7 +9,7 @@ Support for incremental anlyses in [KernelHaven](https://github.com/KernelHaven/
 If you are interested in evaluation results concerning this plugin, check out [IncrementalAnalysesEvaluation](https://github.com/moritzfl/IncrementalAnalysesEvaluation). The release section contains the actual results of analysis executions on our reference system. You can expect the full results to be published there in the release section as the project progresses.
 
 ## Usage
-Export the project as a jar in eclipse and place the resulting file in the plugins folder of KernelHaven.
+Download the jar from the releases section and place it in the plugins folder of KernelHaven.
 
 To use the preparation, set `preparation.class.0` to `net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation` in the KernelHaven properties.
 
