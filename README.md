@@ -1,4 +1,4 @@
-# IncrementalAnalyses
+# IncrementalAnalysesInfrastructure
 
 <!-- ![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=TODO) -->
 
