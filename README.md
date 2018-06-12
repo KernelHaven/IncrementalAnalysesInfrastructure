@@ -35,7 +35,7 @@ incremental.input.source_tree_diff = git.diff
 For more information check out [IncrementalAnalysisSettings.java](https://github.com/KernelHaven/ModelStoragePipeline/blob/master/src/net/ssehub/kernel_haven/incremental/settings/IncrementalAnalysisSettings.java)
 
 In addition to KernelHaven, this plugin has the following dependencies:
-* [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer)
+* [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer) (only for IncrementalDeadCodeAnalysis)
 * [ComAn](https://github.com/KernelHaven/ComAn)
 
 ## License
