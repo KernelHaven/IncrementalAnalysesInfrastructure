@@ -41,12 +41,17 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 	public enum CodeModelProcessing {
 		/** Provides the complete codemodel to the next component. */
 		COMPLETE,
-		/** Provides a partial codemodel to the next component containing only newly extracted parts of the model. */
+		/**
+		 * Provides a partial codemodel to the next component containing only newly
+		 * extracted parts of the model.
+		 */
 		PARTIAL,
-		/** Provides a partial codemodel to the next component containing only those parts of the codemodel that did change */
+		/**
+		 * Provides a partial codemodel to the next component containing only those
+		 * parts of the codemodel that did change
+		 */
 		PARTIAL_OPTIMIZED;
 	}
-	
 
 	/** The config. */
 	private @NonNull Configuration config;
@@ -130,11 +135,11 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 				}
 
 				if (buildModel == null || buildModel.getSize() == 0) {
-					LOGGER.logWarning(
-							HybridCacheAdapter.class.getSimpleName() + " contains none or an empty build model after execute()");
+					LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
+							+ " contains none or an empty build model after execute()");
 				}
 
-				if (varModel == null ||  varModel.getVariables().size() == 0) {
+				if (varModel == null || varModel.getVariables().size() == 0) {
 					LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
 							+ " contains none or empty variability model after execute()");
 				}
@@ -144,24 +149,23 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 					if (srcFile == null) {
 						throw new NullPointerException("SourceFile was null - this should never happen");
 					} else {
-						
-					    if (cmProcessing.equals(CodeModelProcessing.PARTIAL_OPTIMIZED)
+
+						if (cmProcessing.equals(CodeModelProcessing.PARTIAL_OPTIMIZED)
 								&& !srcFile.equals(data.readPreviousCm(srcFile.getPath()))) {
 							cmComponent.myAddResult(srcFile);
-					    } else {
-					    	cmComponent.myAddResult(srcFile);
-					    }
-			
+						} else {
+							cmComponent.myAddResult(srcFile);
+						}
+
 					}
 				}
+				
+				// do not prevent null from being added
+				// this is because some analysis implementations expect the null result
+				// for failed extractions
+				bmComponent.myAddResult(buildModel);
+				vmComponent.myAddResult(varModel);
 
-				if (buildModel != null) {
-					bmComponent.myAddResult(buildModel);
-				}
-
-				if (varModel != null) {
-					vmComponent.myAddResult(varModel);
-				}
 			} catch (IOException | FormatException e) {
 				LOGGER.logException("Could not get models from HybridCache", e);
 			}
