@@ -36,7 +36,7 @@ For more information check out [IncrementalAnalysisSettings.java](https://github
 
 In addition to KernelHaven, this plugin has the following dependencies:
 * [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer) (only for IncrementalDeadCodeAnalysis)
-* [ComAn](https://github.com/KernelHaven/ComAn) (ComAn.jar needs to be paced in the plugin-folder)
+* [ComAn](https://github.com/KernelHaven/ComAn) (ComAn.jar needs to be placed in the plugin-folder)
 
 ## License
 
