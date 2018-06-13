@@ -1,13 +1,15 @@
-# IncrementalAnalyses
+# IncrementalAnalysesInfrastructure
 
 <!-- ![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=TODO) -->
 
 Support for incremental anlyses in [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
-This plugin is currently under development. More information will be published here shortly.
+*This plugin is currently under development. More information will be published here shortly.*
+
+If you are interested in evaluation results concerning this plugin, check out [IncrementalAnalysesEvaluation](https://github.com/moritzfl/IncrementalAnalysesEvaluation). The release section contains the actual results of analysis executions on our reference system. You can expect the full results to be published there in the release section as the project progresses.
 
 ## Usage
-Export the project as a jar in eclipse and place the resulting file in the plugins folder of KernelHaven.
+Download the jar from the releases section and place it in the plugins folder of KernelHaven.
 
 To use the preparation, set `preparation.class.0` to `net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation` in the KernelHaven properties.
 
@@ -33,8 +35,8 @@ incremental.input.source_tree_diff = git.diff
 For more information check out [IncrementalAnalysisSettings.java](https://github.com/KernelHaven/ModelStoragePipeline/blob/master/src/net/ssehub/kernel_haven/incremental/settings/IncrementalAnalysisSettings.java)
 
 In addition to KernelHaven, this plugin has the following dependencies:
-* [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer)
-* [ComAn](https://github.com/KernelHaven/ComAn)
+* [UnDeadAnalyzer](https://github.com/KernelHaven/UnDeadAnalyzer) (only for IncrementalDeadCodeAnalysis)
+* [ComAn](https://github.com/KernelHaven/ComAn) (ComAn.jar needs to be placed in the plugin-folder)
 
 ## License
 
