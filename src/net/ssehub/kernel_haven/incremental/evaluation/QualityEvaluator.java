@@ -23,36 +23,38 @@ public class QualityEvaluator {
 
 	/** The Constant LOG_INCREMENTAL_DIR. */
 	public static final Path LOG_INCREMENTAL_DIR = Paths.get("log/incremental");
-	
+
 	/** The Constant LOG_REFERENCE_DIR. */
 	public static final Path LOG_REFERENCE_DIR = Paths.get("log/reference");
-	
+
 	/** The Constant RESULTS_INCREMENTAL_DIR. */
 	public static final Path RESULTS_INCREMENTAL_DIR = Paths.get("output/incremental");
-	
+
 	/** The Constant RESULTS_REFERENCE_DIR. */
 	public static final Path RESULTS_REFERENCE_DIR = Paths.get("output/reference");
-	
+
 	/** The base dir. */
 	private Path baseDir;
 
 	/** The incremental results. */
 	private Map<String, QualityResult> incrementalResults = new HashMap<String, QualityResult>();
-	
+
 	/** The reference results. */
 	private Map<String, QualityResult> referenceResults = new HashMap<String, QualityResult>();
 
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.get();
-	
+
 	/** The variability evaluation mode. */
 	private boolean variabilityEvaluationMode;
 
 	/**
 	 * Instantiates a new evaluator.
 	 *
-	 * @param variabilityEvaluationMode the variability evaluation mode
-	 * @param path the path
+	 * @param variabilityEvaluationMode
+	 *            the variability evaluation mode
+	 * @param path
+	 *            the path
 	 */
 	public QualityEvaluator(boolean variabilityEvaluationMode, Path path) {
 		this.variabilityEvaluationMode = variabilityEvaluationMode;
@@ -63,11 +65,13 @@ public class QualityEvaluator {
 	/**
 	 * The main method.
 	 *
-	 * @param args the arguments
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param args
+	 *            the arguments
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public static void main(String[] args) throws IOException {
-		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-change-only");
+		Path baseDir = null;
 		boolean variabiltyMode = false;
 
 		// Parse arguments
@@ -77,10 +81,17 @@ public class QualityEvaluator {
 			baseDir = Paths.get(args[1]);
 			if (args[0].equals("-variability") || args[0].equals("-v")) {
 				variabiltyMode = true;
-			} else {
+			} else if (!(args[0].equals("-change") || args[0].equals("-c"))) {
 				LOGGER.logError("unknown option " + args[0]);
 				System.exit(1);
 			}
+		}
+
+		LOGGER.logInfo("Working on directory \"" + baseDir + "\". VariabilityMode=" + variabiltyMode + ".");
+
+		if (baseDir != null && !baseDir.toFile().exists()) {
+			LOGGER.logError("Directory \"" + baseDir + "\" does not exist!");
+			System.exit(1);
 		}
 
 		if (baseDir != null) {
@@ -118,18 +129,17 @@ public class QualityEvaluator {
 	/**
 	 * Compare for input diff name.
 	 *
-	 * @param diffFileName the diff file name
-	 * @param previousDiffFileName the previous diff file name
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param diffFileName
+	 *            the diff file name
+	 * @param previousDiffFileName
+	 *            the previous diff file name
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void compareForInputDiffName(String diffFileName, String previousDiffFileName) throws IOException {
 
 		QualityResult referenceResult = new QualityResult(diffFileName);
 		QualityResult incrementalResult = new QualityResult(diffFileName);
-
-		///////////////////
-		// Handle result //
-		///////////////////
 
 		File previousReferenceOutputFile = null;
 
@@ -155,17 +165,17 @@ public class QualityEvaluator {
 		} else {
 			LOGGER.logInfo("Marked " + incrementalResult.getResultFileName() + " as DIFFERENT");
 		}
-		
+
 		incrementalResults.put(diffFileName, incrementalResult);
 		referenceResults.put(diffFileName, incrementalResult);
 
 	}
 
-
 	/**
 	 * Removes the line numbers.
 	 *
-	 * @param listOfResults the list of results
+	 * @param listOfResults
+	 *            the list of results
 	 * @return the list
 	 */
 	private List<String> removeLineNumbers(Collection<String> listOfResults) {
@@ -183,10 +193,13 @@ public class QualityEvaluator {
 	/**
 	 * Content identical.
 	 *
-	 * @param referenceResult the reference result
-	 * @param incrementalResult the incremental result
+	 * @param referenceResult
+	 *            the reference result
+	 * @param incrementalResult
+	 *            the incremental result
 	 * @return true, if successful
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	private boolean contentIdentical(File referenceResult, File incrementalResult) throws IOException {
 
@@ -207,11 +220,15 @@ public class QualityEvaluator {
 	/**
 	 * Content equivalent.
 	 *
-	 * @param referenceResult the reference result
-	 * @param previousReferenceResult the previous reference result
-	 * @param incrementalResult the incremental result
+	 * @param referenceResult
+	 *            the reference result
+	 * @param previousReferenceResult
+	 *            the previous reference result
+	 * @param incrementalResult
+	 *            the incremental result
 	 * @return true, if successful
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	private boolean contentEquivalent(File referenceResult, File previousReferenceResult, File incrementalResult)
 			throws IOException {
@@ -277,7 +294,8 @@ public class QualityEvaluator {
 	 * Removes the non variability lines by looking at the presence condition.
 	 * Discards lines where the presence Condition does not contain CONFIG_.
 	 *
-	 * @param lines the lines
+	 * @param lines
+	 *            the lines
 	 * @return the list
 	 */
 	private List<String> removeNonVariabilityLines(List<String> lines) {
