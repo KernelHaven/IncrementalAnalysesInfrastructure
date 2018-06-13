@@ -67,8 +67,8 @@ public class QualityEvaluator {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public static void main(String[] args) throws IOException {
-		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-variability-change");
-		boolean variabiltyMode = true;
+		Path baseDir = Paths.get("/home/moritz/Schreibtisch/results-change-only");
+		boolean variabiltyMode = false;
 
 		// Parse arguments
 		if (args.length == 1) {
@@ -275,7 +275,7 @@ public class QualityEvaluator {
 
 	/**
 	 * Removes the non variability lines by looking at the presence condition.
-	 * Discards lines where the presence Condition does not start with CONFIG_.
+	 * Discards lines where the presence Condition does not contain CONFIG_.
 	 *
 	 * @param lines the lines
 	 * @return the list
@@ -285,7 +285,7 @@ public class QualityEvaluator {
 		for (String entry : lines) {
 			String[] entryParts = entry.split(";");
 			String presenceCondition = entryParts[entryParts.length - 1];
-			if (presenceCondition.startsWith("CONFIG_")) {
+			if (presenceCondition.contains("CONFIG_")) {
 				newList.add(entry);
 			}
 		}
