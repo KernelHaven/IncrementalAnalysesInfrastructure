@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -214,8 +215,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 			LOGGER.logInfo("Reusing parsed diff-file: " + parsedDiffFile.getAbsolutePath());
 			try {
 				diffFile = DiffFile.load(parsedDiffFile);
-			} catch (IOException e) {
-				LOGGER.logError("Could not reuse parsed diff-file: " + parsedDiffFile.getAbsolutePath());
+			} catch (IOException | ParseException e) {
+				LOGGER.logException("Could not reuse parsed diff-file: " + parsedDiffFile.getAbsolutePath(), e);
 			}
 		}
 

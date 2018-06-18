@@ -29,10 +29,7 @@ public class FileEntry {
 		ADDITION,
 
 		/** Deletion of a file. */
-		DELETION,
-
-		/** undefined type of change */
-		UNDEFINED
+		DELETION
 	}
 
 	public enum VariabilityChange {

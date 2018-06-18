@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringJoiner;
@@ -90,7 +91,7 @@ public class DiffFile {
 		FileUtil.writeFile(file, builder.toString());
 	}
 
-	public static DiffFile load(File file) throws IOException {
+	public static DiffFile load(File file) throws IOException, ParseException {
 		DiffFile returnedDiff = null;
 		Collection<FileEntry> entries = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -111,8 +112,8 @@ public class DiffFile {
 						type = Type.MODIFICATION;
 						break;
 					default:
-						type = Type.UNDEFINED;
-						break;
+						throw new ParseException(
+								"Undefined change-type in file: " + file.getAbsolutePath() + "\n" + line, 0);
 					}
 
 					VariabilityChange change;

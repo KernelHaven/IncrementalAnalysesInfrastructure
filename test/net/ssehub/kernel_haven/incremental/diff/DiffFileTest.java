@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -76,7 +77,7 @@ public class DiffFileTest {
 	}
 
 	@Test
-	public void testLoad() throws IOException, JAXBException {
+	public void testLoad() throws IOException, JAXBException, ParseException {
 		DiffFile referenceDiffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
 
 		DiffFile loadedDiffFile = DiffFile.load(DIFF_FILE);
