@@ -12,10 +12,12 @@ import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ChangedOnlyFilter. This is an InputFilter used to generate a set of
- * files containing only those files matching the fileRegex which were changed.
+ * The Class ChangedOnlyFilter. This is an {@link InputFilter} that can be used
+ * to generate a collection containing changed files matching the
+ * regular expression.
+ * 
+ * @author moritz
  */
 public class VariabilityChangeFilter extends InputFilter {
 
@@ -62,7 +64,8 @@ public class VariabilityChangeFilter extends InputFilter {
 					paths.add(entry.getPath());
 					// as a fallback for entries that were not analyzed also include those.
 				} else if (entry.getVariabilityChange().equals(FileEntry.VariabilityChange.NOT_ANALYZED)) {
-					// This should only happen when the diff-file was analyzed incorrectly or an analyzer was used
+					// This should only happen when the diff-file was analyzed incorrectly or an
+					// analyzer was used
 					// that did not analyze for variability
 					LOGGER.logError("The following FileEntry was not analyzed for variability-changes.\nPerhaps the "
 							+ DiffAnalyzer.class.getSimpleName()

@@ -31,7 +31,7 @@ import net.ssehub.kernel_haven.util.Logger;
  * file). Use {@link SimpleDiffAnalyzer} if you do not need information about
  * variability change as the performance penalty is lower.
  * 
- * @author Christian Kroeher, Moritz Floeter
+ * @author Christian Kroeher, moritz
  *
  */
 public class VariabilityDiffAnalyzer extends DiffAnalyzer {

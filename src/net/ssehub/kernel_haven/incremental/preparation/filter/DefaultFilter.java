@@ -11,29 +11,40 @@ import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 
-// TODO: Auto-generated Javadoc
 /**
- * A filter which does only filter the regex-pattern.
+ * An implementation of {@link InputFilter} that can be used to generate a
+ * collection of all files matching the regular expression.
+ * 
+ * @author moritz
  */
 public class DefaultFilter extends InputFilter {
 
 	/**
 	 * Instantiates a new default filter.
 	 *
-	 * @param sourceDirectory the source directory
-	 * @param diffFile the diff file
-	 * @param fileRegex the file regex
-	 * @param includeDeletions the include deletions
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param sourceDirectory
+	 *            the source directory
+	 * @param diffFile
+	 *            the diff file
+	 * @param fileRegex
+	 *            the file regex
+	 * @param includeDeletions
+	 *            the include deletions
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public DefaultFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex, boolean includeDeletions)
 			throws IOException {
 		super(sourceDirectory, diffFile, fileRegex, includeDeletions);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter#doFilter(java.io.File, net.ssehub.kernel_haven.incremental.diff.DiffFile, java.util.regex.Pattern, boolean)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter#doFilter(
+	 * java.io.File, net.ssehub.kernel_haven.incremental.diff.DiffFile,
+	 * java.util.regex.Pattern, boolean)
 	 */
 	@Override
 	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex,

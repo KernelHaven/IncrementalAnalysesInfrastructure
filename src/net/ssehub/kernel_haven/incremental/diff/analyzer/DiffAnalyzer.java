@@ -8,9 +8,9 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 
 /**
  * Abstract Analyzer class that can create a {@link FileEntry}-collection. Each
- * element of the resulting collection represents changes occuring in one file.
+ * element of the resulting collection represents changes occurring in one file.
  * 
- * @author moritz floeter
+ * @author moritz 
  * 
  */
 public abstract class DiffAnalyzer {
