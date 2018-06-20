@@ -75,10 +75,6 @@ public class FileEntry {
 		this.variabilityChange = variabilityChange;
 	}
 
-	/** Required for use with {@link Marshaller} */
-	@SuppressWarnings("unused")
-	private FileEntry() {
-	}
 
 	/**
 	 * Instantiates a new file entry.

@@ -8,27 +8,36 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 
+// TODO: Auto-generated Javadoc
 /**
  * A filter which does only filter the regex-pattern.
  */
 public class DefaultFilter extends InputFilter {
 
-
-	public DefaultFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
-		super(sourceDirectory, diffFile, fileRegex);
+	/**
+	 * Instantiates a new default filter.
+	 *
+	 * @param sourceDirectory the source directory
+	 * @param diffFile the diff file
+	 * @param fileRegex the file regex
+	 * @param includeDeletions the include deletions
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public DefaultFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex, boolean includeDeletions)
+			throws IOException {
+		super(sourceDirectory, diffFile, fileRegex, includeDeletions);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.ssehub.kernel_haven.incremental.preparation.InputFilter#doFilter(java.io.
-	 * File, java.io.File, java.util.regex.Pattern)
+
+	/* (non-Javadoc)
+	 * @see net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter#doFilter(java.io.File, net.ssehub.kernel_haven.incremental.diff.DiffFile, java.util.regex.Pattern, boolean)
 	 */
 	@Override
-	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
+	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex,
+			boolean includeDeletions) throws IOException {
 
 		Collection<File> files = FolderUtil.listRelativeFiles(sourceDirectory, true);
 		Collection<Path> paths = new ArrayList<Path>();
@@ -36,8 +45,18 @@ public class DefaultFilter extends InputFilter {
 			paths.add(file.toPath());
 		}
 
-		paths = filterPathsByRegex(paths, fileRegex);
+		/*
+		 * including deletions for the {@link DefaultFilter} is currently not
+		 * technically necessary for the incremental infrastructure as a full extraction
+		 * will be performed anyways for every model. However the functionality is
+		 * implemented to correctly fulfill the expectations of the includeDeletions
+		 * option for the {@link DefaultFilter} as well.
+		 */
+		if (includeDeletions) {
+			diffFile.getEntries().stream().filter(entry -> entry.getType().equals(FileEntry.Type.DELETION))
+					.forEach(entry -> paths.add(entry.getPath()));
+		}
 
-		return paths;
+		return filterPathsByRegex(paths, fileRegex);
 	}
 }

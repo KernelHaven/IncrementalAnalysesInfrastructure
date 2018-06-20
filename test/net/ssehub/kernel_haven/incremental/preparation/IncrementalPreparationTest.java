@@ -58,7 +58,7 @@ public class IncrementalPreparationTest extends IncrementalPreparation {
 	@Test
 	public void testFilterInput() {
 		try {
-			this.filterInput(DefaultFilter.class.getName(), MODIFIED_FOLDER, null, Pattern.compile(".*"));
+			this.filterInput(DefaultFilter.class.getName(), MODIFIED_FOLDER, null, Pattern.compile(".*"), false);
 		} catch (SetUpException e) {
 			Assert.fail("the filterInput method did not terminate properly: " + e.getMessage());
 		}

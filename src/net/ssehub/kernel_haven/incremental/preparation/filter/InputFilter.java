@@ -27,10 +27,11 @@ public abstract class InputFilter {
 	 * @param sourceDirectory the source directory
 	 * @param diffFile the diff file
 	 * @param fileRegex the file regex
+	 * @param includeDeletions 
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public InputFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex) throws IOException {
-		this.result = this.doFilter(sourceDirectory, diffFile, fileRegex);
+	public InputFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex, boolean includeDeletions) throws IOException {
+		this.result = this.doFilter(sourceDirectory, diffFile, fileRegex, includeDeletions);
 	}
 	
 	/**
@@ -62,7 +63,7 @@ public abstract class InputFilter {
 	 * @return the collection
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	protected abstract Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex)
+	protected abstract Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex, boolean includeDeletions)
 			throws IOException;
 
 	/**

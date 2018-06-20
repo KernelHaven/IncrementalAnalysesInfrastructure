@@ -49,7 +49,7 @@ public class ChangeFilterTest {
 	 */
 	@Test
 	public void testDoFilter() throws IOException {
-		ChangeFilter filter = new ChangeFilter(MODIFIED_FOLDER, new VariabilityDiffAnalyzer().generateDiffFile(DIFF_FILE), Pattern.compile(".*"));
+		ChangeFilter filter = new ChangeFilter(MODIFIED_FOLDER, new VariabilityDiffAnalyzer().generateDiffFile(DIFF_FILE), Pattern.compile(".*"), false);
 		Collection<Path> paths = filter.getFilteredResult();
 		LOGGER.logDebug(Arrays.toString(paths.toArray()));
 		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kbuild")));

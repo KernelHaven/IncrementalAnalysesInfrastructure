@@ -46,7 +46,7 @@ public class VariabilityChangeFilterTest {
 	@Test
 	public void testDoFilter_variability_change() throws IOException {
 		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(new File("testdata/variability-changes/some-variability-changes.diff"));
-		VariabilityChangeFilter filter = new VariabilityChangeFilter(null, diffFile, Pattern.compile(".*"));
+		VariabilityChangeFilter filter = new VariabilityChangeFilter(null, diffFile, Pattern.compile(".*"), false);
 		Collection<Path> paths = filter.getFilteredResult();
 		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("drivers/crypto/caam/ctrl.c")));
 

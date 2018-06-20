@@ -95,7 +95,7 @@ public class IncrementalPreparation implements IPreparation {
 				//////////////////////////
 				Collection<Path> filteredPaths = filterInput(
 						config.getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS), inputSourceDir, diffFile,
-						config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
+						config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
 
 				boolean extractCm = false;
 				if (!filteredPaths.isEmpty()) {
@@ -112,7 +112,8 @@ public class IncrementalPreparation implements IPreparation {
 				// Filter for variability model //
 				//////////////////////////////////
 				filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
-						inputSourceDir, diffFile, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX));
+						inputSourceDir, diffFile, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX),
+						true);
 				boolean extractVm = !filteredPaths.isEmpty();
 				config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, extractVm);
 
@@ -120,11 +121,12 @@ public class IncrementalPreparation implements IPreparation {
 				// Filter for build model //
 				////////////////////////////
 				if (extractVm) {
-					//if vm was updated, always extract bm aswell as it depends on the vm
+					// if vm was updated, always extract bm aswell as it depends on the vm
 					config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, true);
 				} else {
 					filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
-							inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX));
+							inputSourceDir, diffFile, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX),
+							true);
 					boolean extractBm = !filteredPaths.isEmpty();
 					config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
 				}
@@ -152,23 +154,25 @@ public class IncrementalPreparation implements IPreparation {
 	 * @param inputSourceDir
 	 *            the input source dir
 	 * @param inputDiff
-	 *            the input diff
+	 *            the input diff file
 	 * @param regex
-	 *            the regex
-	 * @return the collection
+	 *            the regular expression describing which files to include
+	 * @param includeDeletions
+	 *            defines whether deletions are included
+	 * @return the collection of resulting paths
 	 * @throws SetUpException
 	 *             the set up exception
 	 */
 	@SuppressWarnings("unchecked")
 	protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, DiffFile inputDiff,
-			Pattern regex) throws SetUpException {
+			Pattern regex, boolean includeDeletions) throws SetUpException {
 		Collection<Path> paths = null;
 		// Call the method getFilteredResult for filterClassName via reflection-api
 		try {
 			@SuppressWarnings("rawtypes")
 			Class filterClass = Class.forName(filterClassName);
-			Object filterObject = filterClass.getConstructor(File.class, DiffFile.class, Pattern.class)
-					.newInstance(inputSourceDir, inputDiff, regex);
+			Object filterObject = filterClass.getConstructor(File.class, DiffFile.class, Pattern.class, boolean.class)
+					.newInstance(inputSourceDir, inputDiff, regex, includeDeletions);
 			if (filterObject instanceof InputFilter) {
 				Method getFilteredResultMethod = filterClass.getMethod("getFilteredResult");
 				paths = (Collection<Path>) getFilteredResultMethod.invoke(filterObject);
@@ -190,14 +194,10 @@ public class IncrementalPreparation implements IPreparation {
 	 * Filters input using the class defined by filterClassName. This should be a
 	 * class available in the classpath and implementing InputFilter.
 	 *
-	 * @param filterClassName
-	 *            the filter class name
-	 * @param inputSourceDir
-	 *            the input source dir
-	 * @param inputDiff
-	 *            the input diff
-	 * @param regex
-	 *            the regex
+	 * @param analyzerClassName
+	 *            the analyzer class name
+	 * @param inputGitDiff
+	 *            the input git diff
 	 * @return the collection
 	 * @throws SetUpException
 	 *             the set up exception
