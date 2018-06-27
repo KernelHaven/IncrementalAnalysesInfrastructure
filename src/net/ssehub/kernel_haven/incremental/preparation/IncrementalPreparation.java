@@ -65,6 +65,7 @@ public class IncrementalPreparation implements IPreparation {
 
 			// Stop execution after rollback
 			if (revertSuccessful) {
+				LOGGER.logInfo("Rollback successful.");
 				System.exit(0);
 			} else {
 				System.exit(1);
