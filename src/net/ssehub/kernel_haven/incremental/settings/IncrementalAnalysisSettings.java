@@ -35,7 +35,7 @@ public class IncrementalAnalysisSettings {
 			"name of the class used to filter the input for the code-model in the incremental analysis");
 
 	public static final Setting<String> DIFF_ANALYZER_CLASS_NAME = new Setting<String>(
-			"incremental.code.diff_analyzer_class", STRING, true,
+			"incremental.diff_analyzer_class", STRING, true,
 			"net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer",
 			"name of the class used to analyze the git-diff file");
 
