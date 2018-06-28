@@ -12,7 +12,6 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
-// TODO: Auto-generated Javadoc
 /**
  * Special adapter class to enable any pipeline-analysis to run as an
  * incremental analysis.
@@ -159,12 +158,15 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 
 					}
 				}
-				
-				// do not prevent null from being added
-				// this is because some analysis implementations expect the null result
-				// for failed extractions
-				bmComponent.myAddResult(buildModel);
-				vmComponent.myAddResult(varModel);
+
+				// only add if models are not null. AnalysisComponent automatically returns null
+				// if no result is present.
+				if (buildModel != null) {
+					bmComponent.myAddResult(buildModel);
+				}
+				if (varModel != null) {
+					vmComponent.myAddResult(varModel);
+				}
 
 			} catch (IOException | FormatException e) {
 				LOGGER.logException("Could not get models from HybridCache", e);
