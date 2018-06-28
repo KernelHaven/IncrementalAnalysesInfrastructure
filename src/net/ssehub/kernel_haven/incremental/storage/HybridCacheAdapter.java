@@ -173,19 +173,19 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 			}
 		}
 
+		vmComponent.done = true;
+		synchronized (vmComponent) {
+			vmComponent.notifyAll();
+		}
+
 		bmComponent.done = true;
 		synchronized (bmComponent) {
 			bmComponent.notifyAll();
 		}
 
-		vmComponent.done = true;
-		synchronized (bmComponent) {
-			bmComponent.notifyAll();
-		}
-
 		cmComponent.done = true;
-		synchronized (bmComponent) {
-			bmComponent.notifyAll();
+		synchronized (cmComponent) {
+			cmComponent.notifyAll();
 		}
 
 		long totalTime = System.nanoTime() - start;
