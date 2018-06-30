@@ -13,15 +13,10 @@ import javax.xml.bind.JAXBException;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
-import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.Logger.Level;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -31,73 +26,76 @@ import net.ssehub.kernel_haven.util.Logger.Level;
  */
 public class DiffFileTest {
 
-	/** The logger. */
-	private static Logger LOGGER = null;
 
-	/** Path to git-diff file. */
-	private static final File GIT_DIFF = new File("testdata/diff-file/git.diff");
-	
-	/** Path to parsed and serialized version of git-diff file. */
-	private static final File DIFF_FILE = new File("testdata/diff-file/diff_file.test");
+    /** Path to git-diff file. */
+    private static final File GIT_DIFF =
+        new File("testdata/diff-file/git.diff");
 
-	/**
-	 * Inits the logger.
-	 */
-	@BeforeClass
-	public static void initLogger() {
-		LOGGER = Logger.get();
-		LOGGER.setLevel(Level.DEBUG);
-	}
+    /** Path to parsed and serialized version of git-diff file. */
+    private static final File DIFF_FILE =
+        new File("testdata/diff-file/diff_file.test");
 
-	/**
-	 * Tests whether the doFilter method works.
-	 *
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	@Test
-	public void testGetEntries_modification() throws IOException {
-		DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
-		Collection<Path> paths = new ArrayList<Path>();
-		for (FileEntry entry : diffFile.getEntries()) {
-			if (entry.getType().equals(FileEntry.Type.MODIFICATION)) {
-				paths.add(entry.getPath());
-			}
-		}
-		Assert.assertThat(paths.size(), CoreMatchers.equalTo(3));
-		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kbuild")));
-		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kconfig")));
-		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/a-code-file.c")));
-	}
+    // CHECKSTYLE:OFF
+    /**
+     * Tests whether the doFilter method works.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testGetEntries_modification() throws IOException {
+        DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
+        Collection<Path> paths = new ArrayList<Path>();
+        for (FileEntry entry : diffFile.getEntries()) {
+            if (entry.getType().equals(FileEntry.Type.MODIFICATION)) {
+                paths.add(entry.getPath());
+            }
+        }
+        Assert.assertThat(paths.size(), CoreMatchers.equalTo(3));
+        Assert.assertThat(paths,
+            CoreMatchers.hasItem(Paths.get("modify/Kbuild")));
+        Assert.assertThat(paths,
+            CoreMatchers.hasItem(Paths.get("modify/Kconfig")));
+        Assert.assertThat(paths,
+            CoreMatchers.hasItem(Paths.get("modify/a-code-file.c")));
+    }
+    // CHECKSTYLE:ON
 
-	/**
-	 * Test save.
-	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws JAXBException the JAXB exception
-	 */
-	@Test
-	public void testSave() throws IOException, JAXBException {
-		DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
-		File file = Files.createTempFile("git-diff", "temp").toFile();
-		file.deleteOnExit();
-		diffFile.save(file);
-		Assert.assertTrue(!FileUtil.readFile(file).isEmpty());
-	}
+    /**
+     * Test save.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws JAXBException
+     *             the JAXB exception
+     */
+    @Test
+    public void testSave() throws IOException, JAXBException {
+        DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
+        File file = Files.createTempFile("git-diff", "temp").toFile();
+        file.deleteOnExit();
+        diffFile.save(file);
+        Assert.assertTrue(!FileUtil.readFile(file).isEmpty());
+    }
 
-	/**
-	 * Test load.
-	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws JAXBException the JAXB exception
-	 * @throws ParseException the parse exception
-	 */
-	@Test
-	public void testLoad() throws IOException, JAXBException, ParseException {
-		DiffFile referenceDiffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
+    /**
+     * Test load.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws JAXBException
+     *             the JAXB exception
+     * @throws ParseException
+     *             the parse exception
+     */
+    @Test
+    public void testLoad() throws IOException, JAXBException, ParseException {
+        DiffFile referenceDiffFile =
+            new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
 
-		DiffFile loadedDiffFile = DiffFile.load(DIFF_FILE);
+        DiffFile loadedDiffFile = DiffFile.load(DIFF_FILE);
 
-		Assert.assertThat(loadedDiffFile, CoreMatchers.equalTo(referenceDiffFile));
-	}
+        Assert.assertThat(loadedDiffFile,
+            CoreMatchers.equalTo(referenceDiffFile));
+    }
 }

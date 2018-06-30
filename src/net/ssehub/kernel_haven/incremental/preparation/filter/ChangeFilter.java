@@ -18,45 +18,46 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
  */
 public class ChangeFilter extends InputFilter {
 
-	/**
-	 * Instantiates a new change filter.
-	 *
-	 * @param sourceDirectory
-	 *            the source directory
-	 * @param diffFile
-	 *            the diff file
-	 * @param fileRegex
-	 *            the file regex
-	 * @param includeDeletions
-	 *            the include deletions
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public ChangeFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex, boolean includeDeletions)
-			throws IOException {
-		super(sourceDirectory, diffFile, fileRegex, includeDeletions);
-	}
+    /**
+     * Instantiates a new change filter.
+     *
+     * @param sourceDirectory
+     *            the source directory
+     * @param diffFile
+     *            the diff file
+     * @param fileRegex
+     *            the file regex
+     * @param includeDeletions
+     *            the include deletions
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public ChangeFilter(File sourceDirectory, DiffFile diffFile,
+        Pattern fileRegex, boolean includeDeletions) throws IOException {
+        super(sourceDirectory, diffFile, fileRegex, includeDeletions);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter#doFilter(
-	 * java.io.File, net.ssehub.kernel_haven.incremental.diff.DiffFile,
-	 * java.util.regex.Pattern, boolean)
-	 */
-	@Override
-	protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile, Pattern fileRegex,
-			boolean includeDeletions) throws IOException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter#
+     * doFilter( java.io.File,
+     * net.ssehub.kernel_haven.incremental.diff.DiffFile,
+     * java.util.regex.Pattern, boolean)
+     */
+    @Override
+    protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile,
+        Pattern fileRegex, boolean includeDeletions) throws IOException {
 
-		Collection<Path> paths = new ArrayList<Path>();
-		for (FileEntry entry : diffFile.getEntries()) {
-			if (includeDeletions || entry.getType().equals(FileEntry.Type.ADDITION)
-					|| entry.getType().equals(FileEntry.Type.MODIFICATION)) {
-				paths.add(entry.getPath());
-			}
-		}
-		return filterPathsByRegex(paths, fileRegex);
-	}
+        Collection<Path> paths = new ArrayList<Path>();
+        for (FileEntry entry : diffFile.getEntries()) {
+            if (includeDeletions
+                || entry.getType().equals(FileEntry.Type.ADDITION)
+                || entry.getType().equals(FileEntry.Type.MODIFICATION)) {
+                paths.add(entry.getPath());
+            }
+        }
+        return filterPathsByRegex(paths, fileRegex);
+    }
 
 }

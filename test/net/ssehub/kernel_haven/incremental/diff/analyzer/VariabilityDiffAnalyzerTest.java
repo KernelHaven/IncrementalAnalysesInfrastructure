@@ -6,78 +6,98 @@ import java.nio.file.Paths;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
 import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.Logger.Level;
 
 /**
  * Tests for {@link VariabilityDiffAnalyzer}.
- * @authro moritz
+ * 
+ * @author moritz
  */
 public class VariabilityDiffAnalyzerTest {
 
-	/** The logger. */
-	private static Logger LOGGER = null;
+    /** The logger. */
+    private static final Logger LOGGER = Logger.get();
 
-	/**
-	 * Inits the logger.
-	 */
-	@BeforeClass
-	public static void initLogger() {
-		LOGGER = Logger.get();
-		LOGGER.setLevel(Level.DEBUG);
-	}
+    // CHECKSTYLE:OFF
+    /**
+     * Tests whether the doFilter method works in instances where variability
+     * did not change.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testParse_modification_no_variability_change()
+        throws IOException {
+        File inputFile = new File(
+            "testdata/variability-changes/no-variability-changes.diff");
+        DiffFile diffFile =
+            new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
+        LOGGER.logInfo("The following entries were found: ");
+        diffFile.getEntries()
+            .forEach(entry -> LOGGER.logInfo(entry.toString()));
 
-	/**
-	 * Tests whether the doFilter method works in instances where variability did not change.
-	 *
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	@Test
-	public void testParse_modification_no_variability_change() throws IOException {
-		File inputFile = new File("testdata/variability-changes/no-variability-changes.diff");
-		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
-		LOGGER.logDebug("The following entries were found: ");
-		diffFile.getEntries().forEach(entry -> LOGGER.logDebug(entry.toString()));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kbuild"),
+                FileEntry.Type.MODIFICATION,
+                FileEntry.VariabilityChange.NO_CHANGE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kconfig"),
+                FileEntry.Type.MODIFICATION,
+                FileEntry.VariabilityChange.NO_CHANGE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers.hasItem(new FileEntry(
+                Paths.get("modify/a-code-file.c"), FileEntry.Type.MODIFICATION,
+                FileEntry.VariabilityChange.NO_CHANGE)));
 
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kbuild"),
-				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kconfig"),
-				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("modify/a-code-file.c"),
-				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
+    }
+    // CHECKSTYLE:ON
 
-	}
+    // CHECKSTYLE:OFF
 
-	/**
-	 * Tests whether the doFilter method works in instances where variability did change.
-	 *
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	@Test
-	public void testParse_variability_change() throws IOException {
-		File inputFile = new File("testdata/variability-changes/some-variability-changes.diff");
-		DiffFile diffFile = new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
-		LOGGER.logDebug("The following entries were found: ");
-		diffFile.getEntries().forEach(entry -> LOGGER.logDebug(entry.toString()));
+    /**
+     * Tests whether the doFilter method works in instances where variability
+     * did change.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testParse_variability_change() throws IOException {
+        File inputFile = new File(
+            "testdata/variability-changes/some-variability-changes.diff");
+        DiffFile diffFile =
+            new VariabilityDiffAnalyzer().generateDiffFile(inputFile);
+        LOGGER.logInfo("The following entries were found: ");
+        diffFile.getEntries()
+            .forEach(entry -> LOGGER.logInfo(entry.toString()));
 
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("include/linux/compat.h"),
-				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get(".mailmap"),
-				FileEntry.Type.DELETION, FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE)));
-		Assert.assertThat(diffFile.getEntries(), CoreMatchers.hasItem(new FileEntry(Paths.get("include/linux/bitmap.h"),
-				FileEntry.Type.MODIFICATION, FileEntry.VariabilityChange.NO_CHANGE)));
-		Assert.assertThat(diffFile.getEntries(),
-				CoreMatchers.hasItem(new FileEntry(Paths.get("drivers/crypto/caam/ctrl.c"), FileEntry.Type.MODIFICATION,
-						FileEntry.VariabilityChange.CHANGE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers
+                .hasItem(new FileEntry(Paths.get("include/linux/compat.h"),
+                    FileEntry.Type.MODIFICATION,
+                    FileEntry.VariabilityChange.NO_CHANGE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers.hasItem(
+                new FileEntry(Paths.get(".mailmap"), FileEntry.Type.DELETION,
+                    FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers
+                .hasItem(new FileEntry(Paths.get("include/linux/bitmap.h"),
+                    FileEntry.Type.MODIFICATION,
+                    FileEntry.VariabilityChange.NO_CHANGE)));
+        Assert.assertThat(diffFile.getEntries(),
+            CoreMatchers
+                .hasItem(new FileEntry(Paths.get("drivers/crypto/caam/ctrl.c"),
+                    FileEntry.Type.MODIFICATION,
+                    FileEntry.VariabilityChange.CHANGE)));
 
-	}
+    }
+
+    // CHECKSTYLE:ON
 
 }

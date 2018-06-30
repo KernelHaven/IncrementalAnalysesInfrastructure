@@ -19,8 +19,10 @@ import net.ssehub.kernel_haven.incremental.storage.HybridCacheTest;
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({ ChangeFilterTest.class, DiffFileTest.class, IncrementalPreparationTest.class,
-		DiffApplyUtilTest.class, VariabilityDiffAnalyzerTest.class, VariabilityChangeFilterTest.class, HybridCacheTest.class })
+@SuiteClasses({ ChangeFilterTest.class, DiffFileTest.class,
+    IncrementalPreparationTest.class, DiffApplyUtilTest.class,
+    VariabilityDiffAnalyzerTest.class, VariabilityChangeFilterTest.class,
+    HybridCacheTest.class })
 public class AllTests {
 
 }
