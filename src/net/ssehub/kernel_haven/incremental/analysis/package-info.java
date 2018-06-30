@@ -1,8 +1,5 @@
 /**
- * 
- * This package contains some analysis classes that may
- * also serve as guideline on how to write an incremental
- * analysis.
+ * This package contains incremental analysis classes.
  * 
  * @author moritz
  *

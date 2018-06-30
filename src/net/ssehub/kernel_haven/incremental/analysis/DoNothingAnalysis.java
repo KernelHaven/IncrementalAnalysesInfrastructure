@@ -27,7 +27,7 @@ public class DoNothingAnalysis extends PipelineAnalysis {
 	 */
 	public DoNothingAnalysis(@NonNull Configuration config) {
 		super(config);
-		// TODO Auto-generated constructor stub
+
 	}
 
 

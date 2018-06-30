@@ -1,6 +1,6 @@
 /**
  * 
- * Contains classes related to the processing of information from git diff.
+ * Contains classes related to the processing git diff files.
  * 
  * @author moritz
  *
