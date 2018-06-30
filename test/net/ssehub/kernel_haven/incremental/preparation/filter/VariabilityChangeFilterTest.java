@@ -20,7 +20,7 @@ import net.ssehub.kernel_haven.util.Logger.Level;
 
 
 /**
- * The Class VariabilityChangesFilterTest.
+ * Tests for {@link VariabilityChangeFilter}
  * @author moritz
  */
 public class VariabilityChangeFilterTest {

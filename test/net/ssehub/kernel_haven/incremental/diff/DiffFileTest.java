@@ -23,9 +23,10 @@ import net.ssehub.kernel_haven.incremental.util.FileUtil;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
+// TODO: Auto-generated Javadoc
 /**
- * The Class DiffFileTest.
- * 
+ * Tests for {@link DiffFile}.
+ *
  * @author moritz
  */
 public class DiffFileTest {
@@ -33,8 +34,10 @@ public class DiffFileTest {
 	/** The logger. */
 	private static Logger LOGGER = null;
 
-	/** The Constant DIFF_FILE. */
+	/** Path to git-diff file. */
 	private static final File GIT_DIFF = new File("testdata/diff-file/git.diff");
+	
+	/** Path to parsed and serialized version of git-diff file. */
 	private static final File DIFF_FILE = new File("testdata/diff-file/diff_file.test");
 
 	/**
@@ -67,6 +70,12 @@ public class DiffFileTest {
 		Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/a-code-file.c")));
 	}
 
+	/**
+	 * Test save.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws JAXBException the JAXB exception
+	 */
 	@Test
 	public void testSave() throws IOException, JAXBException {
 		DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
@@ -76,6 +85,13 @@ public class DiffFileTest {
 		Assert.assertTrue(!FileUtil.readFile(file).isEmpty());
 	}
 
+	/**
+	 * Test load.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws JAXBException the JAXB exception
+	 * @throws ParseException the parse exception
+	 */
 	@Test
 	public void testLoad() throws IOException, JAXBException, ParseException {
 		DiffFile referenceDiffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);

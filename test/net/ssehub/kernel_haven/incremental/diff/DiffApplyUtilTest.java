@@ -15,7 +15,7 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
 /**
- * The Class DiffIntegrationUtilTest.
+ * Tests for {@link DiffApplyUtil}
  * 
  * @author moritz
  */

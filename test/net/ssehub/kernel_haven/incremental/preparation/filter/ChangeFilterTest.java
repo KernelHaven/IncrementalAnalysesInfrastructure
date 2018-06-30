@@ -19,7 +19,7 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
 /**
- * The Class ChangedOnlyFilterTest.
+ * Tests for {@link ChangeFilter}
  * @author moritz
  */
 public class ChangeFilterTest {

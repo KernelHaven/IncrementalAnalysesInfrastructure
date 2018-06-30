@@ -19,10 +19,18 @@ import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.Variable;
 
+/**
+ * 
+ * Tests for the {@link HybridCache}.
+ * 
+ * @author moritz
+ */
 public class HybridCacheTest extends HybridCache {
 
+	/** The Constant TESTFOLDER_HYBRID_DELETE. */
 	private static final File TESTFOLDER_HYBRID_DELETE = new File("testdata/hybrid-cache/hybrid-delete");
 
+	/** The logger. */
 	private static Logger LOGGER;
 
 	/**
@@ -35,6 +43,12 @@ public class HybridCacheTest extends HybridCache {
 
 	}
 
+	/**
+	 * Test hybrid add.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@Test
 	public void testHybridAdd() throws IOException {
 		Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
@@ -47,6 +61,12 @@ public class HybridCacheTest extends HybridCache {
 				CoreMatchers.hasItem(new File("history/added/test.txt")));
 	}
 
+	/**
+	 * Test hybrid delete.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@Test
 	public void testHybridDelete() throws IOException {
 		Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
@@ -61,20 +81,32 @@ public class HybridCacheTest extends HybridCache {
 				CoreMatchers.hasItem(new File("history/replaced/test.file")));
 	}
 
+	/**
+	 * Test get original code model file.
+	 *
+	 * @throws Exception
+	 *             the exception
+	 */
 	@Test
-		public void testGetOriginalCodeModelFile() throws Exception {
-			Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
-	
-			HybridCache cache = new HybridCache(tempFolder.toFile());
-	
-			Assert.assertThat(cache.getOriginalCodeModelFile(new File("cached.file.c.cache")),
-					CoreMatchers.equalTo(new File("cached/file.c")));
-	
-			Assert.assertThat(cache.getOriginalCodeModelFile(new File("dir.cached.file.c.cache")),
-					CoreMatchers.equalTo(new File("dir/cached/file.c")));
-	
-		}
+	public void testGetOriginalCodeModelFile() throws Exception {
+		Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
 
+		HybridCache cache = new HybridCache(tempFolder.toFile());
+
+		Assert.assertThat(cache.getOriginalCodeModelFile(new File("cached.file.c.cache")),
+				CoreMatchers.equalTo(new File("cached/file.c")));
+
+		Assert.assertThat(cache.getOriginalCodeModelFile(new File("dir.cached.file.c.cache")),
+				CoreMatchers.equalTo(new File("dir/cached/file.c")));
+
+	}
+
+	/**
+	 * Test write source file added file.
+	 *
+	 * @throws Exception
+	 *             the exception
+	 */
 	@Test
 	public void testWriteSourceFile_addedFile() throws Exception {
 
@@ -105,6 +137,12 @@ public class HybridCacheTest extends HybridCache {
 
 	}
 
+	/**
+	 * Test write source file replaced file.
+	 *
+	 * @throws Exception
+	 *             the exception
+	 */
 	@Test
 	public void testWriteSourceFile_replacedFile() throws Exception {
 

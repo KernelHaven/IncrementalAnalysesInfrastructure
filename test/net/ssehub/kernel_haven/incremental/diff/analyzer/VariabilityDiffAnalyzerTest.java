@@ -16,7 +16,8 @@ import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Logger.Level;
 
 /**
- * The Class ComAnDiffAnalyzerTest.
+ * Tests for {@link VariabilityDiffAnalyzer}.
+ * @authro moritz
  */
 public class VariabilityDiffAnalyzerTest {
 
@@ -33,7 +34,7 @@ public class VariabilityDiffAnalyzerTest {
 	}
 
 	/**
-	 * Tests whether the doFilter method works.
+	 * Tests whether the doFilter method works in instances where variability did not change.
 	 *
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
@@ -55,7 +56,7 @@ public class VariabilityDiffAnalyzerTest {
 	}
 
 	/**
-	 * Tests whether the doFilter method works.
+	 * Tests whether the doFilter method works in instances where variability did change.
 	 *
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
