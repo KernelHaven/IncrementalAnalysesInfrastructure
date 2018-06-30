@@ -18,37 +18,41 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class FileEntry {
 
 	/**
-	 * Type of change.
+	 * Type of change in terms of file operation. Changes of variability are
+	 * reflected by {@link VariabilityChange}
 	 */
 	public enum Type {
 
 		/** Modification of a file. */
 		MODIFICATION,
 
-		/** Additition of a file. */
+		/** Addition of a file. */
 		ADDITION,
 
 		/** Deletion of a file. */
 		DELETION
 	}
 
+	/**
+	 * The Enum VariabilityChange.
+	 */
 	public enum VariabilityChange {
 
-		/** Indicates changed variability */
+		/** Indicates changed variability. */
 		CHANGE,
 
-		/** Indicates no changed variability */
+		/** Indicates no changed variability. */
 		NO_CHANGE,
 
 		/**
 		 * Indicates that the file was not considered to be a file carrying variability
-		 * information
+		 * information.
 		 */
 		NOT_A_VARIABILITY_FILE,
 
 		/**
 		 * Indicates that no analysis on variability information was performed on the
-		 * file represented by this {@link FileEntry}
+		 * file represented by this {@link FileEntry}.
 		 */
 		NOT_ANALYZED
 	}
@@ -59,6 +63,7 @@ public class FileEntry {
 	/** The type. */
 	private Type type;
 
+	/** The variability change. */
 	private VariabilityChange variabilityChange;
 
 	/**
@@ -68,13 +73,14 @@ public class FileEntry {
 	 *            the file
 	 * @param type
 	 *            the type
+	 * @param variabilityChange
+	 *            the variability change
 	 */
 	public FileEntry(Path file, Type type, VariabilityChange variabilityChange) {
 		this.file = file;
 		this.type = type;
 		this.variabilityChange = variabilityChange;
 	}
-
 
 	/**
 	 * Instantiates a new file entry.
@@ -108,16 +114,31 @@ public class FileEntry {
 		return type;
 	}
 
+	/**
+	 * Gets the variability change.
+	 *
+	 * @return the variability change
+	 */
 	public VariabilityChange getVariabilityChange() {
 		return variabilityChange;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]").add("file = " + file)
 				.add("type = " + type).add("variabilityChange = " + variabilityChange).toString();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -128,6 +149,11 @@ public class FileEntry {
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

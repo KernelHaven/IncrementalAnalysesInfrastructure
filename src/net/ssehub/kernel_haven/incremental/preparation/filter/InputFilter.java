@@ -30,8 +30,9 @@ public abstract class InputFilter {
 	 * @param diffFile
 	 *            the diff file
 	 * @param fileRegex
-	 *            the file regex
+	 *            the regular expressions for files to include
 	 * @param includeDeletions
+	 *            defines whether or not to include deletions
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */

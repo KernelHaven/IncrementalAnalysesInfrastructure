@@ -36,18 +36,32 @@ public class DiffFile {
 	 * Instantiates a new diff file reader. The file passed to this constructor must
 	 * be a git diff file.
 	 *
-	 * @param file
-	 *            the git diff file
+	 * @param changeSet
+	 *            the change set
 	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public DiffFile(@NonNull Collection<FileEntry> changeSet) throws IOException {
 		this.changeSet = changeSet;
 	}
 
+	/**
+	 * Gets the entries.
+	 *
+	 * @return the entries
+	 */
 	public Collection<FileEntry> getEntries() {
 		return changeSet;
 	}
 
+	/**
+	 * Saves the {@link DiffFile} object to filesystem.
+	 *
+	 * @param file
+	 *            the file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void save(File file) throws IOException {
 		if (file.exists()) {
 			file.delete();
@@ -91,6 +105,17 @@ public class DiffFile {
 		FileUtil.writeFile(file, builder.toString());
 	}
 
+	/**
+	 * Loads the {@link DiffFile} object from filesystem.
+	 *
+	 * @param file
+	 *            the file
+	 * @return the diff file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws ParseException
+	 *             the parse exception
+	 */
 	public static DiffFile load(File file) throws IOException, ParseException {
 		DiffFile returnedDiff = null;
 		Collection<FileEntry> entries = null;
@@ -141,6 +166,11 @@ public class DiffFile {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -149,6 +179,11 @@ public class DiffFile {
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

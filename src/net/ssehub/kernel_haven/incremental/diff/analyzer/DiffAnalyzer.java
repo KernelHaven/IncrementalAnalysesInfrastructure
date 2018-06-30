@@ -15,6 +15,9 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
  */
 public abstract class DiffAnalyzer {
 
+	/**
+	 * Instantiates a new diff analyzer.
+	 */
 	public DiffAnalyzer() {
 		
 	}
@@ -23,9 +26,9 @@ public abstract class DiffAnalyzer {
 	 * Parses the input given to the {@link DiffAnalyzer} and creates a
 	 * {@link DiffFile}.
 	 *
+	 * @param file the file
 	 * @return the diff file
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws IOException             Signals that an I/O exception has occurred.
 	 */
 	public abstract DiffFile generateDiffFile(File file) throws IOException;
 
