@@ -7,14 +7,11 @@ import java.nio.file.Path;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.code_model.CodeBlock;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
-import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.Logger.Level;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.Variable;
@@ -31,18 +28,6 @@ public class HybridCacheTest extends HybridCache {
     private static final File TESTFOLDER_HYBRID_DELETE =
         new File("testdata/hybrid-cache/hybrid-delete");
 
-    /** The logger. */
-    private static Logger LOGGER;
-
-    /**
-     * Inits the logger.
-     */
-    @BeforeClass
-    public static void initLogger() {
-        LOGGER = Logger.get();
-        LOGGER.setLevel(Level.DEBUG);
-
-    }
 
     /**
      * Test hybrid add.
