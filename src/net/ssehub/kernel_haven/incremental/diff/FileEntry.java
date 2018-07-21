@@ -3,18 +3,12 @@ package net.ssehub.kernel_haven.incremental.diff;
 import java.nio.file.Path;
 import java.util.StringJoiner;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Represents an entry for a file in the changeset. Used by {@link DiffFile} to
  * describe changes for a git-diff-file.
  * 
  * @author moritz
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class FileEntry {
 
     /**

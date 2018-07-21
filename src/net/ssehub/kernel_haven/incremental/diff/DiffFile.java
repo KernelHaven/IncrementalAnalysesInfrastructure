@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringJoiner;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import net.ssehub.kernel_haven.incremental.diff.FileEntry.Type;
 import net.ssehub.kernel_haven.incremental.diff.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
@@ -25,8 +21,6 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * 
  * @author Moritz
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class DiffFile {
 
     /** The diff. */

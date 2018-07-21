@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import diff.DiffAnalyzer;
 import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -223,7 +224,8 @@ public class IncrementalPreparation implements IPreparation {
         // reflection-api
         try {
             @SuppressWarnings("rawtypes")
-            Class filterClass = Class.forName(filterClassName);
+            Class<InputFilter> filterClass =
+                (Class<InputFilter>) Class.forName(filterClassName);
             Object filterObject = filterClass.getConstructor(File.class,
                 DiffFile.class, Pattern.class, boolean.class).newInstance(
                     inputSourceDir, inputDiff, regex, includeDeletions);
@@ -269,7 +271,8 @@ public class IncrementalPreparation implements IPreparation {
         // reflection-api
         try {
             @SuppressWarnings("rawtypes")
-            Class analyzerClass = Class.forName(analyzerClassName);
+            Class<DiffAnalyzer> analyzerClass =
+                (Class<DiffAnalyzer>) Class.forName(analyzerClassName);
             Object analyzerObject =
                 analyzerClass.getConstructor().newInstance();
             Method getFilteredResultMethod =

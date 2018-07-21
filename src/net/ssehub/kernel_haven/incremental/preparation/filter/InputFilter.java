@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 
-// TODO: Auto-generated Javadoc
 /**
  * Filter class for files located in the source tree. Classes extending this
  * class filter the files according to their own criteria such as changed files

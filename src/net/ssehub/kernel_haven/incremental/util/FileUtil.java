@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package net.ssehub.kernel_haven.incremental.util;
 
 import java.io.File;
@@ -76,5 +79,24 @@ public class FileUtil {
         try (PrintWriter out = new PrintWriter(file)) {
             out.println(content);
         }
+    }
+
+    /**
+     * Path matches suffix.
+     *
+     * @param file the file
+     * @param suffixes the suffixes
+     * @return true, if successful
+     */
+    public static boolean fileMatchesSuffix(File file, String[] suffixes) {
+
+        
+        boolean matches = false;
+        int i = 0;
+        while (i < suffixes.length && !matches) {
+            matches = file.getPath().endsWith(suffixes[i]);
+            i++;
+        }
+        return matches;
     }
 }

@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.diff.analyzer;
+package net.ssehub.kernel_haven.incremental.diff.linecount;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,12 +8,10 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +75,6 @@ public class LineCounter {
          * The Enum LineType.
          */
         public enum LineType {
-
             /** The added. */
             ADDED,
             /** The deleted. */
