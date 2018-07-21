@@ -22,7 +22,6 @@ public class VariabilityDiffAnalyzerTest {
     /** The logger. */
     private static final Logger LOGGER = Logger.get();
 
-    // CHECKSTYLE:OFF
     /**
      * Tests whether the doFilter method works in instances where variability
      * did not change.
@@ -31,8 +30,10 @@ public class VariabilityDiffAnalyzerTest {
      *             Signals that an I/O exception has occurred.
      */
     @Test
+    // CHECKSTYLE:OFF
     public void testParse_modification_no_variability_change()
         throws IOException {
+        // CHECKSTYLE:ON
         File inputFile = new File(
             "testdata/variability-changes/no-variability-changes.diff");
         DiffFile diffFile =
@@ -55,9 +56,6 @@ public class VariabilityDiffAnalyzerTest {
                 FileEntry.VariabilityChange.NO_CHANGE)));
 
     }
-    // CHECKSTYLE:ON
-
-    // CHECKSTYLE:OFF
 
     /**
      * Tests whether the doFilter method works in instances where variability
@@ -67,7 +65,9 @@ public class VariabilityDiffAnalyzerTest {
      *             Signals that an I/O exception has occurred.
      */
     @Test
+    // CHECKSTYLE:OFF
     public void testParse_variability_change() throws IOException {
+        // CHECKSTYLE:ON
         File inputFile = new File(
             "testdata/variability-changes/some-variability-changes.diff");
         DiffFile diffFile =
@@ -97,7 +97,5 @@ public class VariabilityDiffAnalyzerTest {
                     FileEntry.VariabilityChange.CHANGE)));
 
     }
-
-    // CHECKSTYLE:ON
 
 }

@@ -18,18 +18,19 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
 
+
 /**
- * The Class LineCounter.
+ * The Class {@link LineParser}.
  * 
  * @author Moritz
  */
-public class LineCounter {
+public class LineParser {
 
     /** The Constant DIFF_START_PATTERN. */
     private static final String DIFF_START_PATTERN = "diff --git ";
 
     /** The Constant INCLUDE_FILE_TYPES. */
-    private static final String[] INCLUDE_FILE_TYPES = {".c", ".h" };
+    private static final String[] INCLUDE_FILE_TYPES = { ".c", ".h" };
 
     /** The Constant LINE_NUMBER_MATCH_PATTERN. */
     private static final String LINE_NUMBER_MATCH_PATTERN =
@@ -42,7 +43,7 @@ public class LineCounter {
     /**
      * The Class Lines.
      */
-    protected static class Lines {
+    public static class Lines {
         /** The count. */
         private int count;
 
@@ -115,9 +116,20 @@ public class LineCounter {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public LineCounter(File gitDiffFile, Collection<Path> ignorePaths)
+    public LineParser(File gitDiffFile, Collection<Path> ignorePaths)
         throws IOException {
         parseLines(gitDiffFile, ignorePaths);
+    }
+
+    /**
+     * Gets the lines.
+     *
+     * @param path
+     *            the path
+     * @return the lines
+     */
+    public List<Lines> getLines(Path path) {
+        return lineChangesForFilePath.get(path);
     }
 
     /**
@@ -130,7 +142,7 @@ public class LineCounter {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    protected void parseLines(File commitFile, Collection<Path> ignorePaths)
+    private void parseLines(File commitFile, Collection<Path> ignorePaths)
         throws IOException {
         try (BufferedReader br =
             new BufferedReader(new FileReader(commitFile))) {
@@ -183,7 +195,7 @@ public class LineCounter {
      *             Signals that an I/O exception has occurred.
      */
     // CHECKSTYLE:OFF
-    protected void parseChangeBlock(String string) throws IOException {
+    private void parseChangeBlock(String string) throws IOException {
         // CHECKSTYLE:ON
         BufferedReader bufReader = new BufferedReader(new StringReader(string));
 
