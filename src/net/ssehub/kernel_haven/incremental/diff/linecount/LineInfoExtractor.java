@@ -18,19 +18,16 @@ import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
 
-
+// TODO: Auto-generated Javadoc
 /**
  * The Class {@link LineParser}.
  * 
  * @author Moritz
  */
-public class LineParser {
+public class LineInfoExtractor {
 
     /** The Constant DIFF_START_PATTERN. */
     private static final String DIFF_START_PATTERN = "diff --git ";
-
-    /** The Constant INCLUDE_FILE_TYPES. */
-    private static final String[] INCLUDE_FILE_TYPES = { ".c", ".h" };
 
     /** The Constant LINE_NUMBER_MATCH_PATTERN. */
     private static final String LINE_NUMBER_MATCH_PATTERN =
@@ -41,69 +38,20 @@ public class LineParser {
         new HashMap<Path, List<Lines>>();
 
     /**
-     * The Class Lines.
+     * Instantiates a new line counter.
+     *
+     * @param gitDiffFile
+     *            the git diff file
+     * @param ignorePaths
+     *            the ignore paths
+     * @param fileInclusionRegex
+     *            the file inclusion regex
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
-    public static class Lines {
-        /** The count. */
-        private int count;
-
-        /** The type. */
-        private LineType type;
-
-        /**
-         * Instantiates a new lines.
-         *
-         * @param type
-         *            the type
-         * @param count
-         *            the count
-         */
-        public Lines(LineType type, int count) {
-            this.type = type;
-            this.count = count;
-        }
-
-        /**
-         * To string.
-         *
-         * @return the string
-         */
-        public String toString() {
-            return "Lines [count=" + count + ", type=" + type + "]";
-        }
-
-        /**
-         * The Enum LineType.
-         */
-        public enum LineType {
-            /** The added. */
-            ADDED,
-            /** The deleted. */
-            DELETED,
-            /** The unmodified. */
-            UNMODIFIED,
-            /** The between chunks. */
-            BETWEEN_CHUNKS
-        }
-
-        /**
-         * Gets the type.
-         *
-         * @return the type
-         */
-        public LineType getType() {
-            return type;
-        }
-
-        /**
-         * Gets the count.
-         *
-         * @return the count
-         */
-        public int getCount() {
-            return count;
-        }
-
+    public LineInfoExtractor(File gitDiffFile, Collection<Path> ignorePaths,
+        Pattern fileInclusionRegex) throws IOException {
+        parseLines(gitDiffFile, ignorePaths, fileInclusionRegex);
     }
 
     /**
@@ -111,14 +59,11 @@ public class LineParser {
      *
      * @param gitDiffFile
      *            the git diff file
-     * @param ignorePaths
-     *            the ignore paths
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public LineParser(File gitDiffFile, Collection<Path> ignorePaths)
-        throws IOException {
-        parseLines(gitDiffFile, ignorePaths);
+    public LineInfoExtractor(File gitDiffFile) throws IOException {
+        parseLines(gitDiffFile, null, Pattern.compile(".*"));
     }
 
     /**
@@ -139,11 +84,17 @@ public class LineParser {
      *            the commit file
      * @param ignorePaths
      *            the ignore paths
+     * @param fileInclusionRegex
+     *            the file inclusion regex
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    private void parseLines(File commitFile, Collection<Path> ignorePaths)
-        throws IOException {
+    private void parseLines(File commitFile, Collection<Path> ignorePaths,
+        Pattern fileInclusionRegex) throws IOException {
+        if (ignorePaths == null) {
+            ignorePaths = new ArrayList<Path>();
+        }
+
         try (BufferedReader br =
             new BufferedReader(new FileReader(commitFile))) {
 
@@ -158,8 +109,7 @@ public class LineParser {
                         currentLine.indexOf(" b/"));
                     Path filePath = Paths.get(filePathString);
                     if (!ignorePaths.contains(filePath)
-                        && FileUtil.fileMatchesSuffix(filePath.toFile(),
-                            INCLUDE_FILE_TYPES)
+                        && fileInclusionRegex.matcher(filePathString).matches()
                         && !nextLine.startsWith("deleted file mode")
                         && !nextLine.startsWith("new file mode")) {
                         // Skip ahead until next diffEntry or end of file.
@@ -276,6 +226,72 @@ public class LineParser {
                 .add(new Lines(type, typeCounter));
         }
         bufReader.close();
+    }
+
+    /**
+     * The Class Lines.
+     */
+    public static class Lines {
+        /** The count. */
+        private int count;
+
+        /** The type. */
+        private LineType type;
+
+        /**
+         * Instantiates a new lines.
+         *
+         * @param type
+         *            the type
+         * @param count
+         *            the count
+         */
+        public Lines(LineType type, int count) {
+            this.type = type;
+            this.count = count;
+        }
+
+        /**
+         * To string.
+         *
+         * @return the string
+         */
+        public String toString() {
+            return "Lines [count=" + count + ", type=" + type + "]";
+        }
+
+        /**
+         * The Enum LineType.
+         */
+        public enum LineType {
+            /** The added. */
+            ADDED,
+            /** The deleted. */
+            DELETED,
+            /** The unmodified. */
+            UNMODIFIED,
+            /** The between chunks. */
+            BETWEEN_CHUNKS
+        }
+
+        /**
+         * Gets the type.
+         *
+         * @return the type
+         */
+        public LineType getType() {
+            return type;
+        }
+
+        /**
+         * Gets the count.
+         *
+         * @return the count
+         */
+        public int getCount() {
+            return count;
+        }
+
     }
 
 }

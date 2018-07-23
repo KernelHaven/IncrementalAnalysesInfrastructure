@@ -1,13 +1,16 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -42,16 +45,28 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
     public enum CodeModelProcessing {
         /** Provides the complete codemodel to the next component. */
         COMPLETE,
+
         /**
          * Provides a partial codemodel to the next component containing only
          * newly extracted parts of the model.
          */
-        PARTIAL,
+        NEWLY_EXTRACTED,
+
+        /**
+         * Provides a partial codemodel to the next component containing 
+         * the newly extracted parts of the model. Furthermore it includes
+         * models where the line-information has been changed eventhough
+         * no new model has been extracted.
+         */
+        NEWLY_EXTRACTED_AND_LINEUPDATES,
+
         /**
          * Provides a partial codemodel to the next component containing only
-         * those parts of the codemodel that did change.
+         * those parts of the codemodel that did change. Determines 
+         * whether changes were introduced by comparing the previous and
+         * current version of the model.
          */
-        PARTIAL_OPTIMIZED;
+        MODIFIED;
     }
 
     /** The config. */
@@ -123,7 +138,6 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
      */
     @Override
     protected void execute() {
-        long start = System.nanoTime();
         HybridCache data;
         // CHECKSTYLE:OFF
         if ((data = inputComponent.getNextResult()) != null) {
@@ -132,6 +146,12 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                 Collection<SourceFile> codeModel;
                 if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
                     codeModel = data.readCm();
+                } else if (this.cmProcessing
+                    .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
+                    Collection<Path> excludePaths = new ArrayList<Path>();
+                    config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES)
+                        .forEach(file -> excludePaths.add(Paths.get(file)));
+                    codeModel = data.readCmNewlyWrittenParts(excludePaths);
                 } else {
                     codeModel = data.readCmNewlyWrittenParts();
                 }
@@ -155,8 +175,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                         throw new NullPointerException(
                             "SourceFile was null - this should never happen");
                     } else {
-                        if (cmProcessing
-                            .equals(CodeModelProcessing.PARTIAL_OPTIMIZED)
+                        if (cmProcessing.equals(CodeModelProcessing.MODIFIED)
                             && !srcFile.equals(
                                 data.readPreviousCm(srcFile.getPath()))) {
                             cmComponent.myAddResult(srcFile);
@@ -187,10 +206,6 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         synchronized (cmComponent) {
             cmComponent.notifyAll();
         }
-        long totalTime = System.nanoTime() - start;
-        LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"
-            + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS)
-            + "ms");
     }
 
     /*
@@ -201,7 +216,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
     @Override
     @NonNull
     public String getResultName() {
-        return "HybridSplitComponent";
+        return HybridCacheAdapter.class.getSimpleName();
     }
 
     /**

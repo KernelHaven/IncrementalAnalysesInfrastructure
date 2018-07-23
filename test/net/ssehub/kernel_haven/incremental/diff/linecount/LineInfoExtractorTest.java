@@ -5,17 +5,18 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.linecount.LineParser.Lines;
+import net.ssehub.kernel_haven.incremental.diff.linecount.LineInfoExtractor.Lines;
 
 /**
  * The Class LineParserTest.
  */
-public class LineParserTest {
+public class LineInfoExtractorTest {
 
     /**
      * Tests whether the doFilter method works in instances where variability
@@ -29,7 +30,8 @@ public class LineParserTest {
     public void testParse_linesElements() throws IOException {
         // CHECKSTYLE:ON
         File inputFile = new File("testdata/lines/git.diff");
-        LineParser parser = new LineParser(inputFile, new ArrayList<Path>());
+        LineInfoExtractor parser = new LineInfoExtractor(inputFile,
+            new ArrayList<Path>(), Pattern.compile("(.*.c)|(.*.h)"));
 
         int betweenChunksCount = 0;
         int deletedCount = 0;

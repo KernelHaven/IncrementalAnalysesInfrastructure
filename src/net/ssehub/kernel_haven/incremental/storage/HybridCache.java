@@ -20,6 +20,7 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
+// TODO: Auto-generated Javadoc
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
  * the models. Starting off with the previously present model (an empty model is
@@ -578,13 +579,42 @@ public class HybridCache {
      */
     public Collection<SourceFile> readCmNewlyWrittenParts()
         throws IOException, FormatException {
+
+        return readCmNewlyWrittenParts(null);
+    }
+
+    /**
+     * Read the part of the codemodel that got written to the cache since the
+     * last time {@link HybridCache#clearChangeHistory()} was called. This also
+     * includes cached models where the models themselves did not change.
+     * Excludes the paths (seen as relative paths to files in the source tree)
+     * defined by excludePaths.
+     *
+     * @param excludePaths
+     *            excluded paths
+     * @return the collection of {@link SourceFile}s representing the codemodel
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws FormatException
+     *             the format exception
+     */
+    public Collection<SourceFile> readCmNewlyWrittenParts(
+        Collection<Path> excludePaths) throws IOException, FormatException {
+        if (excludePaths == null) {
+            excludePaths = new ArrayList<Path>();
+        }
+
         Collection<File> files =
             FolderUtil.listRelativeFiles(replacedFolder, false);
         files.addAll(FolderUtil.listRelativeFiles(addedFolder, false));
         Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+
         for (File file : files) {
             if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-                sourceFiles.add(readCmCacheFile(file));
+                File originalFile = getOriginalCodeModelFile(file);
+                if (!excludePaths.contains(originalFile.toPath())) {
+                    sourceFiles.add(readCmCacheFile(file));
+                }
             }
         }
         return sourceFiles;

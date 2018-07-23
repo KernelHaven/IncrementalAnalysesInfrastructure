@@ -2,17 +2,26 @@ package net.ssehub.kernel_haven.incremental.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -67,6 +76,22 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         this.vmComponent = vmComponent;
     }
 
+    /**
+     * Try join thread.
+     *
+     * @param thread
+     *            the thread
+     */
+    private void tryJoinThread(Thread thread) {
+        if (thread != null) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                LOGGER.logException("Thread interrupted", e);
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -74,6 +99,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      */
     @Override
     protected void execute() {
+        DiffFile diffFile = getDiffFile();
         HybridCache hybridCache = new HybridCache(config
             .getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
         hybridCache.clearChangeHistory();
@@ -83,12 +109,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
             cmThread = new Thread() {
                 public void run() {
-                    codeModelExtraction(hybridCache);
+                    codeModelExtraction(hybridCache, diffFile);
                 }
             };
             cmThread.start();
         }
-        
+
         Thread vmThread = null;
         if (config
             .getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL)) {
@@ -111,31 +137,97 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         }
 
         // wait for all model-threads to finish
-        if (cmThread != null) {
-            try {
-                cmThread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Thread interrupted", e);
-            }
+        tryJoinThread(cmThread);
+        tryJoinThread(vmThread);
+        tryJoinThread(bmThread);
+
+        // Update code line information for files that were not extracted but
+        // have changed
+        try {
+            updateCodeLineInformation(diffFile, hybridCache);
+        } catch (IllegalArgumentException | IOException | FormatException exc) {
+            LOGGER.logException("Could not update codelines for models", exc);
         }
 
-        if (vmThread != null) {
-            try {
-                vmThread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Thread interrupted", e);
-            }
-        }
-
-        if (bmThread != null) {
-            try {
-                bmThread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Thread interrupted", e);
-            }
-        }
-        // add results
         this.addResult(hybridCache);
+    }
+
+    /**
+     * Update code line information.
+     *
+     * @param diffFile
+     *            the diff file
+     * @param hybridCache
+     *            the hybrid cache
+     * @throws IllegalArgumentException
+     *             the illegal argument exception
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws FormatException
+     *             the format exception
+     */
+    private void updateCodeLineInformation(DiffFile diffFile,
+        HybridCache hybridCache)
+        throws IllegalArgumentException, IOException, FormatException {
+
+        Collection<String> codeExtractorFiles =
+            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+        Collection<Path> extractedPaths = new ArrayList<Path>();
+        codeExtractorFiles.forEach(file -> extractedPaths.add(Paths.get(file)));
+
+        LineCounter counter = new LineCounter(
+            config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE),
+            extractedPaths,
+            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
+
+        for (FileEntry entry : diffFile.getEntries()) {
+            if (entry.getType().equals(FileEntry.Type.MODIFICATION)
+                && !extractedPaths.contains(entry.getPath())) {
+                SourceFile srcFile =
+                    hybridCache.readCm(entry.getPath().toFile());
+                if (srcFile != null) {
+                    // Iterate over sourcefile and update line numbers
+                    Iterator<CodeElement> itr = srcFile.iterator();
+
+                    while (itr.hasNext()) {
+                        CodeElement element = itr.next();
+                        // recurively handle element and nested elements
+                        updateLineNumbersForElement(counter, element);
+                    }
+
+                    hybridCache.write(srcFile);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Update line numbers for element.
+     *
+     * @param counter
+     *            the counter
+     * @param element
+     *            the element
+     */
+    private void updateLineNumbersForElement(LineCounter counter,
+        CodeElement element) {
+
+        for (CodeElement nested : element.iterateNestedElements()) {
+            updateLineNumbersForElement(counter, nested);
+        }
+        Path sourceFilePath = element.getSourceFile().toPath();
+
+        int previousStart = element.getLineStart();
+        int previousEnd = element.getLineEnd();
+        if (previousStart >= 0) {
+            element.setLineStart(
+                counter.getNewLineNumber(sourceFilePath, previousStart));
+        }
+        if (previousEnd >= 0) {
+            element.setLineEnd(
+                counter.getNewLineNumber(sourceFilePath, previousEnd));
+        }
     }
 
     /**
@@ -193,24 +285,19 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     }
 
     /**
-     * Code model extraction.
+     * Gets the diff file.
      *
-     * @param hybridCache
-     *            the hybrid cache to write the extracted results to.
+     * @return the diff file
      */
-    private void codeModelExtraction(HybridCache hybridCache) {
-        SourceFile file;
-        // We need access to the diff-file because we need to know which files
-        // were removed through the diff
+    public DiffFile getDiffFile() {
         DiffFile diffFile = null;
         File originalDiffFile =
             config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
         File parsedDiffFile =
             new File(originalDiffFile.getAbsolutePath() + config
                 .getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX));
-        ///////////////////////////////////////////////////////////
-        // Deletion of models for files removed in the diff-file //
-        ///////////////////////////////////////////////////////////
+
+        // Deletion of models for files removed in the diff-file
         if (parsedDiffFile.exists()) {
             LOGGER.logInfo("Reusing parsed diff-file: "
                 + parsedDiffFile.getAbsolutePath());
@@ -222,9 +309,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             }
         }
         if (diffFile == null) {
-            // Try to reuse existing parsed diff if available from preparati
-            // If no parsed diff was available for reuse, generate a new
-            // DiffFile-Object
+            // Try to reuse existing parsed diff if available
+            // otherwise generate new
             if (diffFile == null) {
                 LOGGER.logInfo("Parsing original diff-file: "
                     + originalDiffFile.getAbsolutePath());
@@ -240,8 +326,22 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 }
             }
         }
-        // with the help of the diffFile, remove all models corresponding to
-        // deleted files
+        return diffFile;
+    }
+
+    /**
+     * Code model extraction.
+     *
+     * @param hybridCache
+     *            the hybrid cache to write the extracted results to.
+     * @param diffFile
+     *            the diff file
+     */
+    private void codeModelExtraction(HybridCache hybridCache,
+        DiffFile diffFile) {
+        SourceFile file;
+
+        // delete all models corresponding to deleted files
         for (FileEntry entry : diffFile.getEntries()) {
             if (entry.getType().equals(FileEntry.Type.DELETION)) {
                 try {
@@ -256,9 +356,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 }
             }
         }
-        ///////////////////////////////////
-        // Add new models to hybridCache //
-        ///////////////////////////////////
+
+        // Add new models to hybridCache
         while ((file = cmComponent.getNextResult()) != null) {
             try {
                 hybridCache.write(file);
@@ -269,6 +368,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         }
     }
 
+    /**
+     * Gets the result name.
+     *
+     * @return the result name
+     */
     /*
      * (non-Javadoc)
      * 
