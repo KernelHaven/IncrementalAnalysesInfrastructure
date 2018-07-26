@@ -18,18 +18,12 @@ import net.ssehub.kernel_haven.incremental.diff.linecount.LineInfoExtractor.Line
  */
 public class LineInfoExtractorTest {
 
-    /**
-     * Tests whether the doFilter method works in instances where variability
-     * did change.
-     *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
+
     @Test
     // CHECKSTYLE:OFF
     public void testParse_linesElements() throws IOException {
         // CHECKSTYLE:ON
-        File inputFile = new File("testdata/lines/git.diff");
+        File inputFile = new File("testdata/lines/huge_memory-commit.diff");
         LineInfoExtractor parser = new LineInfoExtractor(inputFile,
             new ArrayList<Path>(), Pattern.compile("(.*.c)|(.*.h)"));
 
@@ -54,5 +48,8 @@ public class LineInfoExtractorTest {
         Assert.assertThat(unmodifiedCount, CoreMatchers.equalTo(14));
 
     }
+    
+
+
 
 }

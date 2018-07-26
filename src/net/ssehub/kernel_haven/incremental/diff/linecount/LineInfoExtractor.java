@@ -16,9 +16,6 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.ssehub.kernel_haven.incremental.util.FileUtil;
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class {@link LineParser}.
  * 
@@ -161,7 +158,6 @@ public class LineInfoExtractor {
         lineChangesForFilePath.put(filePath, new ArrayList<Lines>());
         int endOfChunk = 0;
         boolean firstChunkFound = false;
-        int lengthOfCurrentChunk = 0;
         while ((currentLine = bufReader.readLine()) != null) {
             // start with first chunk describing line changes, skip until then
             if (!firstChunkFound && !currentLine.startsWith("@@")) {
@@ -187,8 +183,8 @@ public class LineInfoExtractor {
                         .add(new Lines(type, typeCounter));
                     typeCounter = 0;
                     type = Lines.LineType.DELETED;
-                    lengthOfCurrentChunk++;
                 }
+                endOfChunk++;
                 typeCounter++;
             } else if (!currentLine.startsWith("@@")) {
                 if (!type.equals(Lines.LineType.UNMODIFIED)) {
@@ -196,26 +192,36 @@ public class LineInfoExtractor {
                         .add(new Lines(type, typeCounter));
                     typeCounter = 0;
                     type = Lines.LineType.UNMODIFIED;
-                    lengthOfCurrentChunk++;
                 }
+                endOfChunk++;
                 typeCounter++;
-            } else if (currentLine.startsWith("@@")) {
+            } else {
+                // This handles lines starting with @@
+                // Lines starting with @@ mark the start of a new block of
+                // changes / chunk
+
+                // add the previously collected Lines to the list
                 if (typeCounter > 0) {
                     lineChangesForFilePath.get(filePath)
                         .add(new Lines(type, typeCounter));
                 }
+
+                // Find the start of the new block of changes / chunk
                 Pattern pattern = Pattern.compile(LINE_NUMBER_MATCH_PATTERN);
                 Matcher matcher = pattern.matcher(currentLine);
                 matcher.find();
-
                 int startNewChunk = Integer.parseInt(matcher.group(1));
-                int betweenChunks = startNewChunk - endOfChunk;
 
-                endOfChunk = startNewChunk + lengthOfCurrentChunk;
-                lengthOfCurrentChunk = 0;
+                // Add the space between the previous block of changes / between
+                // chunks
+                lineChangesForFilePath.get(filePath).add(new Lines(
+                    Lines.LineType.BETWEEN_CHUNKS, startNewChunk - endOfChunk));
 
-                lineChangesForFilePath.get(filePath).add(
-                    new Lines(Lines.LineType.BETWEEN_CHUNKS, betweenChunks));
+                // Reset the end of chunk. endOfChunk will be modified while
+                // processing the current chunk so that it matches
+                // the actual end of the chunk when the next line starting with
+                // @@ is found.
+                endOfChunk = startNewChunk;
 
                 typeCounter = 0;
                 type = Lines.LineType.UNMODIFIED;

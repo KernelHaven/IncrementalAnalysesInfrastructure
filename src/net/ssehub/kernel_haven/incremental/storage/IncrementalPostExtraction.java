@@ -186,6 +186,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 SourceFile srcFile =
                     hybridCache.readCm(entry.getPath().toFile());
                 if (srcFile != null) {
+                    Logger.get().logDebug(
+                        "Updating lines for file: " + entry.getPath());
                     // Iterate over sourcefile and update line numbers
                     Iterator<CodeElement> itr = srcFile.iterator();
 
@@ -220,14 +222,21 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         int previousStart = element.getLineStart();
         int previousEnd = element.getLineEnd();
+
+        LOGGER.logDebug(
+            "Lines before: start=" + previousStart + ", end=" + previousEnd);
         if (previousStart >= 0) {
-            element.setLineStart(
-                counter.getNewLineNumber(sourceFilePath, previousStart));
+            int newStart =
+                counter.getNewLineNumber(sourceFilePath, previousStart);
+            element.setLineStart(newStart);
+            LOGGER.logDebug("Setting new start: start=" + newStart);
         }
         if (previousEnd >= 0) {
-            element.setLineEnd(
-                counter.getNewLineNumber(sourceFilePath, previousEnd));
+            int newEnd = counter.getNewLineNumber(sourceFilePath, previousEnd);
+            element.setLineEnd(newEnd);
+            LOGGER.logDebug("Setting new end: end=" + newEnd);
         }
+
     }
 
     /**
@@ -380,7 +389,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      */
     @Override
     public String getResultName() {
-        return "HybridCache";
+        return HybridCache.class.getSimpleName();
     }
 
 }
