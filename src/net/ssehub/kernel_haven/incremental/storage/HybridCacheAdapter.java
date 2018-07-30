@@ -42,30 +42,23 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
      * The Enum CodeModelProcessing.
      */
     public enum CodeModelProcessing {
-        /** Provides the complete codemodel to the next component. */
-        COMPLETE,
+    /** Provides the complete codemodel to the next component. */
+    COMPLETE,
 
-        /**
-         * Provides a partial codemodel to the next component containing only
-         * newly extracted parts of the model.
-         */
-        NEWLY_EXTRACTED,
+    /**
+     * Provides a partial codemodel to the next component containing only newly
+     * extracted parts of the model.
+     */
+    NEWLY_EXTRACTED,
 
-        /**
-         * Provides a partial codemodel to the next component containing 
-         * the newly extracted parts of the model. Furthermore it includes
-         * models where the line-information has been changed eventhough
-         * no new model has been extracted.
-         */
-        NEWLY_WRITTEN,
+    /**
+     * Provides a partial codemodel to the next component containing the newly
+     * extracted parts of the model. Furthermore it includes models where the
+     * line-information has been changed eventhough no new model has been
+     * extracted.
+     */
+    NEWLY_WRITTEN,
 
-        /**
-         * Provides a partial codemodel to the next component containing only
-         * those parts of the codemodel that did change. Determines 
-         * whether changes were introduced by comparing the previous and
-         * current version of the model.
-         */
-        MODIFIED;
     }
 
     /** The config. */
@@ -130,6 +123,30 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         this(config, inputComponent, CodeModelProcessing.COMPLETE);
     }
 
+    
+    private Collection<SourceFile> handleCodeModel(HybridCache data) throws IOException, FormatException{
+        Collection<SourceFile> codeModel;
+        if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
+            codeModel = data.readCm();
+        } else if (this.cmProcessing
+            .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
+            Collection<String> fileStrings =
+                config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+            codeModel = new ArrayList<SourceFile>();
+            for (String fileString : fileStrings) {
+                SourceFile sourceFile =
+                    data.readCm(new File(fileString));
+                if (sourceFile != null) {
+                    codeModel.add(sourceFile);
+                }
+            }
+        } else {
+            codeModel = data.readCmNewlyWrittenParts();
+        }
+        return codeModel;
+    }
+    
+    
     /*
      * (non-Javadoc)
      * 
@@ -142,24 +159,22 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         if ((data = inputComponent.getNextResult()) != null) {
             // CHECKSTYLE:ON
             try {
-                Collection<SourceFile> codeModel;
-                if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
-                    codeModel = data.readCm();
-                } else if (this.cmProcessing
-                    .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
-                    Collection<String> fileStrings = config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
-                    codeModel = new ArrayList<SourceFile>();
-                    for (String fileString: fileStrings) {
-                        SourceFile sourceFile = data.readCm(new File(fileString));
-                        if (sourceFile != null) {
-                            codeModel.add(sourceFile);
-                        }
-                    }
-                } else {
-                    codeModel = data.readCmNewlyWrittenParts();
-                }
+                
+                //Extract models
+                Collection<SourceFile> codeModel = handleCodeModel(data);
                 BuildModel buildModel = data.readBm();
                 VariabilityModel varModel = data.readVm();
+
+                // add Models to components
+                for (SourceFile srcFile : codeModel) {
+                    if (srcFile == null) {
+                        throw new NullPointerException(
+                            "SourceFile was null - this should never happen");
+                    } else {
+                        cmComponent.myAddResult(srcFile);
+                    }
+                }
+
                 if (codeModel.isEmpty()) {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
                         + " contains empty code model after execute()");
@@ -172,21 +187,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
                         + " contains none or empty variability model after execute()");
                 }
-                // add Models to components
-                for (SourceFile srcFile : codeModel) {
-                    if (srcFile == null) {
-                        throw new NullPointerException(
-                            "SourceFile was null - this should never happen");
-                    } else {
-                        if (cmProcessing.equals(CodeModelProcessing.MODIFIED)
-                            && !srcFile.equals(
-                                data.readPreviousCm(srcFile.getPath()))) {
-                            cmComponent.myAddResult(srcFile);
-                        } else {
-                            cmComponent.myAddResult(srcFile);
-                        }
-                    }
-                }
+
                 if (buildModel != null) {
                     bmComponent.myAddResult(buildModel);
                 }
