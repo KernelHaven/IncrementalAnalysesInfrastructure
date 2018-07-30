@@ -253,15 +253,15 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 hybridCache.write(variabilityModel);
             } catch (IOException e) {
-                LOGGER.logException(
-                    "Could not write variability-model to HybridCache", e);
+                LOGGER.logException("Could not write variability-model to "
+                    + HybridCache.class.getSimpleName(), e);
             }
         } else {
             try {
                 hybridCache.deleteVariabilityModel();
             } catch (IOException e) {
-                LOGGER.logException(
-                    "Could not delete variability-model from HybridCache", e);
+                LOGGER.logException("Could not delete variability-model from "
+                    + HybridCache.class.getSimpleName(), e);
             }
         }
     }
@@ -280,15 +280,15 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 hybridCache.write(buildModel);
             } catch (IOException e) {
-                LOGGER.logException(
-                    "Could not write build-model to HybridCache", e);
+                LOGGER.logException("Could not write build-model to "
+                    + HybridCache.class.getSimpleName(), e);
             }
         } else {
             try {
                 hybridCache.deleteBuildModel();
             } catch (IOException e) {
-                LOGGER.logException(
-                    "Could not delete build-model from HybridCache", e);
+                LOGGER.logException("Could not delete build-model from "
+                    + HybridCache.class.getSimpleName(), e);
             }
         }
     }
@@ -354,12 +354,14 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         for (FileEntry entry : diffFile.getEntries()) {
             if (entry.getType().equals(FileEntry.Type.DELETION)) {
                 try {
-                    LOGGER.logDebug(
-                        "Deleting model because of DiffEntry: " + entry);
+                    LOGGER.logDebug("Deleting model because of "
+                        + FileEntry.class.getSimpleName() + entry);
                     hybridCache.deleteCodeModel(entry.getPath().toFile());
                 } catch (IOException exception) {
-                    LOGGER.logException("Could not delete CodeModel-File. "
-                        + "This may result in an inconsistent state of Hybridcache. "
+                    LOGGER.logException("Could not delete code model of file "
+                        + entry.getPath() + ". "
+                        + "This may result in an inconsistent state of "
+                        + HybridCache.class.getSimpleName() + ". "
                         + "To fix an inconsistent state you can either do a rollback "
                         + "or extract all models from scratch.", exception);
                 }
@@ -371,8 +373,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 hybridCache.write(file);
             } catch (IOException e) {
-                LOGGER.logException("Could not write sourcefile to HybridCache",
-                    e);
+                LOGGER.logException("Could not write code model for file "
+                    + file.getPath().getPath() + " to "
+                    + HybridCache.class.getSimpleName(), e);
             }
         }
     }

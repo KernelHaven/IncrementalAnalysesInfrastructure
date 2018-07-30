@@ -17,7 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The Class {@link LineParser}.
+ * The Class {@link LineParser}. {@link LineParser} is used to extract 
+ * information about changed lines from a given git diff file.
  * 
  * @author Moritz
  */

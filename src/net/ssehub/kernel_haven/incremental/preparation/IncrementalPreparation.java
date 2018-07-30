@@ -61,8 +61,18 @@ public class IncrementalPreparation implements IPreparation {
         // Stop execution after rollback
         if (revertSuccessful) {
             LOGGER.logInfo("Rollback successful.");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException exc) {
+                // Never happens
+            }
             System.exit(0);
         } else {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException exc) {
+                // Never happens
+            }
             System.exit(1);
         }
     }
@@ -252,8 +262,8 @@ public class IncrementalPreparation implements IPreparation {
     }
 
     /**
-     * Filters input using the class defined by filterClassName. This should be
-     * a class available in the classpath and implementing InputFilter.
+     * Generates a {@link DiffFile} using the provided {@link DiffAnalyzer}
+     * class.
      *
      * @param analyzerClassName
      *            the analyzer class name

@@ -123,19 +123,20 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         this(config, inputComponent, CodeModelProcessing.COMPLETE);
     }
 
-    
-    private Collection<SourceFile> handleCodeModel(HybridCache data) throws IOException, FormatException{
+    private Collection<SourceFile> handleCodeModel(HybridCache data)
+        throws IOException, FormatException {
         Collection<SourceFile> codeModel;
         if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
             codeModel = data.readCm();
         } else if (this.cmProcessing
             .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
+            // Only read models for the files that were defined as target
+            // for extraction within {@link IncrementalPreparation}
             Collection<String> fileStrings =
                 config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
             codeModel = new ArrayList<SourceFile>();
             for (String fileString : fileStrings) {
-                SourceFile sourceFile =
-                    data.readCm(new File(fileString));
+                SourceFile sourceFile = data.readCm(new File(fileString));
                 if (sourceFile != null) {
                     codeModel.add(sourceFile);
                 }
@@ -145,8 +146,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         }
         return codeModel;
     }
-    
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -159,8 +159,8 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         if ((data = inputComponent.getNextResult()) != null) {
             // CHECKSTYLE:ON
             try {
-                
-                //Extract models
+
+                // Extract models
                 Collection<SourceFile> codeModel = handleCodeModel(data);
                 BuildModel buildModel = data.readBm();
                 VariabilityModel varModel = data.readVm();
@@ -169,7 +169,8 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                 for (SourceFile srcFile : codeModel) {
                     if (srcFile == null) {
                         throw new NullPointerException(
-                            "SourceFile was null - this should never happen");
+                            SourceFile.class.getSimpleName()
+                                + " was null - this should never happen");
                     } else {
                         cmComponent.myAddResult(srcFile);
                     }
@@ -195,7 +196,8 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                     vmComponent.myAddResult(varModel);
                 }
             } catch (IOException | FormatException e) {
-                LOGGER.logException("Could not get models from HybridCache", e);
+                LOGGER.logException("Could not get models from "
+                    + HybridCache.class.getSimpleName(), e);
             }
         }
         vmComponent.done = true;

@@ -37,7 +37,7 @@ public class FileUtil {
     }
 
     /**
-     * Read file.
+     * Read file content.
      *
      * @param file
      *            the file
@@ -60,7 +60,7 @@ public class FileUtil {
     }
 
     /**
-     * Write file.
+     * Write file with content.
      *
      * @param file
      *            the file
@@ -82,7 +82,7 @@ public class FileUtil {
     }
 
     /**
-     * Path matches suffix.
+     * Check if path matches any of the provided suffixes.
      *
      * @param file the file
      * @param suffixes the suffixes
