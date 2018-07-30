@@ -147,10 +147,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                     codeModel = data.readCm();
                 } else if (this.cmProcessing
                     .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
-                    Collection<File> includePaths = new ArrayList<File>();
-                    config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES)
-                        .forEach(file -> includePaths.add(new File(file)));
-                    codeModel = data.readCmForFiles(includePaths);
+                    Collection<String> fileStrings = config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+                    codeModel = new ArrayList<SourceFile>();
+                    for (String fileString: fileStrings) {
+                        SourceFile sourceFile = data.readCm(new File(fileString));
+                        if (sourceFile != null) {
+                            codeModel.add(sourceFile);
+                        }
+                    }
                 } else {
                     codeModel = data.readCmNewlyWrittenParts();
                 }

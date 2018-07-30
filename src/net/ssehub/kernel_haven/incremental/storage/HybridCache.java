@@ -593,22 +593,6 @@ public class HybridCache {
         return sourceFiles;
     }
 
-    /**
-     * Read the part of the codemodel described by includedFiles.
-     *
-     * @param includedFiles the included files
-     * @return the collection
-     * @throws IOException Signals that an I/O exception has occurred.
-     * @throws FormatException the format exception
-     */
-    public Collection<SourceFile> readCmForFiles(Collection<File> includedFiles)
-        throws IOException, FormatException {
-        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
-        for (File file : includedFiles) {
-            sourceFiles.add(readCm(file));
-        }
-        return sourceFiles;
-    }
 
     /**
      * Delete build model.
