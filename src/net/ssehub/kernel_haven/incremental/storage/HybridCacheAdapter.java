@@ -1,8 +1,7 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -58,7 +57,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
          * models where the line-information has been changed eventhough
          * no new model has been extracted.
          */
-        NEWLY_EXTRACTED_AND_LINEUPDATES,
+        NEWLY_WRITTEN,
 
         /**
          * Provides a partial codemodel to the next component containing only
@@ -148,10 +147,10 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                     codeModel = data.readCm();
                 } else if (this.cmProcessing
                     .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
-                    Collection<Path> excludePaths = new ArrayList<Path>();
+                    Collection<File> includePaths = new ArrayList<File>();
                     config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES)
-                        .forEach(file -> excludePaths.add(Paths.get(file)));
-                    codeModel = data.readCmNewlyWrittenParts(excludePaths);
+                        .forEach(file -> includePaths.add(new File(file)));
+                    codeModel = data.readCmForFiles(includePaths);
                 } else {
                     codeModel = data.readCmNewlyWrittenParts();
                 }

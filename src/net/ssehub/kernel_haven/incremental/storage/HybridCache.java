@@ -62,10 +62,10 @@ public class HybridCache {
     private static final Path ADDED_FOLDER = Paths.get("history/added/");
 
     /** Subpaths for all files representing the build-model cache. */
-    private static final Path[] BM_CACHE_FILES = {Paths.get("bmCache") };
+    private static final Path[] BM_CACHE_FILES = { Paths.get("bmCache") };
 
     /** Subpaths for all files representing the variability-model cache. */
-    private static final Path[] VM_CACHE_FILES = {Paths.get("vmCache") };
+    private static final Path[] VM_CACHE_FILES = { Paths.get("vmCache") };
 
     /**
      * As filenames for the CodeModel-cache are generated out of the paths of
@@ -580,30 +580,6 @@ public class HybridCache {
     public Collection<SourceFile> readCmNewlyWrittenParts()
         throws IOException, FormatException {
 
-        return readCmNewlyWrittenParts(null);
-    }
-
-    /**
-     * Read the part of the codemodel that got written to the cache since the
-     * last time {@link HybridCache#clearChangeHistory()} was called. This also
-     * includes cached models where the models themselves did not change.
-     * Excludes the paths (seen as relative paths to files in the source tree)
-     * defined by excludePaths.
-     *
-     * @param excludePaths
-     *            excluded paths
-     * @return the collection of {@link SourceFile}s representing the codemodel
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FormatException
-     *             the format exception
-     */
-    public Collection<SourceFile> readCmNewlyWrittenParts(
-        Collection<Path> excludePaths) throws IOException, FormatException {
-        if (excludePaths == null) {
-            excludePaths = new ArrayList<Path>();
-        }
-
         Collection<File> files =
             FolderUtil.listRelativeFiles(replacedFolder, false);
         files.addAll(FolderUtil.listRelativeFiles(addedFolder, false));
@@ -611,11 +587,25 @@ public class HybridCache {
 
         for (File file : files) {
             if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-                File originalFile = getOriginalCodeModelFile(file);
-                if (!excludePaths.contains(originalFile.toPath())) {
-                    sourceFiles.add(readCmCacheFile(file));
-                }
+                sourceFiles.add(readCmCacheFile(file));
             }
+        }
+        return sourceFiles;
+    }
+
+    /**
+     * Read the part of the codemodel described by includedFiles.
+     *
+     * @param includedFiles the included files
+     * @return the collection
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws FormatException the format exception
+     */
+    public Collection<SourceFile> readCmForFiles(Collection<File> includedFiles)
+        throws IOException, FormatException {
+        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+        for (File file : includedFiles) {
+            sourceFiles.add(readCm(file));
         }
         return sourceFiles;
     }
