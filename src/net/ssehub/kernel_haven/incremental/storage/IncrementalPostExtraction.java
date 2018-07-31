@@ -223,18 +223,14 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         int previousStart = element.getLineStart();
         int previousEnd = element.getLineEnd();
 
-        LOGGER.logDebug(
-            "Lines before: start=" + previousStart + ", end=" + previousEnd);
         if (previousStart >= 0) {
             int newStart =
                 counter.getNewLineNumber(sourceFilePath, previousStart);
             element.setLineStart(newStart);
-            LOGGER.logDebug("Setting new start: start=" + newStart);
         }
         if (previousEnd >= 0) {
             int newEnd = counter.getNewLineNumber(sourceFilePath, previousEnd);
             element.setLineEnd(newEnd);
-            LOGGER.logDebug("Setting new end: end=" + newEnd);
         }
 
     }
