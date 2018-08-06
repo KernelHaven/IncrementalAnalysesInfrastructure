@@ -10,6 +10,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.storage.HybridCache.Flag;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -132,17 +133,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
             .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
             // Only read models for the files that were defined as target
             // for extraction within {@link IncrementalPreparation}
-            Collection<String> fileStrings =
-                config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
-            codeModel = new ArrayList<SourceFile>();
-            for (String fileString : fileStrings) {
-                SourceFile sourceFile = data.readCm(new File(fileString));
-                if (sourceFile != null) {
-                    codeModel.add(sourceFile);
-                }
-            }
+            codeModel = data.readCm(Flag.EXTRACTION_CHANGE);
         } else {
-            codeModel = data.readCmNewlyWrittenParts();
+            codeModel = data.readModifiedCmParts();
         }
         return codeModel;
     }

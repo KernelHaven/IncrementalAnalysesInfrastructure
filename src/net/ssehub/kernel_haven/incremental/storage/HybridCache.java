@@ -20,7 +20,6 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
-// TODO: Auto-generated Javadoc
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
  * the models. Starting off with the previously present model (an empty model is
@@ -46,28 +45,6 @@ public class HybridCache {
     private static final Path CURRENT_CACHE_FOLDER = Paths.get("current/");
 
     /**
-     * The folder represented by this path stores cache-files that replaced
-     * files in the current model. Those files can be used to access the
-     * previous model.
-     */
-    private static final Path REPLACED_CACHE_FOLDER =
-        Paths.get("history/replaced/");
-
-    /**
-     * The folder represented by this path stores empty dummies of cache-files
-     * that were added in the current model and did not replace old files. Those
-     * files only carry the name of the added files but do not contain any
-     * content within the file itself.
-     */
-    private static final Path ADDED_FOLDER = Paths.get("history/added/");
-
-    /** Subpaths for all files representing the build-model cache. */
-    private static final Path[] BM_CACHE_FILES = { Paths.get("bmCache") };
-
-    /** Subpaths for all files representing the variability-model cache. */
-    private static final Path[] VM_CACHE_FILES = { Paths.get("vmCache") };
-
-    /**
      * As filenames for the CodeModel-cache are generated out of the paths of
      * source-files, this constant defines the chars to replace in the
      * source-file-path.
@@ -86,6 +63,59 @@ public class HybridCache {
      */
     private static final String CM_CACHE_SUFFIX = ".cache";
 
+    /**
+     * The folder represented by this path stores cache-files that replaced
+     * files in the current model. Those files can be used to access the
+     * previous model.
+     */
+    private static final Path REPLACED_FOLDER = Paths.get("history/replaced/");
+
+    /** The Constant FLAG_FOLDER. */
+    private static final Path FLAG_FOLDER = Paths.get("history/flags/");
+
+    /**
+     * The Enum Flag.
+     */
+    public static enum Flag {
+
+        /** The auxillary change. */
+        AUXILLARY_CHANGE("auxillary"),
+
+        /** The change through extraction. */
+        EXTRACTION_CHANGE("extraction");
+
+        /** The flag. */
+        private String flag;
+
+        /**
+         * Instantiates a new flag.
+         *
+         * @param flag
+         *            the flag
+         */
+        private Flag(String flag) {
+            this.flag = flag;
+        }
+
+        /**
+         * To string.
+         *
+         * @return the string
+         */
+        public String toString() {
+            return this.flag;
+        }
+    }
+
+    /** Subpaths for all files representing the build-model cache. */
+    private static final Path[] BM_CACHE_FILES = { Paths.get("bmCache") };
+
+    /** Subpaths for all files representing the variability-model cache. */
+    private static final Path[] VM_CACHE_FILES = { Paths.get("vmCache") };
+
+    /** The Constant ADDED_FOLDER. */
+    private static final Path ADDED_FOLDER = Paths.get("history/added/");
+
     /** The current folder. */
     private File currentFolder;
 
@@ -94,6 +124,9 @@ public class HybridCache {
 
     /** The added folder. */
     private File addedFolder;
+
+    /** The flag folder. */
+    private File flagFolder;
 
     /**
      * Cache-Object for accessing cm-cache elements in
@@ -148,12 +181,13 @@ public class HybridCache {
         this.currentFolder =
             cacheFolder.toPath().resolve(CURRENT_CACHE_FOLDER).toFile();
         this.replacedFolder =
-            cacheFolder.toPath().resolve(REPLACED_CACHE_FOLDER).toFile();
+            cacheFolder.toPath().resolve(REPLACED_FOLDER).toFile();
+        this.flagFolder = cacheFolder.toPath().resolve(FLAG_FOLDER).toFile();
         this.addedFolder = cacheFolder.toPath().resolve(ADDED_FOLDER).toFile();
-        this.addedFolder.mkdirs();
         this.currentFolder.mkdirs();
         this.replacedFolder.mkdirs();
-
+        this.addedFolder.mkdirs();
+        this.flagFolder.mkdir();
         this.currentBmCache = new BuildModelCache(currentFolder);
         this.currentVmCache = new VariabilityModelCache(currentFolder);
         this.currentCmCache = new CodeModelCache(currentFolder);
@@ -163,12 +197,25 @@ public class HybridCache {
     }
 
     /**
+     * Gets the cache file name.
+     *
+     * @param file
+     *            the file
+     * @return the cache file name
+     */
+    public static String getCacheFileName(File file) {
+        return file.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT)
+            + CM_CACHE_SUFFIX;
+    }
+
+    /**
      * Removes all information for the previous model from cache. Only keeps
      * current model.
      */
-    public void clearChangeHistory() {
+    public void clearChangeHistory() throws IOException {
         FolderUtil.deleteFolderContents(replacedFolder);
         FolderUtil.deleteFolderContents(addedFolder);
+        FolderUtil.deleteFolderContents(flagFolder);
     }
 
     /**
@@ -184,17 +231,88 @@ public class HybridCache {
      *             Signals that an I/O exception has occurred.
      */
     public void write(SourceFile file) throws IOException {
-        String fileNameInCache =
-            file.getPath().toString().replace(CM_REPLACE_THIS, CM_REPLACEMENT)
-                + CM_CACHE_SUFFIX;
+        String fileNameInCache = getCacheFileName(file.getPath());
         File fileToAdd =
             currentFolder.toPath().resolve(fileNameInCache).toFile();
+
         if (fileToAdd.exists()) {
             hybridDelete(new File(fileNameInCache));
         } else {
             hybridAdd(new File(fileNameInCache));
         }
         currentCmCache.write(file);
+    }
+
+    /**
+     * Adds a flag to the SourceFile within the HybridCache. This flag is part
+     * of the file-history and should describe changes made to the file in the
+     * current iteration. It is possible to assign multiple flags to a file.
+     *
+     * @param file
+     *            the file
+     * @param flag
+     *            the flag
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public void flag(SourceFile file, Flag flag) throws IOException {
+        String fileNameInCache =
+            flag.toString() + "/" + getCacheFileName(file.getPath());
+        File flagFile = flagFolder.toPath().resolve(fileNameInCache).toFile();
+        flagFile.getParentFile().mkdirs();
+        if (!flagFile.exists()) {
+            flagFile.createNewFile();
+        }
+    }
+
+    /**
+     * Read the subset of the cm that was flagged by the according flags.
+     *
+     * @param includedFlags
+     *            the included flags
+     * @return the collection
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws FormatException
+     *             the format exception
+     */
+    public Collection<SourceFile> readCm(Collection<Flag> includedFlags)
+        throws IOException, FormatException {
+        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+        for (Flag flag : Flag.values()) {
+            sourceFiles.addAll(readCm(flag));
+        }
+        return sourceFiles;
+    }
+
+    /**
+     * Read the subset of the cm that was flagged by the according flag.
+     *
+     * @param flag
+     *            the flag
+     * @return the collection
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws FormatException
+     *             the format exception
+     */
+    public Collection<SourceFile> readCm(Flag flag)
+        throws IOException, FormatException {
+        File folderForCurrentFlag =
+            flagFolder.toPath().resolve(flag.toString() + "/").toFile();
+        Collection<SourceFile> codeModel = new ArrayList<SourceFile>();
+        if (folderForCurrentFlag.exists()
+            && folderForCurrentFlag.isDirectory()) {
+            Collection<File> flaggedFiles =
+                FolderUtil.listRelativeFiles(folderForCurrentFlag, false);
+            for (File file : flaggedFiles) {
+                SourceFile srcFile = this.readCmCacheFile(file);
+                if (srcFile != null) {
+                    codeModel.add(this.readCmCacheFile(file));
+                }
+            }
+        }
+        return codeModel;
     }
 
     /**
@@ -415,7 +533,7 @@ public class HybridCache {
         for (Path path : paths) {
             if (existsInPrevious) {
                 existsInPrevious =
-                    REPLACED_CACHE_FOLDER.resolve(path).toFile().exists();
+                    REPLACED_FOLDER.resolve(path).toFile().exists();
                 if (!existsInPrevious) {
                     break;
                 }
@@ -471,8 +589,7 @@ public class HybridCache {
      */
     public void deleteCodeModel(File codeFileWithinSourceTree)
         throws IOException {
-        hybridDelete(new File(codeFileWithinSourceTree.getPath()
-            .replace(CM_REPLACE_THIS, CM_REPLACEMENT) + CM_CACHE_SUFFIX));
+        hybridDelete(new File(getCacheFileName(codeFileWithinSourceTree)));
     }
 
     /**
@@ -542,9 +659,7 @@ public class HybridCache {
      *             the format exception
      */
     public SourceFile readCm(File file) throws IOException, FormatException {
-        return readCmCacheFile(
-            new File(file.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT)
-                + CM_CACHE_SUFFIX));
+        return readCmCacheFile(new File(getCacheFileName(file)));
     }
 
     /**
@@ -561,9 +676,7 @@ public class HybridCache {
      */
     public SourceFile readPreviousCm(File file)
         throws IOException, FormatException {
-        return readPreviousCmCacheFile(
-            new File(file.getPath().replace(CM_REPLACE_THIS, CM_REPLACEMENT)
-                + CM_CACHE_SUFFIX));
+        return readPreviousCmCacheFile(new File(getCacheFileName(file)));
     }
 
     /**
@@ -577,7 +690,7 @@ public class HybridCache {
      * @throws FormatException
      *             the format exception
      */
-    public Collection<SourceFile> readCmNewlyWrittenParts()
+    public Collection<SourceFile> readModifiedCmParts()
         throws IOException, FormatException {
 
         Collection<File> files =
@@ -592,7 +705,6 @@ public class HybridCache {
         }
         return sourceFiles;
     }
-
 
     /**
      * Delete build model.

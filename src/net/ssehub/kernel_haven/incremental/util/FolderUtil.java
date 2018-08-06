@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 
 /**
  * Utility class for performing various actions with folders.
@@ -88,7 +89,7 @@ public class FolderUtil {
      * @param folder
      *            the folder
      */
-    public static void deleteFolderContents(File folder) {
+    public static void deleteFolderContents(File folder) throws IOException {
         deleteFolder(folder, false);
     }
 
@@ -98,7 +99,7 @@ public class FolderUtil {
      * @param folder
      *            the folder
      */
-    public static void deleteFolder(File folder) {
+    public static void deleteFolder(File folder) throws IOException {
         deleteFolder(folder, true);
     }
 
@@ -110,20 +111,12 @@ public class FolderUtil {
      * @param deleteRootFolder
      *            the delete root folder
      */
-    private static void deleteFolder(File folder, boolean deleteRootFolder) {
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteFolder(file, true);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-
-        if (deleteRootFolder && folder.exists()) {
-            folder.delete();
+    private static void deleteFolder(File folder, boolean deleteRootFolder)
+        throws IOException {
+        Files.walk(folder.toPath()).sorted(Comparator.reverseOrder())
+            .map(Path::toFile).forEach(File::delete);
+        if (!deleteRootFolder) {
+            folder.mkdir();
         }
     }
 

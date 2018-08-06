@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.incremental.storage.HybridCache.Flag;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -102,7 +103,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         DiffFile diffFile = getDiffFile();
         HybridCache hybridCache = new HybridCache(config
             .getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
-        hybridCache.clearChangeHistory();
+        try {
+            hybridCache.clearChangeHistory();
+        } catch (IOException exc1) {
+            LOGGER.logException("Could not clear history for HybridCache ",
+                exc1);
+        }
 
         // start threads for each model-type so they can run parallel
         Thread cmThread = null;
@@ -198,6 +204,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                     }
 
                     hybridCache.write(srcFile);
+                    hybridCache.flag(srcFile, Flag.AUXILLARY_CHANGE);
                 }
             }
         }
@@ -368,6 +375,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         while ((file = cmComponent.getNextResult()) != null) {
             try {
                 hybridCache.write(file);
+                hybridCache.flag(file, Flag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not write code model for file "
                     + file.getPath().getPath() + " to "

@@ -12,6 +12,7 @@ import org.junit.Test;
 import net.ssehub.kernel_haven.code_model.CodeBlock;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
+import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.Variable;
@@ -27,7 +28,8 @@ public class HybridCacheTest extends HybridCache {
     /** The Constant TESTFOLDER_HYBRID_DELETE. */
     private static final File TESTFOLDER_HYBRID_DELETE =
         new File("testdata/hybrid-cache/hybrid-delete");
-
+    private static final File TESTFOLDER_HYBRID_FLAG =
+        new File("testdata/hybrid-cache/hybrid-flag");
 
     /**
      * Test hybrid add.
@@ -67,7 +69,8 @@ public class HybridCacheTest extends HybridCache {
 
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItem(new File("history/replaced/test.file")));
+            CoreMatchers
+                .hasItem(new File("history/modified-and-deleted/test.file")));
     }
 
     /**
@@ -134,6 +137,45 @@ public class HybridCacheTest extends HybridCache {
     }
 
     /**
+     * Test flagging of a code model file.
+     *
+     */
+    @Test
+    public void testFlag() throws IOException  {
+
+        // Set up HybridCache
+        Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
+        HybridCache cache = new HybridCache(tempFolder.toFile());
+
+        // Create and flag source file object
+        File location = new File("test.c");
+        SourceFile sourceFile = new SourceFile(location);
+        cache.write(sourceFile);
+        cache.flag(sourceFile, Flag.AUXILLARY_CHANGE);
+        
+        
+        
+        Assert.assertThat(
+            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+            CoreMatchers.hasItems(new File("current/test.c.cache"),
+                new File("history/flags/" + Flag.AUXILLARY_CHANGE + "/test.c.cache")));
+
+    }
+    
+    
+    /**
+     * Test reading of code model for a certain flag.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    public void testReadCmForFlag() throws IOException, FormatException  {
+        HybridCache cache = new HybridCache(TESTFOLDER_HYBRID_FLAG);
+        Assert.assertThat(cache.readCm(Flag.AUXILLARY_CHANGE).size(), CoreMatchers.equalTo(1));
+    }
+
+    /**
      * Test write source file replaced file.
      *
      * @throws Exception
@@ -178,7 +220,7 @@ public class HybridCacheTest extends HybridCache {
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
             CoreMatchers.hasItems(new File("current/test.c.cache"),
-                new File("history/replaced/test.c.cache")));
+                new File("history/modified-and-deleted/test.c.cache")));
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true).size(),
             CoreMatchers.equalTo(2));

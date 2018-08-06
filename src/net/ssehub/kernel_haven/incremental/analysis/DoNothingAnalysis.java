@@ -4,6 +4,8 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.incremental.storage.HybridCacheAdapter;
+import net.ssehub.kernel_haven.incremental.storage.HybridCacheAdapter.CodeModelProcessing;
 import net.ssehub.kernel_haven.incremental.storage.IncrementalPostExtraction;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -39,9 +41,8 @@ public class DoNothingAnalysis extends PipelineAnalysis {
      */
     @Override
     protected AnalysisComponent<?> createPipeline() throws SetUpException {
-        return new IncrementalPostExtraction(config, getCmComponent(),
-            getBmComponent(), getVmComponent());
-
+        return new HybridCacheAdapter(config, new IncrementalPostExtraction(config, getCmComponent(),
+            getBmComponent(), getVmComponent()), CodeModelProcessing.NEWLY_EXTRACTED);
     }
 
 }
