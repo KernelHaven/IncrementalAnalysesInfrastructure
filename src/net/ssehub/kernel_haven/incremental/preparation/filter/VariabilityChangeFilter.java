@@ -13,7 +13,7 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
- * The Class ChangedOnlyFilter. This is an {@link InputFilter} that can be used
+ * This is an {@link InputFilter} that can be used
  * to generate a collection containing changed files matching the regular
  * expression.
  * 
