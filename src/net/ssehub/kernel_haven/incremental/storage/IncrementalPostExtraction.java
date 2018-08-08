@@ -3,7 +3,6 @@ package net.ssehub.kernel_haven.incremental.storage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -176,17 +175,27 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         HybridCache hybridCache)
         throws IllegalArgumentException, IOException, FormatException {
 
-        Collection<String> codeExtractorFiles =
-            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES);
+        // Create list of extracted paths as those are the paths that
+        // do not need to be considered for line updates
+        Collection<SourceFile> extractedSourceFiles =
+            hybridCache.readCm(ChangeFlag.EXTRACTION_CHANGE);
         Collection<Path> extractedPaths = new ArrayList<Path>();
-        codeExtractorFiles.forEach(file -> extractedPaths.add(Paths.get(file)));
+        extractedSourceFiles
+            .forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
 
+        // Initialize a lineCounter that parses the line information in the
+        // git diff file but skips the paths defined by extractedPaths for
+        // extraction
+        // to yield better performance
         LineCounter counter = new LineCounter(
             config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE),
             extractedPaths,
             config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
 
+        // iterate over all entries to the diff file
         for (FileEntry entry : diffFile.getEntries()) {
+            // only update lines for entries that were modifications and
+            // were not already covered by the extraction process.
             if (entry.getType().equals(FileEntry.Type.MODIFICATION)
                 && !extractedPaths.contains(entry.getPath())) {
                 SourceFile srcFile =

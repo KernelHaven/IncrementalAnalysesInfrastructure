@@ -20,7 +20,6 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
-// TODO: Auto-generated Javadoc
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
  * the models. Starting off with the previously present model (an empty model is
