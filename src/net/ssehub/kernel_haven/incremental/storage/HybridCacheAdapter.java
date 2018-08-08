@@ -1,16 +1,13 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.DefaultSettings;
-import net.ssehub.kernel_haven.incremental.storage.HybridCache.Flag;
+import net.ssehub.kernel_haven.incremental.storage.HybridCache.ChangeFlag;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -133,7 +130,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
             .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
             // Only read models for the files that were defined as target
             // for extraction within {@link IncrementalPreparation}
-            codeModel = data.readCm(Flag.EXTRACTION_CHANGE);
+            codeModel = data.readCm(ChangeFlag.EXTRACTION_CHANGE);
         } else {
             codeModel = data.readModifiedCmParts();
         }
@@ -175,7 +172,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                 }
                 if (buildModel == null || buildModel.getSize() == 0) {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
-                        + " contains none or an empty build model after execute()");
+                        + " contains none or empty build model after execute()");
                 }
                 if (varModel == null || varModel.getVariables().size() == 0) {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()

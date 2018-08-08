@@ -21,7 +21,7 @@ import net.ssehub.kernel_haven.incremental.diff.FileEntry;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
-import net.ssehub.kernel_haven.incremental.storage.HybridCache.Flag;
+import net.ssehub.kernel_haven.incremental.storage.HybridCache.ChangeFlag;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -204,7 +204,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                     }
 
                     hybridCache.write(srcFile);
-                    hybridCache.flag(srcFile, Flag.AUXILLARY_CHANGE);
+                    hybridCache.flag(srcFile, ChangeFlag.AUXILLARY_CHANGE);
                 }
             }
         }
@@ -375,7 +375,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         while ((file = cmComponent.getNextResult()) != null) {
             try {
                 hybridCache.write(file);
-                hybridCache.flag(file, Flag.EXTRACTION_CHANGE);
+                hybridCache.flag(file, ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not write code model for file "
                     + file.getPath().getPath() + " to "

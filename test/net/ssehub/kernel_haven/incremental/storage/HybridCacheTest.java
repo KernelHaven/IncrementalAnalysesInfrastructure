@@ -28,50 +28,9 @@ public class HybridCacheTest extends HybridCache {
     /** The Constant TESTFOLDER_HYBRID_DELETE. */
     private static final File TESTFOLDER_HYBRID_DELETE =
         new File("testdata/hybrid-cache/hybrid-delete");
+
     private static final File TESTFOLDER_HYBRID_FLAG =
         new File("testdata/hybrid-cache/hybrid-flag");
-
-    /**
-     * Test hybrid add.
-     *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
-    @Test
-    public void testHybridAdd() throws IOException {
-        Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
-
-        HybridCache cache = new HybridCache(tempFolder.toFile());
-
-        cache.hybridAdd(new File("test.txt"));
-
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItem(new File("history/added/test.txt")));
-    }
-
-    /**
-     * Test hybrid delete.
-     *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
-    @Test
-    public void testHybridDelete() throws IOException {
-        Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
-
-        // Setup
-        FolderUtil.copyFolderContent(TESTFOLDER_HYBRID_DELETE,
-            tempFolder.toFile());
-        HybridCache cache = new HybridCache(tempFolder.toFile());
-
-        cache.hybridDelete(new File("test.file"));
-
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers
-                .hasItem(new File("history/modified-and-deleted/test.file")));
-    }
 
     /**
      * Test get original code model file.
@@ -132,7 +91,8 @@ public class HybridCacheTest extends HybridCache {
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
             CoreMatchers.hasItems(new File("current/test.c.cache"),
-                new File("history/added/test.c.cache")));
+                new File("history/change-information/" + ChangeFlag.ADDITION
+                    + "/test.c.cache")));
 
     }
 
@@ -141,7 +101,7 @@ public class HybridCacheTest extends HybridCache {
      *
      */
     @Test
-    public void testFlag() throws IOException  {
+    public void testFlag() throws IOException {
 
         // Set up HybridCache
         Path tempFolder = Files.createTempDirectory("hybrid-cache-test");
@@ -151,18 +111,16 @@ public class HybridCacheTest extends HybridCache {
         File location = new File("test.c");
         SourceFile sourceFile = new SourceFile(location);
         cache.write(sourceFile);
-        cache.flag(sourceFile, Flag.AUXILLARY_CHANGE);
-        
-        
-        
+        cache.flag(sourceFile, ChangeFlag.AUXILLARY_CHANGE);
+
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
             CoreMatchers.hasItems(new File("current/test.c.cache"),
-                new File("history/flags/" + Flag.AUXILLARY_CHANGE + "/test.c.cache")));
+                new File("history/change-information/"
+                    + ChangeFlag.AUXILLARY_CHANGE + "/test.c.cache")));
 
     }
-    
-    
+
     /**
      * Test reading of code model for a certain flag.
      *
@@ -170,9 +128,10 @@ public class HybridCacheTest extends HybridCache {
      *             the exception
      */
     @Test
-    public void testReadCmForFlag() throws IOException, FormatException  {
+    public void testReadCmForFlag() throws IOException, FormatException {
         HybridCache cache = new HybridCache(TESTFOLDER_HYBRID_FLAG);
-        Assert.assertThat(cache.readCm(Flag.AUXILLARY_CHANGE).size(), CoreMatchers.equalTo(1));
+        Assert.assertThat(cache.readCm(ChangeFlag.AUXILLARY_CHANGE).size(),
+            CoreMatchers.equalTo(1));
     }
 
     /**
@@ -219,12 +178,11 @@ public class HybridCacheTest extends HybridCache {
         // check if file is correctly represented in cache
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItems(new File("current/test.c.cache"),
-                new File("history/modified-and-deleted/test.c.cache")));
+            CoreMatchers.hasItem(new File("current/test.c.cache")));
         Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true).size(),
-            CoreMatchers.equalTo(2));
-
+            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+            CoreMatchers.hasItem(
+                new File("history/backup/test.c.cache")));
     }
     // CHECKSTYLE:ON
 
