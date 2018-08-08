@@ -225,7 +225,6 @@ public class IncrementalPreparation implements IPreparation {
      * @throws SetUpException
      *             the set up exception
      */
-    @SuppressWarnings("unchecked")
     protected Collection<Path> filterInput(String filterClassName,
         File inputSourceDir, DiffFile inputDiff, Pattern regex,
         boolean includeDeletions) throws SetUpException {
@@ -233,7 +232,6 @@ public class IncrementalPreparation implements IPreparation {
         // Call the method getFilteredResult for filterClassName via
         // reflection-api
         try {
-            @SuppressWarnings("rawtypes")
             Class<InputFilter> filterClass =
                 (Class<InputFilter>) Class.forName(filterClassName);
             Object filterObject = filterClass.getConstructor(File.class,
@@ -280,7 +278,6 @@ public class IncrementalPreparation implements IPreparation {
         // Call the method getFilteredResult for filterClassName via
         // reflection-api
         try {
-            @SuppressWarnings("rawtypes")
             Class<DiffAnalyzer> analyzerClass =
                 (Class<DiffAnalyzer>) Class.forName(analyzerClassName);
             Object analyzerObject =

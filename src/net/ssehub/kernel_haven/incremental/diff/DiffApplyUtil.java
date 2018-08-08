@@ -49,9 +49,11 @@ public class DiffApplyUtil {
             LOGGER.logDebug(
                 "Executing external git command on working directory: "
                     + this.filesStorageDir.getAbsolutePath(),
-                "git apply --no-index " + inputDiff.getAbsolutePath());
+                "git apply --no-index --ignore-space-change --ignore-whitespace "
+                    + inputDiff.getAbsolutePath());
             ProcessBuilder processBuilder = new ProcessBuilder("git", "apply",
-                "--no-index", inputDiff.getAbsolutePath());
+                "--no-index", "--ignore-space-change", "--ignore-whitespace",
+                inputDiff.getAbsolutePath());
             processBuilder.directory(filesStorageDir);
 
             ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
