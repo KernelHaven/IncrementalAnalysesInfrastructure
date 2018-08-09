@@ -130,7 +130,7 @@ public class HybridCacheTest extends HybridCache {
     @Test
     public void testReadCmForFlag() throws IOException, FormatException {
         HybridCache cache = new HybridCache(TESTFOLDER_HYBRID_FLAG);
-        Assert.assertThat(cache.readCm(ChangeFlag.AUXILLARY_CHANGE).size(),
+        Assert.assertThat(cache.readCm(cache.getCmPathsForFlag(ChangeFlag.AUXILLARY_CHANGE)).size(),
             CoreMatchers.equalTo(1));
     }
 

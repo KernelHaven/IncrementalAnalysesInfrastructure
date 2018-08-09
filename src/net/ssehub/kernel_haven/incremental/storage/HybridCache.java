@@ -17,6 +17,7 @@ import net.ssehub.kernel_haven.code_model.CodeModelCache;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.FormatException;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
@@ -215,7 +216,8 @@ public class HybridCache {
      * Removes all information for the previous model from cache. Only keeps
      * current model.
      *
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     public void clearChangeHistory() throws IOException {
         FolderUtil.deleteFolderContents(replacedFolder);
@@ -228,8 +230,10 @@ public class HybridCache {
      * {@link SourceFile#getPath()}. The previous model can thereafter be
      * accessed through {@link HybridCache#readPreviousCmCacheFile(File)}
      *
-     * @param sourceFile the source file
-     * @throws IOException             Signals that an I/O exception has occurred.
+     * @param sourceFile
+     *            the source file
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     public void write(SourceFile sourceFile) throws IOException {
         String fileNameInCache = getCacheFileName(sourceFile.getPath());
@@ -248,9 +252,12 @@ public class HybridCache {
     /**
      * Flag.
      *
-     * @param file the file
-     * @param flag the flag
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @param file
+     *            the file
+     * @param flag
+     *            the flag
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     public void flag(SourceFile file, ChangeFlag flag) throws IOException {
         String fileNameInCache = getCacheFileName(file.getPath());
@@ -262,68 +269,26 @@ public class HybridCache {
      * of the file-history and should describe changes made to the file in the
      * current iteration. It is possible to assign multiple flags to a file.
      *
-     * @param cacheFile the cache file
-     * @param flag            the flag
-     * @throws IOException             Signals that an I/O exception has occurred.
+     * @param cacheFile
+     *            the cache file
+     * @param flag
+     *            the flag
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     private void flag(File cacheFile, ChangeFlag flag) throws IOException {
-        String fileNameInCache = flag.toString() + "/" + cacheFile.getPath();
-        File flagFile =
-            changeInformationFolder.toPath().resolve(fileNameInCache).toFile();
+        File flagFile = this.getFlagFile(cacheFile, flag);
         flagFile.getParentFile().mkdirs();
         if (!flagFile.exists()) {
             flagFile.createNewFile();
         }
     }
 
-    /**
-     * Read the subset of the cm that was flagged by the according flags.
-     *
-     * @param includedFlags
-     *            the included flags
-     * @return the collection
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FormatException
-     *             the format exception
-     */
-    public Collection<SourceFile> readCm(Collection<ChangeFlag> includedFlags)
-        throws IOException, FormatException {
-        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
-        for (ChangeFlag flag : ChangeFlag.values()) {
-            sourceFiles.addAll(readCm(flag));
-        }
-        return sourceFiles;
-    }
-
-    /**
-     * Read the subset of the cm that was flagged by the according flag.
-     *
-     * @param flag
-     *            the flag
-     * @return the collection
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FormatException
-     *             the format exception
-     */
-    public Collection<SourceFile> readCm(ChangeFlag flag)
-        throws IOException, FormatException {
-        File folderForCurrentFlag = changeInformationFolder.toPath()
-            .resolve(flag.toString() + "/").toFile();
-        Collection<SourceFile> codeModel = new ArrayList<SourceFile>();
-        if (folderForCurrentFlag.exists()
-            && folderForCurrentFlag.isDirectory()) {
-            Collection<File> flaggedFiles =
-                FolderUtil.listRelativeFiles(folderForCurrentFlag, false);
-            for (File file : flaggedFiles) {
-                SourceFile srcFile = this.readCmCacheFile(file);
-                if (srcFile != null) {
-                    codeModel.add(this.readCmCacheFile(file));
-                }
-            }
-        }
-        return codeModel;
+    private File getFlagFile(File cacheFile, ChangeFlag flag) {
+        String fileNameInCache = flag.toString() + "/" + cacheFile.getPath();
+        File flagFile =
+            changeInformationFolder.toPath().resolve(fileNameInCache).toFile();
+        return flagFile;
     }
 
     /**
@@ -494,8 +459,10 @@ public class HybridCache {
     /**
      * Cache file has flag.
      *
-     * @param target the target
-     * @param flag the flag
+     * @param target
+     *            the target
+     * @param flag
+     *            the flag
      * @return true, if successful
      */
     private boolean cacheFileHasFlag(File target, ChangeFlag flag) {
@@ -643,6 +610,18 @@ public class HybridCache {
         return sourceFiles;
     }
 
+    public Collection<SourceFile> readCm(Collection<File> paths)
+        throws IOException, FormatException {
+        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+        for (File file : paths) {
+            SourceFile srcFile = readCm(file);
+            if (srcFile != null) {
+                sourceFiles.add(srcFile);
+            }
+        }
+        return sourceFiles;
+    }
+
     /**
      * Reads current code model for a single file within the source-tree from
      * cache.
@@ -677,39 +656,6 @@ public class HybridCache {
     }
 
     /**
-     * Read the part of the codemodel that got written to the cache since the
-     * last time {@link HybridCache#clearChangeHistory()} was called. This also
-     * includes cached models where the models themselves did not change.
-     *
-     * @return the collection
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FormatException
-     *             the format exception
-     */
-    public Collection<SourceFile> readModifiedCmParts()
-        throws IOException, FormatException {
-
-        Collection<File> files =
-            FolderUtil.listRelativeFiles(replacedFolder, false);
-
-        File addedFilesFolder = changeInformationFolder.toPath()
-            .resolve(ChangeFlag.ADDITION + "/").toFile();
-        if (addedFilesFolder.exists()) {
-            files.addAll(FolderUtil.listRelativeFiles(addedFilesFolder, false));
-        }
-
-        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
-
-        for (File file : files) {
-            if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-                sourceFiles.add(readCmCacheFile(file));
-            }
-        }
-        return sourceFiles;
-    }
-
-    /**
      * Delete build model.
      *
      * @throws IOException
@@ -732,17 +678,22 @@ public class HybridCache {
     /**
      * Gets the cache files for flag.
      *
-     * @param flag the flag
+     * @param flag
+     *            the flag
      * @return the cache files for flag
      */
-    private Collection<File> getCacheFilesForFlag(ChangeFlag flag) {
+    public Collection<File> getCmPathsForFlag(ChangeFlag flag) {
         File flagFolder = this.changeInformationFolder.toPath()
             .resolve(flag.toString() + "/").toFile();
-        Collection<File> files = new ArrayList<File>();
+        Collection<File> paths = new ArrayList<File>();
         if (flagFolder.exists()) {
-            files.addAll(FolderUtil.listRelativeFiles(flagFolder, false));
+            for (File file : FolderUtil.listRelativeFiles(flagFolder, false)) {
+                if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
+                    paths.add(this.getOriginalCodeModelFile(file));
+                }
+            }
         }
-        return files;
+        return paths;
     }
 
     /**
@@ -775,9 +726,10 @@ public class HybridCache {
     public void rollback() throws IOException {
 
         // Delete newly added files
-        for (File file : getCacheFilesForFlag(ChangeFlag.ADDITION)) {
+        for (File file : getCmPathsForFlag(ChangeFlag.ADDITION)) {
             currentFolder.toPath().resolve(file.toPath()).toFile().delete();
         }
+        // TODO: Check for addition in bm and vm
 
         // Move files that got replaced or deleted in current version
         for (File file : FolderUtil.listRelativeFiles(replacedFolder, true)) {
@@ -789,5 +741,53 @@ public class HybridCache {
         this.clearChangeHistory();
 
     }
+
+    public Collection<ChangeFlag> getVmFlags() {
+        Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
+        for (ChangeFlag flag : ChangeFlag.values()) {
+            boolean flagFileExists = true;
+            for (Path vmCacheFile : VM_CACHE_FILES) {
+                if (!this.getFlagFile(vmCacheFile.toFile(), flag).exists()) {
+                    flagFileExists = false;
+                    break;
+                }
+            }
+            if (flagFileExists) {
+                flags.add(flag);
+            }
+        }
+        return flags;
+    }
+
+    public Collection<ChangeFlag> getBmFlags() {
+        Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
+        for (ChangeFlag flag : ChangeFlag.values()) {
+            boolean flagFileExists = true;
+            for (Path vmCacheFile : BM_CACHE_FILES) {
+                if (!this.getFlagFile(vmCacheFile.toFile(), flag).exists()) {
+                    flagFileExists = false;
+                    break;
+                }
+            }
+            if (flagFileExists) {
+                flags.add(flag);
+            }
+        }
+        return flags;
+    }
+
+    public Collection<ChangeFlag> getFlags(@NonNull SourceFile sourceFile,
+        ChangeFlag... flags) {
+        Collection<ChangeFlag> changeFlags = new ArrayList<ChangeFlag>();
+        File cacheFile = new File(getCacheFileName(sourceFile.getPath()));
+        for (ChangeFlag flag : ChangeFlag.values()) {
+            if (this.getFlagFile(cacheFile, flag).exists()) {
+                changeFlags.add(flag);
+            }
+        }
+        return changeFlags;
+    }
+
+
 
 }

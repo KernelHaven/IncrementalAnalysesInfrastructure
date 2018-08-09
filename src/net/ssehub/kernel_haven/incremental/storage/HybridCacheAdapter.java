@@ -130,9 +130,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
             .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
             // Only read models for the files that were defined as target
             // for extraction within {@link IncrementalPreparation}
-            codeModel = data.readCm(ChangeFlag.EXTRACTION_CHANGE);
+            codeModel = data.readCm(data.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
         } else {
-            codeModel = data.readModifiedCmParts();
+            codeModel = data.readCm(data.getCmPathsForFlag(ChangeFlag.MODIFICATION));
         }
         return codeModel;
     }

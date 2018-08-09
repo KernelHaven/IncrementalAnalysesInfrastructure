@@ -178,7 +178,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // Create list of extracted paths as those are the paths that
         // do not need to be considered for line updates
         Collection<SourceFile> extractedSourceFiles =
-            hybridCache.readCm(ChangeFlag.EXTRACTION_CHANGE);
+            hybridCache.readCm(
+                hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
         Collection<Path> extractedPaths = new ArrayList<Path>();
         extractedSourceFiles
             .forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
