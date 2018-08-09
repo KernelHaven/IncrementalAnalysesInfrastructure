@@ -4,7 +4,7 @@
 
 Support for incremental anlyses in [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
-* The wiki is still being created. Meanwhile you can refer to [moritzfl/sse-master-thesis](https://github.com/moritzfl/sse-master-thesis/releases), where concept, implementation and results are explained.*
+*The [wiki](https://github.com/KernelHaven/IncrementalAnalysesInfrastructure/wiki) is still being created. Meanwhile you can refer to [moritzfl/sse-master-thesis](https://github.com/moritzfl/sse-master-thesis/releases), where concept, implementation and results are explained.*
 
 If you are interested in evaluation results concerning this plugin, check out [IncrementalAnalysesEvaluation](https://github.com/moritzfl/IncrementalAnalysesEvaluation). The release section contains the actual results of analysis executions on our reference system. 
 
