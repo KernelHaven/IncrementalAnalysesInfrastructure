@@ -76,6 +76,11 @@ public class IncrementalAnalysisSettings {
         new Setting<Boolean>("incremental.rollback", BOOLEAN, true, "FALSE",
             "This setting defines whether a rollback sould be performed");
 
+    public static final Setting<Boolean> BUILD_MODEL_OPTIMIZATION =
+        new Setting<Boolean>("incremental.analysis.build_model.optimization",
+            BOOLEAN, true, "FALSE",
+            "This setting determines whether information about the differences in the build model compared with the previous build model should be used to reduce the computational effort.");
+
     // CHECKSTYLE:ON
     /**
      * Holds all declared setting constants.
