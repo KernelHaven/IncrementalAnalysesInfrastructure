@@ -177,9 +177,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         // Create list of extracted paths as those are the paths that
         // do not need to be considered for line updates
-        Collection<SourceFile> extractedSourceFiles =
-            hybridCache.readCm(
-                hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
+        Collection<SourceFile> extractedSourceFiles = hybridCache.readCm(
+            hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
         Collection<Path> extractedPaths = new ArrayList<Path>();
         extractedSourceFiles
             .forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
@@ -265,6 +264,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             // CHECKSTYLE:ON
             try {
                 hybridCache.write(variabilityModel);
+                hybridCache.flagVariabilityModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not write variability-model to "
                     + HybridCache.class.getSimpleName(), e);
@@ -272,6 +272,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         } else {
             try {
                 hybridCache.deleteVariabilityModel();
+                hybridCache.flagVariabilityModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not delete variability-model from "
                     + HybridCache.class.getSimpleName(), e);
@@ -292,6 +293,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             // CHECKSTYLE:ON
             try {
                 hybridCache.write(buildModel);
+                hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not write build-model to "
                     + HybridCache.class.getSimpleName(), e);
@@ -299,6 +301,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         } else {
             try {
                 hybridCache.deleteBuildModel();
+                hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
                 LOGGER.logException("Could not delete build-model from "
                     + HybridCache.class.getSimpleName(), e);

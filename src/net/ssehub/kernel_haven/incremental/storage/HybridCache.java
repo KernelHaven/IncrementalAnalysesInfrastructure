@@ -317,6 +317,18 @@ public class HybridCache {
         currentVmCache.write(vmModel);
     }
 
+    public void flagBuildModel(ChangeFlag flag) throws IOException {
+        for (Path bmCacheFile : BM_CACHE_FILES) {
+            flag(bmCacheFile.toFile(), flag);
+        }
+    }
+
+    public void flagVariabilityModel(ChangeFlag flag) throws IOException {
+        for (Path vmCacheFile : VM_CACHE_FILES) {
+            flag(vmCacheFile.toFile(), flag);
+        }
+    }
+
     /**
      * Write the {@link BuildModel} to the cache replacing the model accessible
      * via {@link HybridCache#readBm()}. The previous model can thereafter be
@@ -787,7 +799,5 @@ public class HybridCache {
         }
         return changeFlags;
     }
-
-
 
 }
