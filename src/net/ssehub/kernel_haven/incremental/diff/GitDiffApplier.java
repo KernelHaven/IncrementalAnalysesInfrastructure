@@ -13,7 +13,7 @@ import net.ssehub.kernel_haven.util.Util;
  * 
  * @author Moritz
  */
-public class DiffApplyUtil {
+public class GitDiffApplier extends DiffApplier{
 
     /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.get();
@@ -32,7 +32,7 @@ public class DiffApplyUtil {
      * @param inputDiff
      *            the input diff
      */
-    public DiffApplyUtil(File filesStorageDir, File inputDiff) {
+    public GitDiffApplier(File filesStorageDir, File inputDiff) {
         this.filesStorageDir = filesStorageDir;
         this.inputDiff = inputDiff;
     }

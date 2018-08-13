@@ -55,8 +55,8 @@ public class DiffApplyUtilTest {
 
         // Merge action
 
-        DiffApplyUtil diffIntegration =
-            new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
+        GitDiffApplier diffIntegration =
+            new GitDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.mergeChanges();
         Assert.assertTrue(success);
@@ -88,8 +88,8 @@ public class DiffApplyUtilTest {
 
         // Merge action
 
-        DiffApplyUtil diffIntegration =
-            new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
+        GitDiffApplier diffIntegration =
+            new GitDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.mergeChanges();
 
@@ -120,8 +120,8 @@ public class DiffApplyUtilTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        DiffApplyUtil diffIntegration =
-            new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
+        GitDiffApplier diffIntegration =
+            new GitDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.revertChanges();
         Assert.assertTrue(success);
@@ -154,8 +154,8 @@ public class DiffApplyUtilTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        DiffApplyUtil diffIntegration =
-            new DiffApplyUtil(tempFolder.toFile(), DIFF_FILE);
+        GitDiffApplier diffIntegration =
+            new GitDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.revertChanges();
         Assert.assertFalse(success);

@@ -15,8 +15,9 @@ import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
-import net.ssehub.kernel_haven.incremental.diff.DiffApplyUtil;
+import net.ssehub.kernel_haven.incremental.diff.DiffApplier;
 import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.GitDiffApplier;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache;
@@ -44,7 +45,7 @@ public class IncrementalPreparation implements IPreparation {
      * @param config
      *            the config
      */
-    private void handleRollback(DiffApplyUtil gitApplyUtil,
+    private void handleRollback(DiffApplier gitApplyUtil,
         Configuration config) {
 
         // Handle rollback
@@ -97,8 +98,8 @@ public class IncrementalPreparation implements IPreparation {
             .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
         File inputSourceDir =
             (File) config.getValue(DefaultSettings.SOURCE_TREE);
-        DiffApplyUtil gitApplyUtil =
-            new DiffApplyUtil(inputSourceDir, inputDiff);
+        DiffApplier gitApplyUtil =
+            new GitDiffApplier(inputSourceDir, inputDiff);
 
         if (config.getValue(IncrementalAnalysisSettings.ROLLBACK)) {
             // Execution will stop after rollback is complete
@@ -117,6 +118,7 @@ public class IncrementalPreparation implements IPreparation {
                 throw new SetUpException(
                     "Could not merge provided diff with existing input files!");
             } else {
+                System.exit(0);
                 DiffFile diffFile = generateDiffFile(
                     config.getValue(
                         IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
