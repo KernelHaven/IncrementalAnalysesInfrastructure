@@ -118,7 +118,6 @@ public class IncrementalPreparation implements IPreparation {
                 throw new SetUpException(
                     "Could not merge provided diff with existing input files!");
             } else {
-                System.exit(0);
                 DiffFile diffFile = generateDiffFile(
                     config.getValue(
                         IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
