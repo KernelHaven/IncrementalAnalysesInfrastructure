@@ -1,11 +1,13 @@
-package net.ssehub.kernel_haven.incremental.diff;
+package net.ssehub.kernel_haven.incremental.diff.applier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import net.ssehub.kernel_haven.incremental.diff.FileEntry.Type;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Type;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 

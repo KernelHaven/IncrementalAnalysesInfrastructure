@@ -15,9 +15,10 @@ import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
-import net.ssehub.kernel_haven.incremental.diff.DiffApplier;
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.GitDiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.applier.DiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.applier.FileReplacingDiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.applier.GitDiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache;
@@ -98,15 +99,15 @@ public class IncrementalPreparation implements IPreparation {
             .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
         File inputSourceDir =
             (File) config.getValue(DefaultSettings.SOURCE_TREE);
-        DiffApplier gitApplyUtil =
-            new GitDiffApplier(inputSourceDir, inputDiff);
+        DiffApplier diffApplier =
+            new FileReplacingDiffApplier(inputSourceDir, inputDiff);
 
         if (config.getValue(IncrementalAnalysisSettings.ROLLBACK)) {
             // Execution will stop after rollback is complete
-            handleRollback(gitApplyUtil, config);
+            handleRollback(diffApplier, config);
         } else {
             // Merge changes
-            boolean mergeSuccessful = gitApplyUtil.mergeChanges();
+            boolean mergeSuccessful = diffApplier.mergeChanges();
 
             // only continue if merge was successful
             if (!mergeSuccessful) {
@@ -122,14 +123,7 @@ public class IncrementalPreparation implements IPreparation {
                     config.getValue(
                         IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
                     inputDiff);
-                try {
-                    diffFile.save(
-                        new File(inputDiff.getAbsolutePath() + config.getValue(
-                            IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX)));
-                } catch (IOException e) {
-                    throw new SetUpException(
-                        "Could not save parsed version of diff-file", e);
-                }
+                
 
                 //////////////////////////
                 // Filter for codemodel //

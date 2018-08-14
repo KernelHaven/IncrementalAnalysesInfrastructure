@@ -1,12 +1,10 @@
-package net.ssehub.kernel_haven.incremental.diff;
+package net.ssehub.kernel_haven.incremental.diff.applier;
 
 import java.io.File;
 
 public abstract class DiffApplier {
     
-    public DiffApplier(File filesStorageDir, File inputDiff) {
-    }
-    
+
     protected DiffApplier() {
     }
     

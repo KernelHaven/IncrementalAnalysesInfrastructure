@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 
 /**
  * Filter class for files located in the source tree. Classes extending this

@@ -3,11 +3,11 @@ package net.ssehub.kernel_haven.incremental.diff.linecount;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import net.ssehub.kernel_haven.incremental.diff.linecount.LineInfoExtractor.Lines;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
 
 /**
  * The Class LineCounter.
@@ -16,8 +16,9 @@ import net.ssehub.kernel_haven.incremental.diff.linecount.LineInfoExtractor.Line
  */
 public class LineCounter {
 
-    /** The extractor. */
-    private LineInfoExtractor extractor;
+
+    
+    private DiffFile diffFile;
 
     /**
      * Instantiates a new line counter.
@@ -31,10 +32,10 @@ public class LineCounter {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public LineCounter(File gitDiffFile, Collection<Path> ignorePaths,
-        Pattern fileInclusionRegex) throws IOException {
-        extractor =
-            new LineInfoExtractor(gitDiffFile, ignorePaths, fileInclusionRegex);
+    public LineCounter(File gitDiffFile) throws IOException {
+        diffFile =
+            new DiffFileParser().parse(gitDiffFile);
+        
     }
 
     public int getNewLineNumber(Path file, int numberToAdjust) {
@@ -46,8 +47,10 @@ public class LineCounter {
         // List chunks of lines. A chunk represents a sequence where a
         // modification
         // of the same type was performed (Deletion, Addition etc.)
-        List<Lines> chunks = extractor.getLines(file);
-
+        
+        
+        List<Lines> chunks = diffFile.getEntry(file).getLines();
+        
         // iterate over all chunks to add the number of lines up until
         // the targeted position is reached
         for (int i = 0; positionInOriginalFile <= numberToAdjust

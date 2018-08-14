@@ -11,8 +11,8 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 
 /**
  * Tests for {@link VariabilityChangeFilter}.

@@ -1,9 +1,7 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -14,11 +12,10 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.DefaultSettings;
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.diff.analyzer.SimpleDiffAnalyzer;
 import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache.ChangeFlag;
 import net.ssehub.kernel_haven.util.FormatException;
@@ -99,9 +96,12 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      */
     @Override
     protected void execute() {
-        DiffFile diffFile = getDiffFile();
+        DiffFile diffFile = new DiffFileParser().parse(config
+            .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
+
         HybridCache hybridCache = new HybridCache(config
             .getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+        
         try {
             hybridCache.clearChangeHistory();
         } catch (IOException exc1) {
@@ -188,9 +188,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // extraction
         // to yield better performance
         LineCounter counter = new LineCounter(
-            config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE),
-            extractedPaths,
-            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX));
+            config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
 
         // iterate over all entries to the diff file
         for (FileEntry entry : diffFile.getEntries()) {
@@ -309,50 +307,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         }
     }
 
-    /**
-     * Gets the diff file.
-     *
-     * @return the diff file
-     */
-    public DiffFile getDiffFile() {
-        DiffFile diffFile = null;
-        File originalDiffFile =
-            config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
-        File parsedDiffFile =
-            new File(originalDiffFile.getAbsolutePath() + config
-                .getValue(IncrementalAnalysisSettings.PARSED_DIFF_FILE_SUFFIX));
 
-        // Deletion of models for files removed in the diff-file
-        if (parsedDiffFile.exists()) {
-            LOGGER.logInfo("Reusing parsed diff-file: "
-                + parsedDiffFile.getAbsolutePath());
-            try {
-                diffFile = DiffFile.load(parsedDiffFile);
-            } catch (IOException | ParseException e) {
-                LOGGER.logException("Could not reuse parsed diff-file: "
-                    + parsedDiffFile.getAbsolutePath(), e);
-            }
-        }
-        if (diffFile == null) {
-            // Try to reuse existing parsed diff if available
-            // otherwise generate new
-            if (diffFile == null) {
-                LOGGER.logInfo("Parsing original diff-file: "
-                    + originalDiffFile.getAbsolutePath());
-                try {
-                    diffFile = new SimpleDiffAnalyzer()
-                        .generateDiffFile(originalDiffFile);
-                } catch (IOException e) {
-                    String error = "This is a major problem as it might"
-                        + " result in an inconsistent state of your"
-                        + " HybridCache-directory.";
-                    LOGGER.logError("Could not parse diff-file: "
-                        + originalDiffFile.getAbsolutePath(), error);
-                }
-            }
-        }
-        return diffFile;
-    }
 
     /**
      * Code model extraction.

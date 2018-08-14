@@ -8,8 +8,8 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -45,15 +45,15 @@ public class VariabilityDiffAnalyzerTest {
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kbuild"),
                 FileEntry.Type.MODIFICATION,
-                FileEntry.VariabilityChange.NO_CHANGE)));
+                FileEntry.VariabilityChange.NO_CHANGE, null)));
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers.hasItem(new FileEntry(Paths.get("modify/Kconfig"),
                 FileEntry.Type.MODIFICATION,
-                FileEntry.VariabilityChange.NO_CHANGE)));
+                FileEntry.VariabilityChange.NO_CHANGE, null)));
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers.hasItem(new FileEntry(
                 Paths.get("modify/a-code-file.c"), FileEntry.Type.MODIFICATION,
-                FileEntry.VariabilityChange.NO_CHANGE)));
+                FileEntry.VariabilityChange.NO_CHANGE, null)));
 
     }
 
@@ -80,21 +80,21 @@ public class VariabilityDiffAnalyzerTest {
             CoreMatchers
                 .hasItem(new FileEntry(Paths.get("include/linux/compat.h"),
                     FileEntry.Type.MODIFICATION,
-                    FileEntry.VariabilityChange.NO_CHANGE)));
+                    FileEntry.VariabilityChange.NO_CHANGE, null)));
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers.hasItem(
                 new FileEntry(Paths.get(".mailmap"), FileEntry.Type.DELETION,
-                    FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE)));
+                    FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE, null)));
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers
                 .hasItem(new FileEntry(Paths.get("include/linux/bitmap.h"),
                     FileEntry.Type.MODIFICATION,
-                    FileEntry.VariabilityChange.NO_CHANGE)));
+                    FileEntry.VariabilityChange.NO_CHANGE, null)));
         Assert.assertThat(diffFile.getEntries(),
             CoreMatchers
                 .hasItem(new FileEntry(Paths.get("drivers/crypto/caam/ctrl.c"),
                     FileEntry.Type.MODIFICATION,
-                    FileEntry.VariabilityChange.CHANGE)));
+                    FileEntry.VariabilityChange.CHANGE, null)));
 
     }
 

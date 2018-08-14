@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.ssehub.kernel_haven.incremental.diff.applier.GitDiffApplier;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
 

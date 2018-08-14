@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 
 /**

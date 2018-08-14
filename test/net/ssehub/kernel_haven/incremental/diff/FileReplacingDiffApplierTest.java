@@ -5,20 +5,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.applier.PatchDiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.applier.FileReplacingDiffApplier;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
- * Tests for {@link PatchDiffApplier}.
+ * Tests for {@link FileReplacingDiffApplier}.
  * 
  * @author moritz
  */
-public class PatchDiffApplierTest {
+public class FileReplacingDiffApplierTest {
 
     /** The Constant ORIGINAL_FOLDER. */
     private static final File ORIGINAL_FOLDER =
@@ -34,6 +33,8 @@ public class PatchDiffApplierTest {
 
     /** The logger. */
     private static final Logger LOGGER = Logger.get();
+    
+    
 
     // CHECKSTYLE:OFF
     /**
@@ -57,19 +58,14 @@ public class PatchDiffApplierTest {
 
         // Merge action
 
-        PatchDiffApplier diffIntegration =
-            new PatchDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration =
+            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.mergeChanges();
         Assert.assertTrue(success);
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers
-                .equalTo(FolderUtil.listRelativeFiles(MODIFIED_FOLDER, true)));
-        Assert.assertTrue(
-            "Folder content is not equal to the expected folder contents.",
-            FolderUtil.folderContentEquals(tempFolder.toFile(),
-                MODIFIED_FOLDER));
+
+        Assert.assertTrue(FolderUtil.folderContentEquals(tempFolder.toFile(),
+            MODIFIED_FOLDER));
 
     }
     // CHECKSTYLE:OFF
@@ -95,21 +91,14 @@ public class PatchDiffApplierTest {
 
         // Merge action
 
-        PatchDiffApplier diffIntegration =
-            new PatchDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration =
+            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.mergeChanges();
 
         Assert.assertFalse(success);
-
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers
-                .equalTo(FolderUtil.listRelativeFiles(MODIFIED_FOLDER, true)));
-        Assert.assertTrue(
-            "Folder content is not equal to the expected folder contents.",
-            FolderUtil.folderContentEquals(tempFolder.toFile(),
-                MODIFIED_FOLDER));
+        Assert.assertTrue(FolderUtil.folderContentEquals(tempFolder.toFile(),
+            MODIFIED_FOLDER));
 
     }
     // CHECKSTYLE:ON
@@ -134,16 +123,14 @@ public class PatchDiffApplierTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        PatchDiffApplier diffIntegration =
-            new PatchDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration =
+            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.revertChanges();
-        Assert.assertTrue(success);
+        Assert.assertTrue("Merge successful ", success);
 
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers
-                .equalTo(FolderUtil.listRelativeFiles(ORIGINAL_FOLDER, true)));
+        Assert.assertTrue(FolderUtil.folderContentEquals(tempFolder.toFile(),
+            ORIGINAL_FOLDER));
 
     }
     // CHECKSTYLE:ON
@@ -170,16 +157,14 @@ public class PatchDiffApplierTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        PatchDiffApplier diffIntegration =
-            new PatchDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration =
+            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
 
         boolean success = diffIntegration.revertChanges();
         Assert.assertFalse(success);
 
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers
-                .equalTo(FolderUtil.listRelativeFiles(ORIGINAL_FOLDER, true)));
+        Assert.assertTrue(FolderUtil.folderContentEquals(tempFolder.toFile(),
+            ORIGINAL_FOLDER));
 
     }
     // CHECKSTYLE:ON

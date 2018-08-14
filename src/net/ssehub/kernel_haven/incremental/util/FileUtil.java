@@ -31,9 +31,7 @@ public class FileUtil {
      */
     public static boolean fileContentIsEqual(File fileA, File fileB)
         throws IOException {
-        byte[] otherBytes = Files.readAllBytes(fileA.toPath());
-        byte[] thisBytes = Files.readAllBytes(fileB.toPath());
-        return Arrays.equals(otherBytes, thisBytes);
+        return Files.readAllLines(fileA.toPath()).equals(Files.readAllLines(fileB.toPath()));
     }
 
     /**

@@ -17,9 +17,9 @@ import diff.FileDiff.FileType;
 import diff.ModelFileDiff;
 import diff.OtherFileDiff;
 import diff.SourceFileDiff;
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry;
-import net.ssehub.kernel_haven.incremental.diff.FileEntry.VariabilityChange;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.util.Logger;
 
 // TODO: Auto-generated Javadoc
@@ -214,7 +214,7 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
             }
 
             // Add new entry for the file currently considered
-            fileEntries.add(new FileEntry(Paths.get(filePath), type, change));
+            fileEntries.add(new FileEntry(Paths.get(filePath), type, change, null));
         }
 
         return new DiffFile(fileEntries);

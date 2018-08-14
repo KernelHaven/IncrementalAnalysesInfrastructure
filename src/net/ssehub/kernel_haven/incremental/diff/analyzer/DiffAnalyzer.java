@@ -3,7 +3,7 @@ package net.ssehub.kernel_haven.incremental.diff.analyzer;
 import java.io.File;
 import java.io.IOException;
 
-import net.ssehub.kernel_haven.incremental.diff.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 
 /**
  * Abstract Analyzer class that can create a {@link FileEntry}-collection. Each
