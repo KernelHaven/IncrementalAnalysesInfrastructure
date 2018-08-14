@@ -32,7 +32,7 @@ public class DiffFileParser {
     /** The Constant LINE_NUMBER_MATCH_PATTERN. */
     private static final String LINE_NUMBER_MATCH_PATTERN =
         "@@\\s*-(\\d*),?\\d*\\s*\\+\\d*,?\\d*\\s*@@(.*)";
-    
+
     private static final Logger LOGGER = Logger.get();
 
     /**
@@ -58,7 +58,7 @@ public class DiffFileParser {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public DiffFile parse(File commitFile)  {
+    public DiffFile parse(File commitFile) {
         DiffFile diffFile = null;
         try (BufferedReader br =
             new BufferedReader(new FileReader(commitFile))) {
@@ -110,7 +110,6 @@ public class DiffFileParser {
                             changeBlockFinished = true;
                         }
                     }
-                    
 
                     List<Lines> lines =
                         parseChangeBlock(changeBlock.toString());
@@ -123,10 +122,10 @@ public class DiffFileParser {
                 nextLine2 = nextLine3;
                 nextLine3 = br.readLine();
                 diffFile = new DiffFile(fileEntries);
-                
+
             }
 
-        } catch ( IOException exc) {
+        } catch (IOException exc) {
             LOGGER.logException("Could not parse git diff file", exc);
             diffFile = null;
         }
@@ -153,9 +152,9 @@ public class DiffFileParser {
         StringJoiner chunkContent = new StringJoiner("\n");
         int typeCounter = 0;
 
-        int endOfChunk = 0;
+        int endOfChunk = 1;
         boolean firstChunkFound = false;
-        while ((currentLine = bufReader.readLine()) != null) { 
+        while ((currentLine = bufReader.readLine()) != null) {
             // start with first chunk describing line changes, skip until then
             if (!firstChunkFound && !currentLine.startsWith("@@")) {
                 continue;
@@ -198,7 +197,7 @@ public class DiffFileParser {
                 chunkContent.add(currentLine.substring(1));
                 endOfChunk++;
                 typeCounter++;
-            } else if (currentLine.startsWith("@@")){
+            } else if (currentLine.startsWith("@@")) {
                 // This handles lines starting with @@
                 // Lines starting with @@ mark the start of a new block of
                 // changes / chunk
@@ -214,12 +213,18 @@ public class DiffFileParser {
                 Pattern pattern = Pattern.compile(LINE_NUMBER_MATCH_PATTERN);
                 Matcher matcher = pattern.matcher(currentLine);
                 matcher.find();
-                int startNewChunk = Integer.parseInt(matcher.group(1));
+                String numberString = matcher.group(1);
+                int startNewChunk = 1;
+                if (!numberString.isEmpty()) {
+                    startNewChunk = Integer.parseInt(matcher.group(1));
+                }
 
                 // Add the space between the previous block of changes / between
                 // chunks
-                lineChanges.add(new Lines(Lines.LineType.BETWEEN_CHUNKS,
-                    startNewChunk - endOfChunk, chunkContent.toString()));
+                if (startNewChunk - endOfChunk != 0) {
+                    lineChanges.add(new Lines(Lines.LineType.BETWEEN_CHUNKS,
+                        startNewChunk - endOfChunk, chunkContent.toString()));
+                }
                 chunkContent = new StringJoiner("\n");
 
                 // Reset the end of chunk. endOfChunk will be modified while
@@ -230,7 +235,9 @@ public class DiffFileParser {
 
                 typeCounter = 0;
                 type = Lines.LineType.UNMODIFIED;
-                chunkContent.add(matcher.group(2));
+                if (!matcher.group(2).isEmpty()) {
+                    chunkContent.add(matcher.group(2));
+                }
             }
         }
         if (typeCounter > 0) {

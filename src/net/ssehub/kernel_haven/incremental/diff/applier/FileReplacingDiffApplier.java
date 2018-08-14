@@ -1,14 +1,13 @@
 package net.ssehub.kernel_haven.incremental.diff.applier;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
@@ -85,39 +84,43 @@ public class FileReplacingDiffApplier extends DiffApplier {
             if (entry.getType().equals(Type.DELETION)
                 || entry.getType().equals(Type.MODIFICATION)) {
 
+                // Read file from disk
                 try {
-                    // Read file from disk
                     List<String> fileOnDisk = Files.readAllLines(
                         filesStorageDir.toPath().resolve(entry.getPath()));
+
                     // Read expected file contents from diff file
                     List<String> fileInDiff = new ArrayList<String>();
                     for (Lines lines : entry.getLines()) {
+                        LOGGER.logInfo(lines.toString());
                         if (lines.getType().equals(Lines.LineType.UNMODIFIED)
                             || lines.getType().equals(Lines.LineType.DELETED)) {
-                            try (BufferedReader bufReader = new BufferedReader(
-                                new StringReader(lines.getContent()))) {
-                                String line = bufReader.readLine();
-                                while (line != null) {
-                                    fileInDiff.add(line);
-                                    bufReader.readLine();
-                                }
+
+                            for (String line : lines.getContent()
+                                .split("\\r?\\n", -1)) {
+                                fileInDiff.add(line);
                             }
                         }
                     }
 
+                    // Ignore empty lines
+                    fileInDiff.removeAll(Arrays.asList(""));
+                    fileOnDisk.removeAll(Arrays.asList(""));
+
                     // Check if expected content matches actual content
                     if (!fileInDiff.equals(fileOnDisk)) {
-
                         LOGGER.logError("File contents of file "
                             + entry.getPath()
                             + " does not match contents described in diff file.");
+                        LOGGER.logInfo(Arrays.toString(fileInDiff.toArray()));
+                        LOGGER.logInfo(Arrays.toString(fileOnDisk.toArray()));
 
                         preconditionsMet = false;
                     }
                 } catch (IOException exc) {
-                    LOGGER.logException("Could not access file "
-                        + entry.getPath()
-                        + " but file is described as added or modified in diff.",
+                    LOGGER.logException(
+                        "Could not read file "
+                            + filesStorageDir.toPath().resolve(entry.getPath()),
                         exc);
                     preconditionsMet = false;
                 }
@@ -151,22 +154,24 @@ public class FileReplacingDiffApplier extends DiffApplier {
                     for (Lines lines : entry.getLines()) {
                         if (lines.getType().equals(Lines.LineType.UNMODIFIED)
                             || lines.getType().equals(Lines.LineType.ADDED)) {
-                            try (BufferedReader bufReader = new BufferedReader(
-                                new StringReader(lines.getContent()))) {
-                                String line = bufReader.readLine();
-                                while (line != null) {
-                                    fileInDiff.add(line);
-                                    bufReader.readLine();
-                                }
+                            for (String line : lines.getContent()
+                                .split("\\r?\\n", -1)) {
+                                fileInDiff.add(line);
                             }
                         }
                     }
 
+                    // Ignore empty lines
+                    fileInDiff.removeAll(Arrays.asList(""));
+                    fileOnDisk.removeAll(Arrays.asList(""));
+                    
                     // Check if expected content matches actual content
                     if (!fileInDiff.equals(fileOnDisk)) {
                         LOGGER.logError("File contents of file "
                             + entry.getPath()
-                            + " does not match contents described in diff file.");
+                            + " do not match contents described in diff file.");
+                        LOGGER.logInfo(Arrays.toString(fileInDiff.toArray()));
+                        LOGGER.logInfo(Arrays.toString(fileOnDisk.toArray()));
                         preconditionsMet = false;
                     }
                 } catch (IOException exc) {
@@ -235,7 +240,8 @@ public class FileReplacingDiffApplier extends DiffApplier {
         if (success) {
             LOGGER.logInfo("Applied changes described by git-diff file.");
         } else {
-            LOGGER.logError("Failed to apply changes described by git-diff file");
+            LOGGER
+                .logError("Failed to apply changes described by git-diff file");
         }
 
         return success;
@@ -271,7 +277,6 @@ public class FileReplacingDiffApplier extends DiffApplier {
                         BufferedWriter writer = new BufferedWriter(
                             new FileWriter(fileInStorageDir));
 
-                        // write new file
                         for (Lines lines : entry.getLines()) {
                             if (lines.getType().equals(Lines.LineType.DELETED)
                                 || lines.getType()
@@ -292,11 +297,12 @@ public class FileReplacingDiffApplier extends DiffApplier {
         } else {
             success = false;
         }
-        
+
         if (success) {
             LOGGER.logInfo("Reverted changes described by git-diff file.");
         } else {
-            LOGGER.logError("Failed to revert changes described by git-diff file.");
+            LOGGER.logError(
+                "Failed to revert changes described by git-diff file.");
         }
         return success;
     }
