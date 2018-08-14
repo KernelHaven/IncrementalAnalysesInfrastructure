@@ -83,48 +83,17 @@ public class FileReplacingDiffApplier extends DiffApplier {
             // the filesystem before the diff is applied.
             if (entry.getType().equals(Type.DELETION)
                 || entry.getType().equals(Type.MODIFICATION)) {
-
-                // Read file from disk
-                try {
-                    List<String> fileOnDisk = Files.readAllLines(
-                        filesStorageDir.toPath().resolve(entry.getPath()));
-
-                    // Read expected file contents from diff file
-                    List<String> fileInDiff = new ArrayList<String>();
-                    for (Lines lines : entry.getLines()) {
-                        LOGGER.logInfo(lines.toString());
-                        if (lines.getType().equals(Lines.LineType.UNMODIFIED)
-                            || lines.getType().equals(Lines.LineType.DELETED)) {
-
-                            for (String line : lines.getContent()
-                                .split("\\r?\\n", -1)) {
-                                fileInDiff.add(line);
-                            }
-                        }
-                    }
-
-                    // Ignore empty lines
-                    fileInDiff.removeAll(Arrays.asList(""));
-                    fileOnDisk.removeAll(Arrays.asList(""));
-
-                    // Check if expected content matches actual content
-                    if (!fileInDiff.equals(fileOnDisk)) {
-                        LOGGER.logError("File contents of file "
-                            + entry.getPath()
-                            + " does not match contents described in diff file.");
-                        LOGGER.logInfo(Arrays.toString(fileInDiff.toArray()));
-                        LOGGER.logInfo(Arrays.toString(fileOnDisk.toArray()));
-
-                        preconditionsMet = false;
-                    }
-                } catch (IOException exc) {
-                    LOGGER.logException(
-                        "Could not read file "
-                            + filesStorageDir.toPath().resolve(entry.getPath()),
-                        exc);
+      
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
+                    LOGGER.logError("File " + entry.getPath() + " does not exist on filesystem eventhough the git-diff file used has a modification/deletion entry for it.");
                     preconditionsMet = false;
                 }
 
+            } else if (entry.getType().equals(Type.ADDITION)){
+                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
+                    LOGGER.logError("File " + entry.getPath() + " does already exist on filesystem eventhough the git-diff file used has an addition entry for it.");
+                    preconditionsMet = false;
+                }
             }
         }
         return preconditionsMet;
@@ -138,50 +107,21 @@ public class FileReplacingDiffApplier extends DiffApplier {
      */
     private boolean checkRevertPreconditions() {
         boolean preconditionsMet = true;
+
         for (FileEntry entry : diffFile.getEntries()) {
-            // only consider additions and modifications. Added and modified
-            // files should be present after the diff was applied. Deleted files
-            // however are no longer on the filesystem.
             if (entry.getType().equals(Type.ADDITION)
                 || entry.getType().equals(Type.MODIFICATION)) {
-
-                try {
-                    // Read file from disk
-                    List<String> fileOnDisk = Files.readAllLines(
-                        filesStorageDir.toPath().resolve(entry.getPath()));
-                    // Read expected file contents from diff file
-                    List<String> fileInDiff = new ArrayList<String>();
-                    for (Lines lines : entry.getLines()) {
-                        if (lines.getType().equals(Lines.LineType.UNMODIFIED)
-                            || lines.getType().equals(Lines.LineType.ADDED)) {
-                            for (String line : lines.getContent()
-                                .split("\\r?\\n", -1)) {
-                                fileInDiff.add(line);
-                            }
-                        }
-                    }
-
-                    // Ignore empty lines
-                    fileInDiff.removeAll(Arrays.asList(""));
-                    fileOnDisk.removeAll(Arrays.asList(""));
-                    
-                    // Check if expected content matches actual content
-                    if (!fileInDiff.equals(fileOnDisk)) {
-                        LOGGER.logError("File contents of file "
-                            + entry.getPath()
-                            + " do not match contents described in diff file.");
-                        LOGGER.logInfo(Arrays.toString(fileInDiff.toArray()));
-                        LOGGER.logInfo(Arrays.toString(fileOnDisk.toArray()));
-                        preconditionsMet = false;
-                    }
-                } catch (IOException exc) {
-                    LOGGER.logException("Could not access file "
-                        + entry.getPath()
-                        + " but file is described as added or modified in diff.",
-                        exc);
+      
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
+                    LOGGER.logError("File " + entry.getPath() + " does not exist on filesystem eventhough the git-diff file used has a modification/addition entry for it.");
                     preconditionsMet = false;
                 }
 
+            } else if (entry.getType().equals(Type.DELETION)){
+                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
+                    LOGGER.logError("File " + entry.getPath() + " does already exist on filesystem eventhough the git-diff file used has an deletion entry for it.");
+                    preconditionsMet = false;
+                }
             }
         }
         return preconditionsMet;
