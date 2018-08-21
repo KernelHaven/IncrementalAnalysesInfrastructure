@@ -96,7 +96,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      */
     @Override
     protected void execute() {
-        DiffFile diffFile = new DiffFileParser().parse(config
+        DiffFile diffFile = DiffFileParser.parse(config
             .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
 
         HybridCache hybridCache = new HybridCache(config
@@ -194,7 +194,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         for (FileEntry entry : diffFile.getEntries()) {
             // only update lines for entries that were modifications and
             // were not already covered by the extraction process.
-            if (entry.getType().equals(FileEntry.Type.MODIFICATION)
+            if (entry.getType().equals(FileEntry.FileChange.MODIFICATION)
                 && !extractedPaths.contains(entry.getPath())) {
                 SourceFile srcFile =
                     hybridCache.readCm(entry.getPath().toFile());
@@ -323,7 +323,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         // delete all models corresponding to deleted files
         for (FileEntry entry : diffFile.getEntries()) {
-            if (entry.getType().equals(FileEntry.Type.DELETION)) {
+            if (entry.getType().equals(FileEntry.FileChange.DELETION)) {
                 try {
                     LOGGER.logDebug("Deleting model because of "
                         + FileEntry.class.getSimpleName() + entry);

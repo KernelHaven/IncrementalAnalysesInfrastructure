@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class LineCounterTest.
  * @author moritz
@@ -16,6 +17,11 @@ import org.junit.Test;
 public class LineCounterTest {
 
 
+    /**
+     * Test get new line number huge memory.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     // CHECKSTYLE:OFF
     public void testGetNewLineNumber_huge_memory() throws IOException {
@@ -34,6 +40,11 @@ public class LineCounterTest {
 
     }
     
+    /**
+     * Test get new line number ec.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     // CHECKSTYLE:OFF
     public void testGetNewLineNumber_ec() throws IOException {

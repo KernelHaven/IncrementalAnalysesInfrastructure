@@ -29,7 +29,7 @@ public class SimpleDiffAnalyzer extends DiffAnalyzer {
     @Override
     public DiffFile generateDiffFile(File file) throws IOException {
 
-        return new DiffFileParser().parse(file);
+        return DiffFileParser.parse(file);
     }
 
 }

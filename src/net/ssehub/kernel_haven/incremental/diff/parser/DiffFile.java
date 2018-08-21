@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
+// TODO: Auto-generated Javadoc
 /**
  * This class represents changes extracted from a diff-file.
  * 
@@ -22,14 +23,14 @@ public class DiffFile {
      * Instantiates a new diff file reader. The file passed to this constructor
      * must be a git diff file.
      *
-     * @param changeSet
-     *            the change set
+     * @param fileEntries
+     *            the file entries
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
     public DiffFile(@NonNull Collection<FileEntry> fileEntries)
         throws IOException {
-        for (FileEntry entry: fileEntries) {
+        for (FileEntry entry : fileEntries) {
             this.changeSet.put(entry.getPath(), entry);
         }
     }
@@ -43,10 +44,22 @@ public class DiffFile {
         return this.changeSet.values();
     }
 
+    /**
+     * Gets the entry.
+     *
+     * @param file
+     *            the file
+     * @return the entry
+     */
     public FileEntry getEntry(Path file) {
         return this.changeSet.get(file);
     }
 
+    /**
+     * Hash code.
+     *
+     * @return the int
+     */
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -55,23 +68,32 @@ public class DiffFile {
         return result;
     }
 
+    /**
+     * Equals.
+     *
+     * @param obj
+     *            the obj
+     * @return true, if successful
+     */
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DiffFile other = (DiffFile) obj;
         if (changeSet == null) {
-            if (other.changeSet != null)
+            if (other.changeSet != null) {
                 return false;
-        } else if (!changeSet.equals(other.changeSet))
+            }
+        } else if (!changeSet.equals(other.changeSet)) {
             return false;
+        }
         return true;
     }
-
-
-
 
 }

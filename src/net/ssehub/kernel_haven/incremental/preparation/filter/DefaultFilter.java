@@ -67,7 +67,7 @@ public class DefaultFilter extends InputFilter {
         if (includeDeletions) {
             diffFile.getEntries().stream()
                 .filter(
-                    entry -> entry.getType().equals(FileEntry.Type.DELETION))
+                    entry -> entry.getType().equals(FileEntry.FileChange.DELETION))
                 .forEach(entry -> paths.add(entry.getPath()));
         }
 

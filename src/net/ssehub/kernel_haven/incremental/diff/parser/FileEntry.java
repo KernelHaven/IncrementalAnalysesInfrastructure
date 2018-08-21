@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.incremental.diff.parser;
 import java.nio.file.Path;
 import java.util.List;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents an entry for a file in the changeset. Used by {@link DiffFile} to
  * describe changes for a git-diff-file.
@@ -15,7 +16,7 @@ public class FileEntry {
      * Type of change in terms of file operation. Changes of variability are
      * reflected by {@link VariabilityChange}
      */
-    public enum Type {
+    public enum FileChange {
 
     /** Modification of a file. */
     MODIFICATION,
@@ -54,10 +55,11 @@ public class FileEntry {
     /** The file. */
     private Path file;
 
+    /** The lines. */
     private List<Lines> lines;
 
     /** The type. */
-    private Type type;
+    private FileChange type;
 
     /** The variability change. */
     private VariabilityChange variabilityChange;
@@ -71,9 +73,11 @@ public class FileEntry {
      *            the type
      * @param variabilityChange
      *            the variability change
+     * @param lines
+     *            the lines
      */
-    public FileEntry(Path file, Type type, VariabilityChange variabilityChange,
-        List<Lines> lines) {
+    public FileEntry(Path file, FileChange type,
+        VariabilityChange variabilityChange, List<Lines> lines) {
         this.file = file;
         this.type = type;
         this.variabilityChange = variabilityChange;
@@ -88,7 +92,7 @@ public class FileEntry {
      * @param type
      *            the type
      */
-    public FileEntry(Path file, Type type) {
+    public FileEntry(Path file, FileChange type) {
         this.file = file;
         this.type = type;
         this.variabilityChange = VariabilityChange.NOT_ANALYZED;
@@ -108,7 +112,7 @@ public class FileEntry {
      *
      * @return the type
      */
-    public Type getType() {
+    public FileChange getType() {
         return type;
     }
 
@@ -121,12 +125,20 @@ public class FileEntry {
         return variabilityChange;
     }
 
+    /**
+     * Gets the lines.
+     *
+     * @return the lines
+     */
     public List<Lines> getLines() {
         return lines;
     }
-    
-    
 
+    /**
+     * Hash code.
+     *
+     * @return the int
+     */
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -138,32 +150,46 @@ public class FileEntry {
         return result;
     }
 
+    /**
+     * Equals.
+     *
+     * @param obj
+     *            the obj
+     * @return true, if successful
+     */
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         FileEntry other = (FileEntry) obj;
         if (file == null) {
-            if (other.file != null)
+            if (other.file != null) {
                 return false;
-        } else if (!file.equals(other.file))
+            }
+        } else if (!file.equals(other.file)) {
             return false;
+        }
         if (lines == null) {
-            if (other.lines != null)
+            if (other.lines != null) {
                 return false;
-        } else if (!lines.equals(other.lines))
+            }
+        } else if (!lines.equals(other.lines)) {
             return false;
-        if (type != other.type)
+        }
+        if (type != other.type) {
             return false;
-        if (variabilityChange != other.variabilityChange)
+        }
+        if (variabilityChange != other.variabilityChange) {
             return false;
+        }
         return true;
     }
-
-
 
     /**
      * The Class Lines.
@@ -175,11 +201,8 @@ public class FileEntry {
         /** The type. */
         private LineType type;
 
+        /** The content. */
         private String content;
-
-        public String getContent() {
-            return content;
-        }
 
         /**
          * Instantiates a new lines.
@@ -188,6 +211,8 @@ public class FileEntry {
          *            the type
          * @param count
          *            the count
+         * @param content
+         *            the content
          */
         public Lines(LineType type, int count, String content) {
             this.type = type;
@@ -195,6 +220,20 @@ public class FileEntry {
             this.content = content;
         }
 
+        /**
+         * Gets the content.
+         *
+         * @return the content
+         */
+        public String getContent() {
+            return content;
+        }
+
+        /**
+         * To string.
+         *
+         * @return the string
+         */
         public String toString() {
             return "Lines [count=" + count + ", type=" + type + "]";
         }
@@ -231,6 +270,11 @@ public class FileEntry {
             return count;
         }
 
+        /**
+         * Hash code.
+         *
+         * @return the int
+         */
         public int hashCode() {
             final int prime = 31;
             int result = 1;
@@ -241,26 +285,39 @@ public class FileEntry {
             return result;
         }
 
+        /**
+         * Equals.
+         *
+         * @param obj
+         *            the obj
+         * @return true, if successful
+         */
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             Lines other = (Lines) obj;
             if (content == null) {
-                if (other.content != null)
+                if (other.content != null) {
                     return false;
-            } else if (!content.equals(other.content))
+                }
+            } else if (!content.equals(other.content)) {
                 return false;
-            if (count != other.count)
+            }
+            if (count != other.count) {
                 return false;
-            if (type != other.type)
+            }
+            if (type != other.type) {
                 return false;
+            }
             return true;
         }
-        
 
     }
 

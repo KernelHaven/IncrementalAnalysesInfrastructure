@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 
+// TODO: Auto-generated Javadoc
 /**
  * Utility class for performing various actions with folders.
  * 
@@ -73,7 +74,7 @@ public class FolderUtil {
                 File correspondingFileInB = folderB.toPath()
                     .resolve(folderA.toPath().relativize(folderAFile.toPath()))
                     .toFile();
-                equals = FileUtil.fileContentIsEqual(folderAFile,
+                equals = FileUtil.textContentIsEqual(folderAFile,
                     correspondingFileInB);
                 if (!equals) {
                     break;
@@ -86,8 +87,8 @@ public class FolderUtil {
     /**
      * Delete folder contents.
      *
-     * @param folder
-     *            the folder
+     * @param folder            the folder
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public static void deleteFolderContents(File folder) throws IOException {
         deleteFolder(folder, false);
@@ -96,8 +97,8 @@ public class FolderUtil {
     /**
      * Delete folder.
      *
-     * @param folder
-     *            the folder
+     * @param folder            the folder
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public static void deleteFolder(File folder) throws IOException {
         deleteFolder(folder, true);
@@ -106,10 +107,9 @@ public class FolderUtil {
     /**
      * Delete folder.
      *
-     * @param folder
-     *            the folder
-     * @param deleteRootFolder
-     *            the delete root folder
+     * @param folder            the folder
+     * @param deleteRootFolder            the delete root folder
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     private static void deleteFolder(File folder, boolean deleteRootFolder)
         throws IOException {
@@ -161,7 +161,7 @@ public class FolderUtil {
             // content is
             // not equal add it to the list of changed files
             if (!fileInRefDir.exists()
-                || !FileUtil.fileContentIsEqual(fileInRefDir, fileInNewDir)) {
+                || !FileUtil.textContentIsEqual(fileInRefDir, fileInNewDir)) {
                 if (absolutePaths) {
                     newOrChangedFiles.add(fileInNewDir);
                 } else {

@@ -52,8 +52,8 @@ public class ChangeFilter extends InputFilter {
         Collection<Path> paths = new ArrayList<Path>();
         for (FileEntry entry : diffFile.getEntries()) {
             if (includeDeletions
-                || entry.getType().equals(FileEntry.Type.ADDITION)
-                || entry.getType().equals(FileEntry.Type.MODIFICATION)) {
+                || entry.getType().equals(FileEntry.FileChange.ADDITION)
+                || entry.getType().equals(FileEntry.FileChange.MODIFICATION)) {
                 paths.add(entry.getPath());
             }
         }

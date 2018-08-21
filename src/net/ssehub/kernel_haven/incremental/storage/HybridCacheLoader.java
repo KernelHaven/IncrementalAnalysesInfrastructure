@@ -11,6 +11,7 @@ import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
+// TODO: Auto-generated Javadoc
 /**
  * This class is an {@link AnalysisComponent} which provides access to an
  * existing HybridCache. {@link HybridCacheLoader} is meant to enable the
@@ -26,6 +27,15 @@ public class HybridCacheLoader extends AnalysisComponent<HybridCache> {
     /** The config. */
     private Configuration config;
 
+    /**
+     * Instantiates a new hybrid cache loader.
+     *
+     * @param config the config
+     * @param cmComponent the cm component
+     * @param bmComponent the bm component
+     * @param vmComponent the vm component
+     * @throws SetUpException the set up exception
+     */
     public HybridCacheLoader(Configuration config,
         AnalysisComponent<SourceFile> cmComponent,
         AnalysisComponent<BuildModel> bmComponent,
@@ -35,6 +45,9 @@ public class HybridCacheLoader extends AnalysisComponent<HybridCache> {
         IncrementalAnalysisSettings.registerAllSettings(config);
     }
 
+    /**
+     * Execute.
+     */
     /*
      * (non-Javadoc)
      * 

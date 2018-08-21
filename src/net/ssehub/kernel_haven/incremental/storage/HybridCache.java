@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
 
+// TODO: Auto-generated Javadoc
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
  * the models. Starting off with the previously present model (an empty model is
@@ -119,10 +120,10 @@ public class HybridCache {
     }
 
     /** Subpaths for all files representing the build-model cache. */
-    private static final Path[] BM_CACHE_FILES = { Paths.get("bmCache") };
+    private static final Path[] BM_CACHE_FILES = {Paths.get("bmCache") };
 
     /** Subpaths for all files representing the variability-model cache. */
-    private static final Path[] VM_CACHE_FILES = { Paths.get("vmCache") };
+    private static final Path[] VM_CACHE_FILES = {Paths.get("vmCache") };
 
     /** The current folder. */
     private File currentFolder;
@@ -284,6 +285,13 @@ public class HybridCache {
         }
     }
 
+    /**
+     * Gets the flag file.
+     *
+     * @param cacheFile the cache file
+     * @param flag the flag
+     * @return the flag file
+     */
     private File getFlagFile(File cacheFile, ChangeFlag flag) {
         String fileNameInCache = flag.toString() + "/" + cacheFile.getPath();
         File flagFile =
@@ -317,12 +325,24 @@ public class HybridCache {
         currentVmCache.write(vmModel);
     }
 
+    /**
+     * Flag build model.
+     *
+     * @param flag the flag
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     public void flagBuildModel(ChangeFlag flag) throws IOException {
         for (Path bmCacheFile : BM_CACHE_FILES) {
             flag(bmCacheFile.toFile(), flag);
         }
     }
 
+    /**
+     * Flag variability model.
+     *
+     * @param flag the flag
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     public void flagVariabilityModel(ChangeFlag flag) throws IOException {
         for (Path vmCacheFile : VM_CACHE_FILES) {
             flag(vmCacheFile.toFile(), flag);
@@ -622,6 +642,14 @@ public class HybridCache {
         return sourceFiles;
     }
 
+    /**
+     * Read cm.
+     *
+     * @param paths the paths
+     * @return the collection
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws FormatException the format exception
+     */
     public Collection<SourceFile> readCm(Collection<File> paths)
         throws IOException, FormatException {
         Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
@@ -754,6 +782,11 @@ public class HybridCache {
 
     }
 
+    /**
+     * Gets the vm flags.
+     *
+     * @return the vm flags
+     */
     public Collection<ChangeFlag> getVmFlags() {
         Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
         for (ChangeFlag flag : ChangeFlag.values()) {
@@ -771,6 +804,11 @@ public class HybridCache {
         return flags;
     }
 
+    /**
+     * Gets the bm flags.
+     *
+     * @return the bm flags
+     */
     public Collection<ChangeFlag> getBmFlags() {
         Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
         for (ChangeFlag flag : ChangeFlag.values()) {
@@ -788,6 +826,13 @@ public class HybridCache {
         return flags;
     }
 
+    /**
+     * Gets the flags.
+     *
+     * @param sourceFile the source file
+     * @param flags the flags
+     * @return the flags
+     */
     public Collection<ChangeFlag> getFlags(@NonNull SourceFile sourceFile,
         ChangeFlag... flags) {
         Collection<ChangeFlag> changeFlags = new ArrayList<ChangeFlag>();

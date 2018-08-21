@@ -41,7 +41,7 @@ public class DiffFileTest {
         DiffFile diffFile = new SimpleDiffAnalyzer().generateDiffFile(GIT_DIFF);
         Collection<Path> paths = new ArrayList<Path>();
         for (FileEntry entry : diffFile.getEntries()) {
-            if (entry.getType().equals(FileEntry.Type.MODIFICATION)) {
+            if (entry.getType().equals(FileEntry.FileChange.MODIFICATION)) {
                 paths.add(entry.getPath());
             }
         }

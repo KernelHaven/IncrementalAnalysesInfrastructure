@@ -3,11 +3,12 @@
  */
 package net.ssehub.kernel_haven.incremental.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Scanner;
 
 // TODO: Auto-generated Javadoc
@@ -19,7 +20,8 @@ import java.util.Scanner;
 public class FileUtil {
 
     /**
-     * Checks whether file content is equal.
+     * Checks whether the text content of a file is equal by checking all lines
+     * individually.
      *
      * @param fileA
      *            the file A
@@ -29,9 +31,10 @@ public class FileUtil {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public static boolean fileContentIsEqual(File fileA, File fileB)
+    public static boolean textContentIsEqual(File fileA, File fileB)
         throws IOException {
-        return Files.readAllLines(fileA.toPath()).equals(Files.readAllLines(fileB.toPath()));
+        return Files.readAllLines(fileA.toPath())
+            .equals(Files.readAllLines(fileB.toPath()));
     }
 
     /**
@@ -80,15 +83,34 @@ public class FileUtil {
     }
 
     /**
-     * Check if path matches any of the provided suffixes.
+     * Checks if is empty file.
      *
      * @param file the file
-     * @param suffixes the suffixes
+     * @return true, if is empty file
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    public static boolean isEmptyFile(File file) throws IOException {
+        boolean isEmpty = false;
+        BufferedReader br =
+            new BufferedReader(new FileReader(file));
+        if (br.readLine() == null) {
+            isEmpty = true;
+        }
+        br.close();
+        return isEmpty;
+    }
+
+    /**
+     * Check if path matches any of the provided suffixes.
+     *
+     * @param file
+     *            the file
+     * @param suffixes
+     *            the suffixes
      * @return true, if successful
      */
     public static boolean fileMatchesSuffix(File file, String[] suffixes) {
 
-        
         boolean matches = false;
         int i = 0;
         while (i < suffixes.length && !matches) {

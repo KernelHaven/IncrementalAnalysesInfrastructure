@@ -156,7 +156,7 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
         // for a single file
         List<String> diffList = createDiffList(file);
         for (String diff : diffList) {
-            FileEntry.Type type = null;
+            FileEntry.FileChange type = null;
             FileEntry.VariabilityChange change =
                 FileEntry.VariabilityChange.NOT_ANALYZED;
             String filePath = null;
@@ -175,11 +175,11 @@ public class VariabilityDiffAnalyzer extends DiffAnalyzer {
                     LOGGER.logDebug("Analyzing commit entry for file "
                         + filePath.toString());
                     if (nextLine.startsWith("new file mode")) {
-                        type = FileEntry.Type.ADDITION;
+                        type = FileEntry.FileChange.ADDITION;
                     } else if (nextLine.startsWith("deleted file mode")) {
-                        type = FileEntry.Type.DELETION;
+                        type = FileEntry.FileChange.DELETION;
                     } else {
-                        type = FileEntry.Type.MODIFICATION;
+                        type = FileEntry.FileChange.MODIFICATION;
                     }
                     break;
                 }

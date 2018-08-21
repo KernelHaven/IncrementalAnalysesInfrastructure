@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
+// TODO: Auto-generated Javadoc
 /**
  * Special adapter class to enable any pipeline-analysis to run as an
  * incremental analysis.
@@ -121,6 +122,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         this(config, inputComponent, CodeModelProcessing.COMPLETE);
     }
 
+    /**
+     * Handle code model.
+     *
+     * @param data the data
+     * @return the collection
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws FormatException the format exception
+     */
     private Collection<SourceFile> handleCodeModel(HybridCache data)
         throws IOException, FormatException {
         Collection<SourceFile> codeModel;
@@ -137,6 +146,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         return codeModel;
     }
 
+    /**
+     * Execute.
+     */
     /*
      * (non-Javadoc)
      * 
@@ -204,6 +216,11 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         }
     }
 
+    /**
+     * Gets the result name.
+     *
+     * @return the result name
+     */
     /*
      * (non-Javadoc)
      * 
@@ -242,6 +259,9 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
             this.name = name;
         }
 
+        /**
+         * Execute.
+         */
         /*
          * (non-Javadoc)
          * 
@@ -275,6 +295,11 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
             this.addResult(result);
         }
 
+        /**
+         * Gets the result name.
+         *
+         * @return the result name
+         */
         /*
          * (non-Javadoc)
          * 

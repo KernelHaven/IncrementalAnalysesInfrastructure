@@ -4,17 +4,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.FileChange;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
-import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Type;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -32,38 +30,29 @@ public class FileReplacingDiffApplier extends DiffApplier {
     private final DiffFile diffFile;
 
     /**
-     * Instantiates a new {@link DiffApplyUtil}.
+     * Instantiates a new {@link FileReplacingDiffApplier}.
      *
      * @param filesStorageDir
      *            the files storage dir
      * @param diffFile
      *            the diff file
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
      */
-    public FileReplacingDiffApplier(File filesStorageDir, DiffFile diffFile)
-        throws IOException {
+    public FileReplacingDiffApplier(File filesStorageDir, DiffFile diffFile) {
         this.filesStorageDir = filesStorageDir;
         this.diffFile = diffFile;
     }
 
     /**
-     * Instantiates a new file replacing diff applier.
+     * The main method.
      *
-     * @param filesStorageDir
-     *            the files storage dir
-     * @param diffFile
-     *            the diff file
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @param args
+     *            the arguments
      */
-    public FileReplacingDiffApplier(File filesStorageDir, File diffFile) {
-        this.filesStorageDir = filesStorageDir;
-        LOGGER.logInfo("Initializing " + this.getClass().getSimpleName()
-            + ". Parsing git diff file.");
-        this.diffFile = new DiffFileParser().parse(diffFile);
-        LOGGER.logInfo("Initialization of  " + this.getClass().getSimpleName()
-            + " finished.");
+    public static void main(String[] args) {
+        DiffFile diffFile = DiffFileParser.parse(new File(args[0]));
+        DiffApplier applier =
+            new FileReplacingDiffApplier(new File(args[1]), diffFile);
+        applier.mergeChanges();
     }
 
     /**
@@ -75,23 +64,42 @@ public class FileReplacingDiffApplier extends DiffApplier {
     private boolean checkMergePreconditions() {
         boolean preconditionsMet = true;
 
-        // iterate over all entries within the diff file
+        // First handle deleted paths. Check if files that are to be deleted
+        // exist.
+        Set<Path> deletedPaths = new HashSet<Path>();
         for (FileEntry entry : diffFile.getEntries()) {
-            // only consider deletions and modifications. deleted and modified
-            // files should be present before applying the diff.
-            // We do not need to check for added files as those are not on
-            // the filesystem before the diff is applied.
-            if (entry.getType().equals(Type.DELETION)
-                || entry.getType().equals(Type.MODIFICATION)) {
-      
-                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
-                    LOGGER.logError("File " + entry.getPath() + " does not exist on filesystem eventhough the git-diff file used has a modification/deletion entry for it.");
+            if (entry.getType().equals(FileChange.DELETION)) {
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists()) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does not exist on filesystem eventhough the git-diff "
+                        + "file used has a modification/deletion entry for it.");
+                    preconditionsMet = false;
+                }
+                // make a list of deleted paths
+                deletedPaths.add(entry.getPath());
+            }
+        }
+
+        // Now handle modifications and additions
+        for (FileEntry entry : diffFile.getEntries()) {
+            if (entry.getType().equals(FileChange.MODIFICATION)) {
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists()) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does not exist on filesystem eventhough the git-diff "
+                        + "file used has a modification/deletion entry for it.");
                     preconditionsMet = false;
                 }
 
-            } else if (entry.getType().equals(Type.ADDITION)){
-                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
-                    LOGGER.logError("File " + entry.getPath() + " does already exist on filesystem eventhough the git-diff file used has an addition entry for it.");
+            } else if (entry.getType().equals(FileChange.ADDITION)) {
+                // if the file exists and has not been identified as deleted
+                // in the same diff file, this constitutes a conflict.
+                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists() && !deletedPaths.contains(entry.getPath())) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does already exist on filesystem eventhough the "
+                        + "git-diff file used has an addition entry for it.");
                     preconditionsMet = false;
                 }
             }
@@ -108,18 +116,38 @@ public class FileReplacingDiffApplier extends DiffApplier {
     private boolean checkRevertPreconditions() {
         boolean preconditionsMet = true;
 
+        Set<Path> addedPaths = new HashSet<Path>();
         for (FileEntry entry : diffFile.getEntries()) {
-            if (entry.getType().equals(Type.ADDITION)
-                || entry.getType().equals(Type.MODIFICATION)) {
-      
-                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
-                    LOGGER.logError("File " + entry.getPath() + " does not exist on filesystem eventhough the git-diff file used has a modification/addition entry for it.");
+            if (entry.getType().equals(FileChange.ADDITION)) {
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists()) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does not exist on filesystem eventhough the git-diff "
+                        + "file used has a modification/addition entry for it.");
                     preconditionsMet = false;
                 }
+                addedPaths.add(entry.getPath());
+            }
 
-            } else if (entry.getType().equals(Type.DELETION)){
-                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
-                    LOGGER.logError("File " + entry.getPath() + " does already exist on filesystem eventhough the git-diff file used has an deletion entry for it.");
+        }
+
+        for (FileEntry entry : diffFile.getEntries()) {
+            if (entry.getType().equals(FileChange.MODIFICATION)) {
+                if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists()) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does not exist on filesystem eventhough the git-diff "
+                        + "file used has a modification/addition entry for it.");
+                    preconditionsMet = false;
+                }
+            } else if (entry.getType().equals(FileChange.DELETION)) {
+                // if the file exists and has not been identified as added
+                // in the same diff file, this constitutes a conflict.
+                if (filesStorageDir.toPath().resolve(entry.getPath()).toFile()
+                    .exists() && !addedPaths.contains(entry.getPath())) {
+                    LOGGER.logError("File " + entry.getPath()
+                        + " does already exist on filesystem eventhough the git-diff "
+                        + "file used has an deletion entry for it.");
                     preconditionsMet = false;
                 }
             }
@@ -137,15 +165,26 @@ public class FileReplacingDiffApplier extends DiffApplier {
         boolean success = true;
         if (checkMergePreconditions()) {
             try {
+                // First handle deletions as sometimes files are described as
+                // deleted and then added through a diff file
                 for (FileEntry entry : diffFile.getEntries()) {
+                    if (entry.getType().equals(FileEntry.FileChange.DELETION)) {
+                        File fileInStorageDir = filesStorageDir.toPath()
+                            .resolve(entry.getPath()).toFile();
+                        fileInStorageDir.delete();
+                    }
+                }
 
+                for (FileEntry entry : diffFile.getEntries()) {
                     Path filePath = entry.getPath();
                     File fileInStorageDir =
                         filesStorageDir.toPath().resolve(filePath).toFile();
-                    if (entry.getType().equals(FileEntry.Type.ADDITION) || entry
-                        .getType().equals(FileEntry.Type.MODIFICATION)) {
+                    if (entry.getType().equals(FileEntry.FileChange.ADDITION)
+                        || entry.getType()
+                            .equals(FileEntry.FileChange.MODIFICATION)) {
                         // delete old file
-                        if (entry.getType().equals(FileEntry.Type.MODIFICATION)
+                        if (entry.getType()
+                            .equals(FileEntry.FileChange.MODIFICATION)
                             && fileInStorageDir.exists()) {
                             fileInStorageDir.delete();
                         }
@@ -157,17 +196,20 @@ public class FileReplacingDiffApplier extends DiffApplier {
                             new FileWriter(fileInStorageDir));
 
                         // write new file
+                        boolean firstLine = true;
                         for (Lines lines : entry.getLines()) {
                             if (lines.getType().equals(Lines.LineType.ADDED)
                                 || lines.getType()
                                     .equals(Lines.LineType.UNMODIFIED)) {
+                                if (!firstLine) {
+                                    writer.write("\n");
+                                } else {
+                                    firstLine = false;
+                                }
                                 writer.write(lines.getContent());
                             }
                         }
                         writer.close();
-                    } else if (entry.getType()
-                        .equals(FileEntry.Type.DELETION)) {
-                        fileInStorageDir.delete();
                     }
                 }
             } catch (IOException exc) {
@@ -197,18 +239,30 @@ public class FileReplacingDiffApplier extends DiffApplier {
         LOGGER.logInfo("Reverting changes described by git-diff file ... ");
         if (checkRevertPreconditions()) {
             try {
+                // First handle additions as sometimes files are described as
+                // deleted and then added through a diff file. Therefore
+                // to revert, we first have to delete the added file and then
+                // restore the deleted file.
+                for (FileEntry entry : diffFile.getEntries()) {
+                    if (entry.getType().equals(FileEntry.FileChange.ADDITION)) {
+                        File fileInStorageDir = filesStorageDir.toPath()
+                            .resolve(entry.getPath()).toFile();
+                        fileInStorageDir.delete();
+                    }
+                }
                 for (FileEntry entry : diffFile.getEntries()) {
                     Path filePath = entry.getPath();
                     File fileInStorageDir =
                         filesStorageDir.toPath().resolve(filePath).toFile();
-                    if (entry.getType().equals(FileEntry.Type.DELETION) || entry
-                        .getType().equals(FileEntry.Type.MODIFICATION)) {
+                    if (entry.getType().equals(FileEntry.FileChange.DELETION)
+                        || entry.getType()
+                            .equals(FileEntry.FileChange.MODIFICATION)) {
                         // delete old file
-                        if (entry.getType().equals(FileEntry.Type.MODIFICATION)
+                        if (entry.getType()
+                            .equals(FileEntry.FileChange.MODIFICATION)
                             && fileInStorageDir.exists()) {
                             fileInStorageDir.delete();
                         }
-
                         if (fileInStorageDir.getParentFile() != null) {
                             fileInStorageDir.getParentFile().mkdirs();
                         }
@@ -217,17 +271,20 @@ public class FileReplacingDiffApplier extends DiffApplier {
                         BufferedWriter writer = new BufferedWriter(
                             new FileWriter(fileInStorageDir));
 
+                        boolean firstLine = true;
                         for (Lines lines : entry.getLines()) {
                             if (lines.getType().equals(Lines.LineType.DELETED)
                                 || lines.getType()
                                     .equals(Lines.LineType.UNMODIFIED)) {
+                                if (!firstLine) {
+                                    writer.write("\n");
+                                } else {
+                                    firstLine = false;
+                                }
                                 writer.write(lines.getContent());
                             }
                         }
                         writer.close();
-                    } else if (entry.getType()
-                        .equals(FileEntry.Type.ADDITION)) {
-                        fileInStorageDir.delete();
                     }
                 }
             } catch (IOException exc) {

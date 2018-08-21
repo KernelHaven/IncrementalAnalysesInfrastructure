@@ -12,11 +12,17 @@ import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class LineParserTest.
  */
 public class LineInfoExtractorTest {
 
+    /**
+     * Test parse lines elements.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     // CHECKSTYLE:OFF
     public void testParse_linesElements() throws IOException {

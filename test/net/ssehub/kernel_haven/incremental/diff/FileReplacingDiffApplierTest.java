@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.incremental.diff.applier.FileReplacingDiffApplier;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
@@ -33,8 +34,6 @@ public class FileReplacingDiffApplierTest {
 
     /** The logger. */
     private static final Logger LOGGER = Logger.get();
-    
-    
 
     // CHECKSTYLE:OFF
     /**
@@ -58,8 +57,8 @@ public class FileReplacingDiffApplierTest {
 
         // Merge action
 
-        FileReplacingDiffApplier diffIntegration =
-            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration = new FileReplacingDiffApplier(
+            tempFolder.toFile(), new DiffFileParser().parse(DIFF_FILE));
 
         boolean success = diffIntegration.mergeChanges();
         Assert.assertTrue(success);
@@ -91,8 +90,8 @@ public class FileReplacingDiffApplierTest {
 
         // Merge action
 
-        FileReplacingDiffApplier diffIntegration =
-            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration = new FileReplacingDiffApplier(
+            tempFolder.toFile(), new DiffFileParser().parse(DIFF_FILE));
 
         boolean success = diffIntegration.mergeChanges();
 
@@ -123,8 +122,8 @@ public class FileReplacingDiffApplierTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        FileReplacingDiffApplier diffIntegration =
-            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration = new FileReplacingDiffApplier(
+            tempFolder.toFile(), new DiffFileParser().parse(DIFF_FILE));
 
         boolean success = diffIntegration.revertChanges();
         Assert.assertTrue("Merge successful ", success);
@@ -157,8 +156,8 @@ public class FileReplacingDiffApplierTest {
         Assert.assertTrue(DIFF_FILE.exists());
 
         // Revert action
-        FileReplacingDiffApplier diffIntegration =
-            new FileReplacingDiffApplier(tempFolder.toFile(), DIFF_FILE);
+        FileReplacingDiffApplier diffIntegration = new FileReplacingDiffApplier(
+            tempFolder.toFile(), new DiffFileParser().parse(DIFF_FILE));
 
         boolean success = diffIntegration.revertChanges();
         Assert.assertFalse(success);

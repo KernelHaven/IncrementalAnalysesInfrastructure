@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class LineCounter.
  * 
@@ -18,19 +19,14 @@ public class LineCounter {
 
 
     
+    /** The diff file. */
     private DiffFile diffFile;
 
     /**
      * Instantiates a new line counter.
      *
-     * @param gitDiffFile
-     *            the git diff file
-     * @param ignorePaths
-     *            list of paths to ignore
-     * @param fileInclusionRegex
-     *            defines which files to include
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @param gitDiffFile            the git diff file
+     * @throws IOException             Signals that an I/O exception has occurred.
      */
     public LineCounter(File gitDiffFile) throws IOException {
         diffFile =
@@ -38,6 +34,13 @@ public class LineCounter {
         
     }
 
+    /**
+     * Gets the new line number.
+     *
+     * @param file the file
+     * @param numberToAdjust the number to adjust
+     * @return the new line number
+     */
     public int getNewLineNumber(Path file, int numberToAdjust) {
         int adjustedLineNumber = 0;
 

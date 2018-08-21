@@ -7,15 +7,15 @@ import java.io.IOException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
+// TODO: Auto-generated Javadoc
 /**
  * Helper class used as an interface to "git apply". Requires git to be
  * installed on the system.
  * 
  * @author Moritz
  */
-public class GitDiffApplier extends DiffApplier{
+public class GitDiffApplier extends DiffApplier {
 
-    /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.get();
 
     /** The files storage dir. */

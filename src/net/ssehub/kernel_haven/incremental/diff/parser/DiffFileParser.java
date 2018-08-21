@@ -18,6 +18,7 @@ import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.util.Logger;
 
+// TODO: Auto-generated Javadoc
 /**
  * {@link net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser} is
  * used to extract information about changed lines from a given git diff file.
@@ -33,36 +34,25 @@ public class DiffFileParser {
     private static final String LINE_NUMBER_MATCH_PATTERN =
         "@@\\s*-(\\d*),?\\d*\\s*\\+\\d*,?\\d*\\s*@@(.*)";
 
+    /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.get();
-
-    /**
-     * Instantiates a new
-     * {@link net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser}
-     * 
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
-    public DiffFileParser() {
-
-    }
 
     /**
      * Parses the lines.
      *
      * @param commitFile
      *            the commit file
-     * @param ignorePaths
-     *            the ignore paths
-     * @param fileInclusionRegex
-     *            the file inclusion regex
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @return the diff file
      */
-    public DiffFile parse(File commitFile) {
+    // CHECKSTYLE:OFF
+    public static DiffFile parse(File commitFile) {
+        // CHECKSTYLE:ON
         DiffFile diffFile = null;
         try (BufferedReader br =
             new BufferedReader(new FileReader(commitFile))) {
 
+            // Reading four lines in total, as the fourth line contains
+            // information on whether the diff for the file was a binary diff
             String currentLine = br.readLine();
             String nextLine1 = br.readLine();
             String nextLine2 = br.readLine();
@@ -70,28 +60,31 @@ public class DiffFileParser {
 
             Collection<FileEntry> fileEntries = new ArrayList<FileEntry>();
 
+            // An outer loop finds the beginning of entries within the diff file
+            // An inner loop then processes the entries to extract information
+            // about which lines changed within the file described bty the entry
             while (nextLine1 != null) {
-                // only start processing diff
                 if (currentLine.startsWith(DIFF_START_PATTERN)
+                    && nextLine3 != null
                     && !nextLine3.startsWith("GIT binary patch")) {
                     String filePathString = currentLine.substring(
                         currentLine.indexOf("a/") + "a/".length(),
                         currentLine.indexOf(" b/"));
-                    FileEntry.Type type;
+                    FileEntry.FileChange type;
 
                     Path filePath = Paths.get(filePathString);
 
                     if (nextLine1.startsWith("new file mode")) {
-                        type = FileEntry.Type.ADDITION;
+                        type = FileEntry.FileChange.ADDITION;
                     } else if (nextLine1.startsWith("deleted file mode")) {
-                        type = FileEntry.Type.DELETION;
+                        type = FileEntry.FileChange.DELETION;
                         if (filePath == null) {
                             Logger.get().logDebug(
                                 "Deletion with no filepath : ", currentLine,
                                 nextLine1);
                         }
                     } else {
-                        type = FileEntry.Type.MODIFICATION;
+                        type = FileEntry.FileChange.MODIFICATION;
                     }
 
                     // Skip ahead until next diffEntry or end of file.
@@ -137,11 +130,13 @@ public class DiffFileParser {
      *
      * @param string
      *            the string
+     * @return the list
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
     // CHECKSTYLE:OFF
-    private List<Lines> parseChangeBlock(String string) throws IOException {
+    private static List<Lines> parseChangeBlock(String string)
+        throws IOException {
         // CHECKSTYLE:ON
         BufferedReader bufReader = new BufferedReader(new StringReader(string));
 
