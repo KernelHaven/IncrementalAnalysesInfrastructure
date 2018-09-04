@@ -3,22 +3,23 @@ package net.ssehub.kernel_haven.incremental.preparation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import diff.DiffAnalyzer;
 import net.ssehub.kernel_haven.IPreparation;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
+import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityChangeAnalyzer;
 import net.ssehub.kernel_haven.incremental.diff.applier.DiffApplier;
 import net.ssehub.kernel_haven.incremental.diff.applier.FileReplacingDiffApplier;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
+import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache;
@@ -43,23 +44,20 @@ public class IncrementalPreparation implements IPreparation {
     /**
      * Handle rollback.
      *
-     * @param gitApplyUtil
-     *            the git apply util
-     * @param config
-     *            the config
+     * @param diffApplier the git apply util
+     * @param config      the config
      */
-    private void handleRollback(DiffApplier gitApplyUtil,
-        Configuration config) {
+    private void handleRollback(DiffApplier diffApplier, Configuration config) {
 
         // Handle rollback
-        boolean revertSuccessful = gitApplyUtil.revertChanges();
-        HybridCache hybridCache = new HybridCache((File) config
-            .getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+        boolean revertSuccessful = diffApplier.revertChanges();
+        HybridCache hybridCache = new HybridCache(
+                (File) config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
         try {
             hybridCache.rollback();
         } catch (IOException e) {
             revertSuccessful = false;
-            LOGGER.logException("Could not revert changes in HybridCache.", e);
+            LOGGER.logException("Could not revert changes in " + HybridCache.class.getSimpleName(), e);
         }
 
         // Stop execution after rollback
@@ -68,14 +66,14 @@ public class IncrementalPreparation implements IPreparation {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException exc) {
-                // Never happens
+                Thread.currentThread().interrupt();
             }
             System.exit(0);
         } else {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException exc) {
-                // Never happens
+                Thread.currentThread().interrupt();
             }
             System.exit(1);
         }
@@ -90,8 +88,7 @@ public class IncrementalPreparation implements IPreparation {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * net.ssehub.kernel_haven.IPreparation#run(net.ssehub.kernel_haven.config.
+     * @see net.ssehub.kernel_haven.IPreparation#run(net.ssehub.kernel_haven.config.
      * Configuration)
      */
     @Override
@@ -100,21 +97,19 @@ public class IncrementalPreparation implements IPreparation {
 
         IncrementalAnalysisSettings.registerAllSettings(config);
 
-        File inputDiff = (File) config
-            .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
-        File inputSourceDir =
-            (File) config.getValue(DefaultSettings.SOURCE_TREE);
+        File inputDiff = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
+        File inputSourceDir = config.getValue(DefaultSettings.SOURCE_TREE);
 
+        LOGGER.logInfo("Reading diff file ...");
         DiffFile diffFile = readDiffFile(inputDiff);
+
         DiffApplier diffApplier = null;
         if (diffFile != null) {
-            diffApplier =
-                new FileReplacingDiffApplier(inputSourceDir, diffFile);
+            diffApplier = new FileReplacingDiffApplier(inputSourceDir, diffFile);
         } else {
             LOGGER.logError("Diff file " + inputDiff.getPath()
-                + " could not be read! Perhaps file is not a valid git-diff file.");
-            throw new SetUpException(
-                "Diff file could not be read! Perhaps file is not a valid git-diff file.");
+                    + " could not be read! Perhaps file is not a valid git-diff file.");
+            throw new SetUpException("Diff file could not be read! Perhaps file is not a valid git-diff file.");
         }
 
         // If this is a rollback execution, only a rollback and nothing more
@@ -130,26 +125,34 @@ public class IncrementalPreparation implements IPreparation {
             boolean mergeSuccessful = diffApplier.mergeChanges();
             // only continue if merge was successful
             if (!mergeSuccessful) {
-                LOGGER.logError(
-                    "Could not merge provided diff with existing input files!\n"
+                LOGGER.logError("Could not merge provided diff with existing input files!\n"
                         + "The diff-file must describe changes that can"
                         + " be applied to the set of input-files that are to be analyzed. \n"
                         + "Stopping execution of KernelHaven.");
-                throw new SetUpException(
-                    "Could not merge provided diff with existing input files!");
+                throw new SetUpException("Could not merge provided diff with existing input files!");
             } else {
-                DiffFile diffFileForFiltering = generateDiffFile(
-                    config.getValue(
-                        IncrementalAnalysisSettings.DIFF_ANALYZER_CLASS_NAME),
-                    inputDiff);
+                if (config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER)) {
+                    analyzeVariabilityChanges(
+                            config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER_CLASS_NAME), diffFile,
+                            config);
+                }
 
-                defineTargetsForExtraction(config, inputSourceDir,
-                    diffFileForFiltering);
+                // Define targets for extraction.
+                defineTargetsForExtraction(config, inputSourceDir, diffFile);
+
+                // Tell IncrementalPostExtraction which files got deleted. This is required so
+                // that the according models can be deleted.
+                List<String> deletedFiles = new ArrayList<>();
+                for (FileEntry entry : diffFile.getEntries()) {
+                    if (FileEntry.FileChange.DELETION.equals(entry.getType())) {
+                        deletedFiles.add(entry.getPath().toString());
+                    }
+                }
+                config.setValue(IncrementalAnalysisSettings.DELETED_FILES, deletedFiles);
 
                 // Overwrite setting to preemptively start extractors as
                 // extractors are only started when models need to be extracted.
-                config.setValue(
-                    DefaultSettings.ANALYSIS_PIPELINE_START_EXTRACTORS, false);
+                config.setValue(DefaultSettings.ANALYSIS_PIPELINE_START_EXTRACTORS, false);
 
             }
         }
@@ -157,8 +160,7 @@ public class IncrementalPreparation implements IPreparation {
         long totalTime = System.nanoTime() - start;
         // Finish and let KernelHaven run
         LOGGER.logDebug(this.getClass().getSimpleName() + " duration:"
-            + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS)
-            + "ms");
+                + TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS) + "ms");
     }
 
     /**
@@ -168,18 +170,15 @@ public class IncrementalPreparation implements IPreparation {
      * @return the diff file
      * @throws SetUpException the set up exception
      */
-    private DiffFile readDiffFile(File inputDiff)
-        throws SetUpException {
+    private DiffFile readDiffFile(File inputDiff) throws SetUpException {
         // Check if git diff file is empty. If an exception is thrown while
         // accessing the file, we also handle that here.
         boolean emptyFile = false;
         try {
             emptyFile = FileUtil.isEmptyFile(inputDiff);
         } catch (IOException exc) {
-            LOGGER.logException(
-                "Could not access file " + inputDiff.getPath() + "!", exc);
-            throw new SetUpException(
-                "Diff file could not be read! Make sure you have read access to the file.");
+            LOGGER.logException("Could not access file " + inputDiff.getPath() + "!", exc);
+            throw new SetUpException("Diff file could not be read! Make sure you have read access to the file.");
         }
 
         // Try to initialize a diff-applier with the parsed version of the diff
@@ -189,10 +188,8 @@ public class IncrementalPreparation implements IPreparation {
             diffFile = DiffFileParser.parse(inputDiff);
 
         } else {
-            LOGGER.logError("Diff file " + inputDiff.getPath()
-                + " is empty! No new changes...");
-            throw new SetUpException(
-                "Stopping execution as diff file was empty.");
+            LOGGER.logError("Diff file " + inputDiff.getPath() + " is empty! No new changes...");
+            throw new SetUpException("Stopping execution as diff file was empty.");
         }
         return diffFile;
     }
@@ -200,155 +197,112 @@ public class IncrementalPreparation implements IPreparation {
     /**
      * Define targets for extraction.
      *
-     * @param config the config
-     * @param inputSourceDir the input source dir
+     * @param config               the config
+     * @param inputSourceDir       the input source dir
      * @param diffFileForFiltering the diff file for filtering
      * @throws SetUpException the set up exception
      */
-    private void defineTargetsForExtraction(Configuration config,
-        File inputSourceDir, DiffFile diffFileForFiltering)
-        throws SetUpException {
+    private void defineTargetsForExtraction(Configuration config, File inputSourceDir, DiffFile diffFileForFiltering)
+            throws SetUpException {
         // Filter code model files
         Collection<Path> filteredPaths = filterInput(
-            config
-                .getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS),
-            inputSourceDir, diffFileForFiltering,
-            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
+                config.getValue(IncrementalAnalysisSettings.CODE_MODEL_FILTER_CLASS), inputSourceDir,
+                diffFileForFiltering, config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
 
         boolean extractCm = false;
         if (!filteredPaths.isEmpty()) {
             extractCm = true;
-            ArrayList<String> pathStrings = new ArrayList<String>();
+            ArrayList<String> pathStrings = new ArrayList<>();
             filteredPaths.forEach(path -> pathStrings.add(path.toString()));
             config.setValue(DefaultSettings.CODE_EXTRACTOR_FILES, pathStrings);
             // If no paths are included after filtering, the extraction
             // does not need to run
         }
 
-        config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL,
-            extractCm);
+        config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, extractCm);
 
         // Filter variability model files
-        filteredPaths = filterInput(
-            config.getValue(
-                IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
-            inputSourceDir, diffFileForFiltering,
-            config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX),
-            true);
+        filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS),
+                inputSourceDir, diffFileForFiltering, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX),
+                true);
         boolean extractVm = !filteredPaths.isEmpty();
-        config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL,
-            extractVm);
+        config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, extractVm);
 
         // Filter build model files
         if (extractVm) {
             // if vm was updated, always extract bm aswell as it depends
             // on the vm
-            config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL,
-                true);
+            config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, true);
         } else {
-            filteredPaths = filterInput(
-                config.getValue(
-                    IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
-                inputSourceDir, diffFileForFiltering,
-                config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX),
-                true);
+            filteredPaths = filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS),
+                    inputSourceDir, diffFileForFiltering, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX),
+                    true);
             boolean extractBm = !filteredPaths.isEmpty();
-            config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL,
-                extractBm);
+            config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
         }
     }
 
     /**
-     * Filters input using the class defined by filterClassName. This should be
-     * a class available in the classpath and implementing InputFilter.
+     * Filters input using the class defined by filterClassName. This should be a
+     * class available in the classpath and implementing InputFilter.
      *
-     * @param filterClassName
-     *            the filter class name
-     * @param inputSourceDir
-     *            the input source dir
-     * @param inputDiff
-     *            the input diff file
-     * @param regex
-     *            the regular expression describing which files to include
-     * @param includeDeletions
-     *            defines whether deletions are included
+     * @param filterClassName  the filter class name
+     * @param inputSourceDir   the input source dir
+     * @param inputDiff        the input diff file
+     * @param regex            the regular expression describing which files to
+     *                         include
+     * @param includeDeletions defines whether deletions are included
      * @return the collection of resulting paths
-     * @throws SetUpException
-     *             the set up exception
+     * @throws SetUpException the set up exception
      */
-    protected Collection<Path> filterInput(String filterClassName,
-        File inputSourceDir, DiffFile inputDiff, Pattern regex,
-        boolean includeDeletions) throws SetUpException {
+    protected Collection<Path> filterInput(String filterClassName, File inputSourceDir, DiffFile inputDiff,
+            Pattern regex, boolean includeDeletions) throws SetUpException {
         Collection<Path> paths = null;
         // Call the method getFilteredResult for filterClassName via
         // reflection-api
         try {
-            Class<InputFilter> filterClass =
-                (Class<InputFilter>) Class.forName(filterClassName);
-            Object filterObject = filterClass.getConstructor(File.class,
-                DiffFile.class, Pattern.class, boolean.class).newInstance(
-                    inputSourceDir, inputDiff, regex, includeDeletions);
-            if (filterObject instanceof InputFilter) {
-                Method getFilteredResultMethod =
-                    filterClass.getMethod("getFilteredResult");
-                paths = (Collection<Path>) getFilteredResultMethod
-                    .invoke(filterObject);
-            } else {
-                throw new SetUpException(
-                    "The class name provided for the filter does not appear to extend the InputFilter class");
-            }
-
-        } catch (ClassNotFoundException | IllegalAccessException
-            | InstantiationException | NoSuchMethodException
-            | InvocationTargetException e) {
-            LOGGER.logException("The specified filter class could not be used",
-                e);
-            throw new SetUpException(
-                "The specified filter could not be used: " + e.getMessage());
+            Object filterObject = Class.forName(filterClassName)
+                    .getConstructor(File.class, DiffFile.class, Pattern.class, boolean.class)
+                    .newInstance(inputSourceDir, inputDiff, regex, includeDeletions);
+            InputFilter filter = InputFilter.class.cast(filterObject);
+            paths = filter.getFilteredResult();
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
+                | InvocationTargetException e) {
+            LOGGER.logException("The specified filter class could not be used", e);
+            throw new SetUpException("The specified filter could not be used: " + e.getMessage());
         }
         return paths;
 
     }
 
     /**
-     * Generates a {@link DiffFile} using the provided {@link DiffAnalyzer}
-     * class.
+     * Writes variability-information to a {@link DiffFile} using the provided
+     * {@link VariabilityChangeAnalyzer} class.
      *
-     * @param analyzerClassName
-     *            the analyzer class name
-     * @param inputGitDiff
-     *            the input git diff
-     * @return the collection
-     * @throws SetUpException
-     *             the set up exception
+     * @param analyzerClassName the analyzer class name
+     * @param diffFile          the diff file
+     * @param config            the config
+     * @throws SetUpException the set up exception
      */
     @SuppressWarnings("unchecked")
-    protected DiffFile generateDiffFile(String analyzerClassName,
-        File inputGitDiff) throws SetUpException {
-        DiffFile diffFile = null;
+    protected void analyzeVariabilityChanges(String analyzerClassName, DiffFile diffFile, Configuration config)
+            throws SetUpException {
         // Call the method getFilteredResult for filterClassName via
         // reflection-api
-        try {
-            Class<DiffAnalyzer> analyzerClass =
-                (Class<DiffAnalyzer>) Class.forName(analyzerClassName);
-            Object analyzerObject =
-                analyzerClass.getConstructor().newInstance();
-            Method getFilteredResultMethod =
-                analyzerClass.getMethod("generateDiffFile", File.class);
-            LOGGER.logInfo(
-                "Analyzing git-diff with " + analyzerClass.getSimpleName()
-                    + ". This may take a while for large git-diffs.");
-            diffFile = (DiffFile) getFilteredResultMethod.invoke(analyzerObject,
-                inputGitDiff);
 
-        } catch (ClassNotFoundException | IllegalAccessException
-            | InstantiationException | NoSuchMethodException
-            | InvocationTargetException e) {
-            throw new SetUpException("The specified DiffAnalyzer class \""
-                + analyzerClassName + "\" could not be used: "
-                + e.getClass().getName() + "\n" + e.getMessage());
+        try {
+            Class<VariabilityChangeAnalyzer> analyzerClass = (Class<VariabilityChangeAnalyzer>) Class
+                    .forName(analyzerClassName);
+            VariabilityChangeAnalyzer analyzer = VariabilityChangeAnalyzer.class
+                    .cast(analyzerClass.getConstructor().newInstance());
+            LOGGER.logInfo("Analyzing git-diff with " + analyzerClass.getSimpleName()
+                    + ". This may take a while for large git-diffs.");
+            analyzer.analyzeDiffFile(diffFile, config);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
+                | InvocationTargetException | IOException e) {
+            throw new SetUpException("The specified DiffAnalyzer class \"" + analyzerClassName
+                    + "\" could not be used successfully: " + e.getClass().getName() + "\n" + e.getMessage());
         }
-        return diffFile;
 
     }
 

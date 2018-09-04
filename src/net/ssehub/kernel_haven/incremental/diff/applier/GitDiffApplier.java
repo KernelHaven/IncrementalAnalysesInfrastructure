@@ -7,14 +7,14 @@ import java.io.IOException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * Helper class used as an interface to "git apply". Requires git to be
  * installed on the system.
  * 
  * @author Moritz
  */
-public class GitDiffApplier extends DiffApplier {
+@Deprecated
+public class GitDiffApplier implements DiffApplier {
 
     private static final Logger LOGGER = Logger.get();
 
@@ -27,10 +27,8 @@ public class GitDiffApplier extends DiffApplier {
     /**
      * Instantiates a new {@link DiffApplyUtil}.
      *
-     * @param filesStorageDir
-     *            the files storage dir
-     * @param inputDiff
-     *            the input diff
+     * @param filesStorageDir the files storage dir
+     * @param inputDiff       the input diff
      */
     public GitDiffApplier(File filesStorageDir, File inputDiff) {
         this.filesStorageDir = filesStorageDir;
@@ -47,21 +45,17 @@ public class GitDiffApplier extends DiffApplier {
 
         if (filesStorageDir.isDirectory() && inputDiff.isFile()) {
             LOGGER.logDebug(
-                "Executing external git command on working directory: "
-                    + this.filesStorageDir.getAbsolutePath(),
-                "git apply --no-index --ignore-space-change --ignore-whitespace "
-                    + inputDiff.getAbsolutePath());
-            ProcessBuilder processBuilder = new ProcessBuilder("git", "apply",
-                "--no-index", "--ignore-space-change", "--ignore-whitespace",
-                inputDiff.getAbsolutePath());
+                    "Executing external git command on working directory: " + this.filesStorageDir.getAbsolutePath(),
+                    "git apply --no-index --ignore-space-change --ignore-whitespace " + inputDiff.getAbsolutePath());
+            ProcessBuilder processBuilder = new ProcessBuilder("git", "apply", "--no-index", "--ignore-space-change",
+                    "--ignore-whitespace", inputDiff.getAbsolutePath());
             processBuilder.directory(filesStorageDir);
 
             ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
             ByteArrayOutputStream stderrStream = new ByteArrayOutputStream();
 
             try {
-                success = Util.executeProcess(processBuilder, "git apply",
-                    stdoutStream, stderrStream, 0);
+                success = Util.executeProcess(processBuilder, "git apply", stdoutStream, stderrStream, 0);
             } catch (IOException e) {
                 LOGGER.logException("Could not merge changes", e);
             }
@@ -70,11 +64,9 @@ public class GitDiffApplier extends DiffApplier {
             String stdout = stdoutStream.toString();
             if (stderr != null && !stderr.equals("")) {
                 if (!success) {
-                    LOGGER
-                        .logError(("git apply stderr:\n" + stderr).split("\n"));
+                    LOGGER.logError(("git apply stderr:\n" + stderr).split("\n"));
                 } else {
-                    LOGGER
-                        .logDebug(("git apply stderr:\n" + stderr).split("\n"));
+                    LOGGER.logDebug(("git apply stderr:\n" + stderr).split("\n"));
                 }
             }
 
@@ -98,21 +90,18 @@ public class GitDiffApplier extends DiffApplier {
 
         if (filesStorageDir.isDirectory() && inputDiff.isFile()) {
             LOGGER.logDebug(
-                "Executing external git command on working directory: "
-                    + this.filesStorageDir.getAbsolutePath(),
-                "git apply --no-index --reverse "
-                    + inputDiff.getAbsolutePath());
+                    "Executing external git command on working directory: " + this.filesStorageDir.getAbsolutePath(),
+                    "git apply --no-index --reverse " + inputDiff.getAbsolutePath());
 
-            ProcessBuilder processBuilder = new ProcessBuilder("git", "apply",
-                "--no-index", "--reverse", inputDiff.getAbsolutePath());
+            ProcessBuilder processBuilder = new ProcessBuilder("git", "apply", "--no-index", "--reverse",
+                    inputDiff.getAbsolutePath());
             processBuilder.directory(filesStorageDir);
 
             ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
             ByteArrayOutputStream stderrStream = new ByteArrayOutputStream();
 
             try {
-                success = Util.executeProcess(processBuilder,
-                    "git apply --reverse", stdoutStream, stderrStream, 0);
+                success = Util.executeProcess(processBuilder, "git apply --reverse", stdoutStream, stderrStream, 0);
             } catch (IOException e) {
                 LOGGER.logException("Could not revert changes", e);
             }
@@ -121,17 +110,14 @@ public class GitDiffApplier extends DiffApplier {
             String stdout = stdoutStream.toString();
             if (stderr != null && !stderr.equals("")) {
                 if (!success) {
-                    LOGGER.logError(
-                        ("git apply --reverse stderr:\n" + stderr).split("\n"));
+                    LOGGER.logError(("git apply --reverse stderr:\n" + stderr).split("\n"));
                 } else {
-                    LOGGER.logDebug(
-                        ("git apply --reverse stderr:\n" + stderr).split("\n"));
+                    LOGGER.logDebug(("git apply --reverse stderr:\n" + stderr).split("\n"));
                 }
             }
 
             if ((stdout != null && !stdout.equals(""))) {
-                LOGGER.logDebug(
-                    ("git apply --reverse stout:\n" + stdout).split("\n"));
+                LOGGER.logDebug(("git apply --reverse stout:\n" + stdout).split("\n"));
             }
 
         }

@@ -8,10 +8,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.Scanner;
 
-// TODO: Auto-generated Javadoc
 /**
  * Utility class for files.
  * 
@@ -20,36 +18,36 @@ import java.util.Scanner;
 public class FileUtil {
 
     /**
+     * Hides the implicit empty constructor.
+     */
+    private FileUtil() {
+
+    }
+
+    /**
      * Checks whether the text content of a file is equal by checking all lines
      * individually.
      *
-     * @param fileA
-     *            the file A
-     * @param fileB
-     *            the file B
+     * @param fileA the file A
+     * @param fileB the file B
      * @return true, if successful
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
-    public static boolean textContentIsEqual(File fileA, File fileB)
-        throws IOException {
-        return Files.readAllLines(fileA.toPath())
-            .equals(Files.readAllLines(fileB.toPath()));
+    public static boolean textContentIsEqual(File fileA, File fileB) throws IOException {
+        return FileUtil.readFile(fileA).equals(FileUtil.readFile(fileB));
     }
 
     /**
      * Read file content.
      *
-     * @param file
-     *            the file
+     * @param file the file
      * @return the string
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public static String readFile(File file) throws IOException {
         StringBuilder fileContents = new StringBuilder();
         Scanner scanner = new Scanner(file);
-        String lineSeparator = System.getProperty("line.separator");
+        String lineSeparator = "\n";
         try {
             while (scanner.hasNextLine()) {
                 fileContents.append(scanner.nextLine() + lineSeparator);
@@ -63,12 +61,9 @@ public class FileUtil {
     /**
      * Write file with content.
      *
-     * @param file
-     *            the file
-     * @param content
-     *            the content
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @param file    the file
+     * @param content the content
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public static void writeFile(File file, String content) throws IOException {
         if (file.exists()) {
@@ -91,22 +86,18 @@ public class FileUtil {
      */
     public static boolean isEmptyFile(File file) throws IOException {
         boolean isEmpty = false;
-        BufferedReader br =
-            new BufferedReader(new FileReader(file));
-        if (br.readLine() == null) {
-            isEmpty = true;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line = br.readLine();
+            isEmpty = line == null;
         }
-        br.close();
         return isEmpty;
     }
 
     /**
      * Check if path matches any of the provided suffixes.
      *
-     * @param file
-     *            the file
-     * @param suffixes
-     *            the suffixes
+     * @param file     the file
+     * @param suffixes the suffixes
      * @return true, if successful
      */
     public static boolean fileMatchesSuffix(File file, String[] suffixes) {

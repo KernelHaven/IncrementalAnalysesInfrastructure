@@ -12,7 +12,8 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityDiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
+import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**
@@ -26,32 +27,27 @@ public class ChangeFilterTest {
     private static final Logger LOGGER = Logger.get();
 
     /** The Constant MODIFIED_FOLDER. */
-    private static final File MODIFIED_FOLDER =
-        new File("testdata/changed-only/modified");
+    private static final File MODIFIED_FOLDER = new File("testdata/changed-only/modified");
 
     /** The Constant DIFF_FILE. */
-    private static final File DIFF_FILE =
-        new File("testdata/changed-only/git.diff");
+    private static final File DIFF_FILE = new File("testdata/changed-only/git.diff");
 
     /**
      * Tests whether the doFilter method works.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     public void testDoFilter() throws IOException {
-        ChangeFilter filter = new ChangeFilter(MODIFIED_FOLDER,
-            new VariabilityDiffAnalyzer().generateDiffFile(DIFF_FILE),
-            Pattern.compile(".*"), false);
+
+        DiffFile diffFile = DiffFileParser.parse(DIFF_FILE);
+
+        ChangeFilter filter = new ChangeFilter(MODIFIED_FOLDER, diffFile, Pattern.compile(".*"), false);
         Collection<Path> paths = filter.getFilteredResult();
         LOGGER.logInfo(Arrays.toString(paths.toArray()));
-        Assert.assertThat(paths,
-            CoreMatchers.hasItem(Paths.get("modify/Kbuild")));
-        Assert.assertThat(paths,
-            CoreMatchers.hasItem(Paths.get("modify/Kconfig")));
-        Assert.assertThat(paths,
-            CoreMatchers.hasItem(Paths.get("modify/a-code-file.c")));
+        Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kbuild")));
+        Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/Kconfig")));
+        Assert.assertThat(paths, CoreMatchers.hasItem(Paths.get("modify/a-code-file.c")));
 
     }
 

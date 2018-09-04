@@ -52,7 +52,7 @@ public class DefaultFilter extends InputFilter {
 
         Collection<File> files =
             FolderUtil.listRelativeFiles(sourceDirectory, true);
-        Collection<Path> paths = new ArrayList<Path>();
+        Collection<Path> paths = new ArrayList<>();
         for (File file : files) {
             paths.add(file.toPath());
         }

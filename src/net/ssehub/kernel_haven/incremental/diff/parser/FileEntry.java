@@ -1,9 +1,10 @@
 package net.ssehub.kernel_haven.incremental.diff.parser;
 
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
+import java.util.Set;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents an entry for a file in the changeset. Used by {@link DiffFile} to
  * describe changes for a git-diff-file.
@@ -40,14 +41,14 @@ public class FileEntry {
         NO_CHANGE,
 
         /**
-         * Indicates that the file was not considered to be a file carrying
-         * variability information.
+         * Indicates that the file was not considered to be a file carrying variability
+         * information.
          */
         NOT_A_VARIABILITY_FILE,
 
         /**
-         * Indicates that no analysis on variability information was performed
-         * on the file represented by this {@link FileEntry}.
+         * Indicates that no analysis on variability information was performed on the
+         * file represented by this {@link FileEntry}.
          */
         NOT_ANALYZED
     }
@@ -64,38 +65,69 @@ public class FileEntry {
     /** The variability change. */
     private VariabilityChange variabilityChange;
 
+    /** The permissions. */
+    private Set<PosixFilePermission> permissions;
+
+    /** The no new line at end of file. */
+    private boolean noNewLineAtEndOfFile;
+
     /**
      * Instantiates a new file entry.
      *
-     * @param file
-     *            the file
-     * @param type
-     *            the type
-     * @param variabilityChange
-     *            the variability change
-     * @param lines
-     *            the lines
+     * @param file              the file
+     * @param type              the type
+     * @param variabilityChange the variability change
+     * @param lines             the lines
+     * @param permissions       the permissions
      */
-    public FileEntry(Path file, FileChange type,
-        VariabilityChange variabilityChange, List<Lines> lines) {
+    public FileEntry(Path file, FileChange type, VariabilityChange variabilityChange, List<Lines> lines,
+            Set<PosixFilePermission> permissions) {
         this.file = file;
         this.type = type;
         this.variabilityChange = variabilityChange;
         this.lines = lines;
+        this.permissions = permissions;
     }
 
     /**
      * Instantiates a new file entry.
      *
-     * @param file
-     *            the file
-     * @param type
-     *            the type
+     * @param file the file
+     * @param type the type
      */
     public FileEntry(Path file, FileChange type) {
         this.file = file;
         this.type = type;
         this.variabilityChange = VariabilityChange.NOT_ANALYZED;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "FileEntry [file=" + file + ", lines=" + lines + ", type=" + type + ", variabilityChange="
+                + variabilityChange + ", permissions=" + permissions + "]";
+    }
+
+    /**
+     * Gets the permissions.
+     *
+     * @return the permissions
+     */
+    public Set<PosixFilePermission> getPermissions() {
+        return permissions;
+    }
+
+    /**
+     * Sets the variability change.
+     *
+     * @param variabilityChange the new variability change
+     */
+    public void setVariabilityChange(VariabilityChange variabilityChange) {
+        this.variabilityChange = variabilityChange;
     }
 
     /**
@@ -145,16 +177,14 @@ public class FileEntry {
         result = prime * result + ((file == null) ? 0 : file.hashCode());
         result = prime * result + ((lines == null) ? 0 : lines.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result
-            + ((variabilityChange == null) ? 0 : variabilityChange.hashCode());
+        result = prime * result + ((variabilityChange == null) ? 0 : variabilityChange.hashCode());
         return result;
     }
 
     /**
      * Equals.
      *
-     * @param obj
-     *            the obj
+     * @param obj the obj
      * @return true, if successful
      */
     public boolean equals(Object obj) {
@@ -207,12 +237,9 @@ public class FileEntry {
         /**
          * Instantiates a new lines.
          *
-         * @param type
-         *            the type
-         * @param count
-         *            the count
-         * @param content
-         *            the content
+         * @param type    the type
+         * @param count   the count
+         * @param content the content
          */
         public Lines(LineType type, int count, String content) {
             this.type = type;
@@ -278,8 +305,7 @@ public class FileEntry {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result =
-                prime * result + ((content == null) ? 0 : content.hashCode());
+            result = prime * result + ((content == null) ? 0 : content.hashCode());
             result = prime * result + count;
             result = prime * result + ((type == null) ? 0 : type.hashCode());
             return result;
@@ -288,8 +314,7 @@ public class FileEntry {
         /**
          * Equals.
          *
-         * @param obj
-         *            the obj
+         * @param obj the obj
          * @return true, if successful
          */
         public boolean equals(Object obj) {
@@ -321,4 +346,51 @@ public class FileEntry {
 
     }
 
+    /**
+     * Sets the {@link FileEntry.FileChange} of the file entry.
+     *
+     * @param type the new type
+     */
+    public void setType(FileChange type) {
+        this.type = type;
+
+    }
+
+    /**
+     * Adds lines to the existing list of lines.
+     *
+     * @param lines2add - the lines that are added.
+     */
+    public void addLines(List<Lines> lines2add) {
+        this.lines.addAll(lines2add);
+    }
+
+    /**
+     * Sets the permissions.
+     *
+     * @param permissions the new permissions
+     */
+    public void setPermissions(Set<PosixFilePermission> permissions) {
+        this.permissions = permissions;
+
+    }
+
+    /**
+     * Sets the information whether the file ends with a new line or not.
+     *
+     * @param noNewLineAtEndOfFile true if no new line
+     */
+    public void setNoNewLineAtEndOfFile(boolean noNewLineAtEndOfFile) {
+        this.noNewLineAtEndOfFile = noNewLineAtEndOfFile;
+
+    }
+
+    /**
+     * Checks whether the file ends with a no new line.
+     *
+     * @return true, if no new line
+     */
+    public boolean hasNoNewLineAtEndOfFile() {
+        return noNewLineAtEndOfFile;
+    }
 }

@@ -1,10 +1,12 @@
 package net.ssehub.kernel_haven.incremental.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -16,6 +18,7 @@ import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
+import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparation;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache.ChangeFlag;
 import net.ssehub.kernel_haven.util.FormatException;
@@ -50,21 +53,16 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Instantiates a new IncremenmtalPostExtraction.
      *
-     * @param config
-     *            the config
-     * @param cmComponent
-     *            the cm component
-     * @param bmComponent
-     *            the bm component
-     * @param vmComponent
-     *            the vm component
-     * @throws SetUpException
-     *             thrown if required parameters were not configured correctly.
+     * @param config      the config
+     * @param cmComponent the cm component
+     * @param bmComponent the bm component
+     * @param vmComponent the vm component
+     * @throws SetUpException thrown if required parameters were not configured
+     *                        correctly.
      */
-    public IncrementalPostExtraction(Configuration config,
-        AnalysisComponent<SourceFile> cmComponent,
-        AnalysisComponent<BuildModel> bmComponent,
-        AnalysisComponent<VariabilityModel> vmComponent) throws SetUpException {
+    public IncrementalPostExtraction(Configuration config, AnalysisComponent<SourceFile> cmComponent,
+            AnalysisComponent<BuildModel> bmComponent, AnalysisComponent<VariabilityModel> vmComponent)
+            throws SetUpException {
         super(config);
         this.config = config;
         IncrementalAnalysisSettings.registerAllSettings(config);
@@ -76,8 +74,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Try join thread.
      *
-     * @param thread
-     *            the thread
+     * @param thread the thread
      */
     private void tryJoinThread(Thread thread) {
         if (thread != null) {
@@ -96,17 +93,13 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      */
     @Override
     protected void execute() {
-        DiffFile diffFile = DiffFileParser.parse(config
-            .getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
 
-        HybridCache hybridCache = new HybridCache(config
-            .getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
-        
+        HybridCache hybridCache = new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+
         try {
             hybridCache.clearChangeHistory();
         } catch (IOException exc1) {
-            LOGGER.logException("Could not clear history for HybridCache ",
-                exc1);
+            LOGGER.logException("Could not clear history for HybridCache ", exc1);
         }
 
         // start threads for each model-type so they can run parallel
@@ -114,15 +107,14 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
             cmThread = new Thread() {
                 public void run() {
-                    codeModelExtraction(hybridCache, diffFile);
+                    codeModelExtraction(hybridCache, config.getValue(IncrementalAnalysisSettings.DELETED_FILES));
                 }
             };
             cmThread.start();
         }
 
         Thread vmThread = null;
-        if (config
-            .getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL)) {
+        if (config.getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL)) {
             vmThread = new Thread() {
                 public void run() {
                     variabilityModelExtraction(hybridCache);
@@ -148,10 +140,14 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         // Update code line information for files that were not extracted but
         // have changed
-        try {
-            updateCodeLineInformation(diffFile, hybridCache);
-        } catch (IllegalArgumentException | IOException | FormatException exc) {
-            LOGGER.logException("Could not update codelines for models", exc);
+        if (config.getValue(IncrementalAnalysisSettings.UPDATE_CODE_LINES)) {
+            try {
+                updateCodeLineInformation(
+                        DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
+                        hybridCache);
+            } catch (IllegalArgumentException | IOException | FormatException exc) {
+                LOGGER.logException("Could not update codelines for models", exc);
+            }
         }
 
         this.addResult(hybridCache);
@@ -160,47 +156,37 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Update code line information.
      *
-     * @param diffFile
-     *            the diff file
-     * @param hybridCache
-     *            the hybrid cache
-     * @throws IllegalArgumentException
-     *             the illegal argument exception
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FormatException
-     *             the format exception
+     * @param diffFile    the diff file
+     * @param hybridCache the hybrid cache
+     * @throws IllegalArgumentException the illegal argument exception
+     * @throws IOException              Signals that an I/O exception has occurred.
+     * @throws FormatException          the format exception
      */
-    private void updateCodeLineInformation(DiffFile diffFile,
-        HybridCache hybridCache)
-        throws IllegalArgumentException, IOException, FormatException {
+    private void updateCodeLineInformation(DiffFile diffFile, HybridCache hybridCache)
+            throws IllegalArgumentException, IOException, FormatException {
 
         // Create list of extracted paths as those are the paths that
         // do not need to be considered for line updates
-        Collection<SourceFile> extractedSourceFiles = hybridCache.readCm(
-            hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
-        Collection<Path> extractedPaths = new ArrayList<Path>();
-        extractedSourceFiles
-            .forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
+        Collection<SourceFile> extractedSourceFiles = hybridCache
+                .readCm(hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
+        Collection<Path> extractedPaths = new ArrayList<>();
+        extractedSourceFiles.forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
 
         // Initialize a lineCounter that parses the line information in the
         // git diff file but skips the paths defined by extractedPaths for
         // extraction
         // to yield better performance
-        LineCounter counter = new LineCounter(
-            config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
+        LineCounter counter = new LineCounter(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
 
         // iterate over all entries to the diff file
         for (FileEntry entry : diffFile.getEntries()) {
             // only update lines for entries that were modifications and
             // were not already covered by the extraction process.
             if (entry.getType().equals(FileEntry.FileChange.MODIFICATION)
-                && !extractedPaths.contains(entry.getPath())) {
-                SourceFile srcFile =
-                    hybridCache.readCm(entry.getPath().toFile());
+                    && !extractedPaths.contains(entry.getPath())) {
+                SourceFile srcFile = hybridCache.readCm(entry.getPath().toFile());
                 if (srcFile != null) {
-                    Logger.get().logDebug(
-                        "Updating lines for file: " + entry.getPath());
+                    Logger.get().logDebug("Updating lines for file: " + entry.getPath());
                     // Iterate over sourcefile and update line numbers
                     Iterator<CodeElement> itr = srcFile.iterator();
 
@@ -221,13 +207,10 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Update line numbers for element.
      *
-     * @param counter
-     *            the counter
-     * @param element
-     *            the element
+     * @param counter the counter
+     * @param element the element
      */
-    private void updateLineNumbersForElement(LineCounter counter,
-        CodeElement element) {
+    private void updateLineNumbersForElement(LineCounter counter, CodeElement element) {
 
         for (CodeElement nested : element.iterateNestedElements()) {
             updateLineNumbersForElement(counter, nested);
@@ -238,8 +221,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         int previousEnd = element.getLineEnd();
 
         if (previousStart >= 0) {
-            int newStart =
-                counter.getNewLineNumber(sourceFilePath, previousStart);
+            int newStart = counter.getNewLineNumber(sourceFilePath, previousStart);
             element.setLineStart(newStart);
         }
         if (previousEnd >= 0) {
@@ -252,8 +234,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Variability model extraction.
      *
-     * @param hybridCache
-     *            the hybrid cache to write the extracated results to.
+     * @param hybridCache the hybrid cache to write the extracated results to.
      */
     private void variabilityModelExtraction(HybridCache hybridCache) {
         VariabilityModel variabilityModel;
@@ -264,16 +245,14 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 hybridCache.write(variabilityModel);
                 hybridCache.flagVariabilityModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
-                LOGGER.logException("Could not write variability-model to "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not write variability-model to " + HybridCache.class.getSimpleName(), e);
             }
         } else {
             try {
                 hybridCache.deleteVariabilityModel();
                 hybridCache.flagVariabilityModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
-                LOGGER.logException("Could not delete variability-model from "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not delete variability-model from " + HybridCache.class.getSimpleName(), e);
             }
         }
     }
@@ -281,8 +260,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
     /**
      * Build model extraction.
      *
-     * @param hybridCache
-     *            the hybrid cache to write the extracated results to.
+     * @param hybridCache the hybrid cache to write the extracated results to.
      */
     private void buildModelExtraction(HybridCache hybridCache) {
         BuildModel buildModel;
@@ -293,50 +271,39 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 hybridCache.write(buildModel);
                 hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
-                LOGGER.logException("Could not write build-model to "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not write build-model to " + HybridCache.class.getSimpleName(), e);
             }
         } else {
             try {
                 hybridCache.deleteBuildModel();
                 hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
-                LOGGER.logException("Could not delete build-model from "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not delete build-model from " + HybridCache.class.getSimpleName(), e);
             }
         }
     }
 
-
-
     /**
      * Code model extraction.
      *
-     * @param hybridCache
-     *            the hybrid cache to write the extracted results to.
-     * @param diffFile
-     *            the diff file
+     * @param hybridCache  the hybrid cache to write the extracted results to.
+     * @param deletedFiles the deleted files
      */
-    private void codeModelExtraction(HybridCache hybridCache,
-        DiffFile diffFile) {
+    private void codeModelExtraction(HybridCache hybridCache, List<String> deletedFiles) {
         SourceFile file;
 
         // delete all models corresponding to deleted files
-        for (FileEntry entry : diffFile.getEntries()) {
-            if (entry.getType().equals(FileEntry.FileChange.DELETION)) {
-                try {
-                    LOGGER.logDebug("Deleting model because of "
-                        + FileEntry.class.getSimpleName() + entry);
-                    hybridCache.deleteCodeModel(entry.getPath().toFile());
-                } catch (IOException exception) {
-                    LOGGER.logException("Could not delete code model of file "
-                        + entry.getPath() + ". "
-                        + "This may result in an inconsistent state of "
-                        + HybridCache.class.getSimpleName() + ". "
+        for (String entry : deletedFiles) {
+            try {
+                LOGGER.logDebug("Deleting model because of " + FileEntry.class.getSimpleName() + entry);
+                hybridCache.deleteCodeModel(new File(entry));
+            } catch (IOException exception) {
+                LOGGER.logException("Could not delete code model of file " + entry + ". "
+                        + "This may result in an inconsistent state of " + HybridCache.class.getSimpleName() + ". "
                         + "To fix an inconsistent state you can either do a rollback "
                         + "or extract all models from scratch.", exception);
-                }
             }
+
         }
 
         // Add new models to hybridCache
@@ -345,9 +312,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
                 hybridCache.write(file);
                 hybridCache.flag(file, ChangeFlag.EXTRACTION_CHANGE);
             } catch (IOException e) {
-                LOGGER.logException("Could not write code model for file "
-                    + file.getPath().getPath() + " to "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not write code model for file " + file.getPath().getPath() + " to "
+                        + HybridCache.class.getSimpleName(), e);
             }
         }
     }

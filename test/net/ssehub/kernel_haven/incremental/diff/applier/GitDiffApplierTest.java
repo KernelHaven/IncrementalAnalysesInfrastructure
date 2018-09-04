@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.incremental.diff;
+package net.ssehub.kernel_haven.incremental.diff.applier;
 
 import java.io.File;
 import java.io.IOException;

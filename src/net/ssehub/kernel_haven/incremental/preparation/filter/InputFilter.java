@@ -54,7 +54,7 @@ public abstract class InputFilter {
      */
     protected Collection<Path> filterPathsByRegex(
         Collection<Path> unfilteredPaths, Pattern regex) {
-        Collection<Path> filteredPaths = new ArrayList<Path>();
+        Collection<Path> filteredPaths = new ArrayList<>();
         for (Path path : unfilteredPaths) {
             Matcher m = regex.matcher(path.toString());
             if (m.matches()) {

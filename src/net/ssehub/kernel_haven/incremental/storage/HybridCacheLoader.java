@@ -11,7 +11,6 @@ import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class is an {@link AnalysisComponent} which provides access to an
  * existing HybridCache. {@link HybridCacheLoader} is meant to enable the

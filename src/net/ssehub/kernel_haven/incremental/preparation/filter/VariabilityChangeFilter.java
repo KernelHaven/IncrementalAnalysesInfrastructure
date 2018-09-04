@@ -54,7 +54,7 @@ public class VariabilityChangeFilter extends InputFilter {
     @Override
     protected Collection<Path> doFilter(File sourceDirectory, DiffFile diffFile,
         Pattern fileRegex, boolean includeDeletions) throws IOException {
-        Collection<Path> paths = new ArrayList<Path>();
+        Collection<Path> paths = new ArrayList<>();
         for (FileEntry entry : diffFile.getEntries()) {
             if (includeDeletions
                 || entry.getType().equals(FileEntry.FileChange.ADDITION)

@@ -12,7 +12,6 @@ import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
-// TODO: Auto-generated Javadoc
 /**
  * Special adapter class to enable any pipeline-analysis to run as an
  * incremental analysis.
@@ -22,12 +21,10 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * <blockquote>
  * 
  * <pre>
- * HybridCacheAdapter hca =
- *     new HybridCacheAdapter(config, new IncrementalPostExtraction(config,
- *         getCmComponent(), getBmComponent(), getVmComponent()));
+ * HybridCacheAdapter hca = new HybridCacheAdapter(config,
+ *         new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()));
  *
- * DeadCodeFinder dcf = new DeadCodeFinder(config, hca.getVmComponent(),
- *     hca.getBmComponent(), hca.getCmComponent());
+ * DeadCodeFinder dcf = new DeadCodeFinder(config, hca.getVmComponent(), hca.getBmComponent(), hca.getCmComponent());
  * </pre>
  * 
  * </blockquote>
@@ -53,8 +50,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
     /**
      * Provides a partial codemodel to the next component containing the newly
      * extracted parts of the model. Furthermore it includes models where the
-     * line-information has been changed eventhough no new model has been
-     * extracted.
+     * line-information has been changed eventhough no new model has been extracted.
      */
     NEWLY_WRITTEN,
 
@@ -83,42 +79,32 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
     /**
      * Creates this double analysis component with the given input component.
      *
-     * @param config
-     *            The global configuration.
-     * @param inputComponent
-     *            The component to get the results to pass to both other
-     *            components.
-     * @param cmProcessing
-     *            the processing strategy for the codemodel
+     * @param config         The global configuration.
+     * @param inputComponent The component to get the results to pass to both other
+     *                       components.
+     * @param cmProcessing   the processing strategy for the codemodel
      */
-    public HybridCacheAdapter(@NonNull Configuration config,
-        @NonNull AnalysisComponent<HybridCache> inputComponent,
-        CodeModelProcessing cmProcessing) {
+    public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent,
+            CodeModelProcessing cmProcessing) {
         super(config);
         this.config = config;
-        bmComponent = new OutputComponent<BuildModel>(config,
-            "HybridCacheAdapter-bmComponent");
-        vmComponent = new OutputComponent<VariabilityModel>(config,
-            "HybridCacheAdapter-vmComponent");
-        cmComponent = new OutputComponent<SourceFile>(config,
-            "HybridCacheAdapter-cmComponent");
+        bmComponent = new OutputComponent<BuildModel>(config, "HybridCacheAdapter-bmComponent");
+        vmComponent = new OutputComponent<VariabilityModel>(config, "HybridCacheAdapter-vmComponent");
+        cmComponent = new OutputComponent<SourceFile>(config, "HybridCacheAdapter-cmComponent");
         this.inputComponent = inputComponent;
         this.cmProcessing = cmProcessing;
     }
 
     /**
-     * Creates this double analysis component with the given input component.
-     * This will include the entire current model from the {@link HybridCache}
+     * Creates this double analysis component with the given input component. This
+     * will include the entire current model from the {@link HybridCache}
      * inputComponent.
      *
-     * @param config
-     *            The global configuration.
-     * @param inputComponent
-     *            The component to get the results to pass to both other
-     *            components.
+     * @param config         The global configuration.
+     * @param inputComponent The component to get the results to pass to both other
+     *                       components.
      */
-    public HybridCacheAdapter(@NonNull Configuration config,
-        @NonNull AnalysisComponent<HybridCache> inputComponent) {
+    public HybridCacheAdapter(@NonNull Configuration config, @NonNull AnalysisComponent<HybridCache> inputComponent) {
         this(config, inputComponent, CodeModelProcessing.COMPLETE);
     }
 
@@ -127,16 +113,14 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
      *
      * @param data the data
      * @return the collection
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    private Collection<SourceFile> handleCodeModel(HybridCache data)
-        throws IOException, FormatException {
+    private Collection<SourceFile> handleCodeModel(HybridCache data) throws IOException, FormatException {
         Collection<SourceFile> codeModel;
         if (this.cmProcessing.equals(CodeModelProcessing.COMPLETE)) {
             codeModel = data.readCm();
-        } else if (this.cmProcessing
-            .equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
+        } else if (this.cmProcessing.equals(CodeModelProcessing.NEWLY_EXTRACTED)) {
             // Only read models for the files that were defined as target
             // for extraction within {@link IncrementalPreparation}
             codeModel = data.readCm(data.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
@@ -171,24 +155,23 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                 for (SourceFile srcFile : codeModel) {
                     if (srcFile == null) {
                         throw new NullPointerException(
-                            SourceFile.class.getSimpleName()
-                                + " was null - this should never happen");
+                                SourceFile.class.getSimpleName() + " was null - this should never happen");
                     } else {
                         cmComponent.myAddResult(srcFile);
                     }
                 }
 
                 if (codeModel.isEmpty()) {
-                    LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
-                        + " contains empty code model after execute()");
+                    LOGGER.logWarning(
+                            HybridCacheAdapter.class.getSimpleName() + " contains empty code model after execute()");
                 }
                 if (buildModel == null || buildModel.getSize() == 0) {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
-                        + " contains none or empty build model after execute()");
+                            + " contains none or empty build model after execute()");
                 }
                 if (varModel == null || varModel.getVariables().size() == 0) {
                     LOGGER.logWarning(HybridCacheAdapter.class.getSimpleName()
-                        + " contains none or empty variability model after execute()");
+                            + " contains none or empty variability model after execute()");
                 }
 
                 if (buildModel != null) {
@@ -198,8 +181,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
                     vmComponent.myAddResult(varModel);
                 }
             } catch (IOException | FormatException e) {
-                LOGGER.logException("Could not get models from "
-                    + HybridCache.class.getSimpleName(), e);
+                LOGGER.logException("Could not get models from " + HybridCache.class.getSimpleName(), e);
             }
         }
         vmComponent.done = true;
@@ -235,8 +217,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
     /**
      * The pseudo component that the next components will get as the input.
      *
-     * @param <T>
-     *            the generic type
+     * @param <T> the generic type
      */
     private class OutputComponent<T> extends AnalysisComponent<T> {
 
@@ -249,10 +230,8 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         /**
          * Creates this output component.
          *
-         * @param config
-         *            The global configuration.
-         * @param name
-         *            the name
+         * @param config The global configuration.
+         * @param name   the name
          */
         public OutputComponent(@NonNull Configuration config, String name) {
             super(config);
@@ -285,11 +264,10 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         }
 
         /**
-         * Method to allow for access to {@link AnalysisComponent#addResult}
-         * from within {@link HybridCacheAdapter}.
+         * Method to allow for access to {@link AnalysisComponent#addResult} from within
+         * {@link HybridCacheAdapter}.
          *
-         * @param result
-         *            the result
+         * @param result the result
          */
         public void myAddResult(T result) {
             this.addResult(result);
@@ -303,8 +281,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
         /*
          * (non-Javadoc)
          * 
-         * @see
-         * net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
+         * @see net.ssehub.kernel_haven.analysis.AnalysisComponent#getResultName()
          */
         @Override
         @NonNull
