@@ -12,14 +12,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.build_model.BuildModelCache;
-import net.ssehub.kernel_haven.code_model.CodeModelCache;
+import net.ssehub.kernel_haven.build_model.JsonBuildModelCache;
+import net.ssehub.kernel_haven.code_model.JsonCodeModelCache;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
-import net.ssehub.kernel_haven.variability_model.VariabilityModelCache;
+import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
 
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
@@ -62,7 +62,7 @@ public class HybridCache {
     /**
      * Suffix for cache-files of the cm-cache.
      */
-    private static final String CM_CACHE_SUFFIX = ".cache";
+    private static final String CM_CACHE_SUFFIX = ".json";
 
     /**
      * The folder represented by this path stores cache-files that replaced files in
@@ -134,34 +134,34 @@ public class HybridCache {
      * Cache-Object for accessing cm-cache elements in
      * {@link HybridCache#currentFolder}.
      */
-    private CodeModelCache currentCmCache;
+    private JsonCodeModelCache currentCmCache;
 
     /**
      * Cache-Object for accessing vm-cache elements in
      * {@link HybridCache#currentFolder}.
      */
-    private VariabilityModelCache currentVmCache;
+    private JsonVariabilityModelCache currentVmCache;
 
     /**
      * Cache-Object for accessing bm-cache elements in
      * {@link HybridCache#currentFolder}.
      */
-    private BuildModelCache currentBmCache;
+    private JsonBuildModelCache currentBmCache;
 
     /**
      * Cache-Object for accessing cm-cache elements in {@link HybridCache#backup}.
      */
-    private CodeModelCache replacedCmCache;
+    private JsonCodeModelCache replacedCmCache;
 
     /**
      * Cache-Object for accessing vm-cache elements in {@link HybridCache#backup}.
      */
-    private VariabilityModelCache replacedVmCache;
+    private JsonVariabilityModelCache replacedVmCache;
 
     /**
      * Cache-Object for accessing bm-cache elements in {@link HybridCache#backup}.
      */
-    private BuildModelCache replacedBmCache;
+    private JsonBuildModelCache replacedBmCache;
 
     /**
      * Instantiates a new hybrid cache.
@@ -182,12 +182,12 @@ public class HybridCache {
         this.currentFolder.mkdirs();
         this.replacedFolder.mkdirs();
         this.changeInformationFolder.mkdir();
-        this.currentBmCache = new BuildModelCache(currentFolder);
-        this.currentVmCache = new VariabilityModelCache(currentFolder);
-        this.currentCmCache = new CodeModelCache(currentFolder);
-        this.replacedCmCache = new CodeModelCache(replacedFolder);
-        this.replacedVmCache = new VariabilityModelCache(replacedFolder);
-        this.replacedBmCache = new BuildModelCache(replacedFolder);
+        this.currentBmCache = new JsonBuildModelCache(currentFolder);
+        this.currentVmCache = new JsonVariabilityModelCache(currentFolder);
+        this.currentCmCache = new JsonCodeModelCache(currentFolder);
+        this.replacedCmCache = new JsonCodeModelCache(replacedFolder);
+        this.replacedVmCache = new JsonVariabilityModelCache(replacedFolder);
+        this.replacedBmCache = new JsonBuildModelCache(replacedFolder);
     }
 
     /**
@@ -220,7 +220,7 @@ public class HybridCache {
      * @param sourceFile the source file
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public void write(SourceFile sourceFile) throws IOException {
+    public void write(SourceFile<?> sourceFile) throws IOException {
         String fileNameInCache = getCacheFileName(sourceFile.getPath());
         File newFile = currentFolder.toPath().resolve(fileNameInCache).toFile();
         if (newFile.exists()) {
@@ -240,7 +240,7 @@ public class HybridCache {
      * @param flag the flag
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public void flag(SourceFile file, ChangeFlag flag) throws IOException {
+    public void flag(SourceFile<?> file, ChangeFlag flag) throws IOException {
         String fileNameInCache = getCacheFileName(file.getPath());
         flag(new File(fileNameInCache), flag);
     }
@@ -352,10 +352,10 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    protected SourceFile readCmCacheFile(File cacheFile) throws IOException, FormatException {
+    protected SourceFile<?> readCmCacheFile(File cacheFile) throws IOException, FormatException {
         File originalFile = getOriginalCodeModelFile(cacheFile);
 
-        SourceFile srcFile = null;
+        SourceFile<?> srcFile = null;
         if (originalFile != null) {
             srcFile = currentCmCache.read(originalFile);
         }
@@ -417,8 +417,8 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    protected SourceFile readPreviousCmCacheFile(File target) throws IOException, FormatException {
-        SourceFile result = null;
+    protected SourceFile<?> readPreviousCmCacheFile(File target) throws IOException, FormatException {
+        SourceFile<?> result = null;
         // read from replaced folder if file was deleted or got replaced through
         // the
         // current version
@@ -527,7 +527,7 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    public Collection<SourceFile> readPreviousCm() throws IOException, FormatException {
+    public Collection<SourceFile<?>> readPreviousCm() throws IOException, FormatException {
         // list all files in the current folder
         Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
 
@@ -542,7 +542,7 @@ public class HybridCache {
         files.removeAll(FolderUtil.listRelativeFiles(addedFilesFolder, false));
 
         // read models for the files
-        Collection<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+        Collection<SourceFile<?>> sourceFiles = new ArrayList<SourceFile<?>>();
         for (File file : files) {
             if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
                 sourceFiles.add(readPreviousCmCacheFile(file));
@@ -558,9 +558,9 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    public Collection<SourceFile> readCm() throws IOException, FormatException {
+    public Collection<SourceFile<?>> readCm() throws IOException, FormatException {
         Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
-        Collection<SourceFile> sourceFiles = new ArrayList<>();
+        Collection<SourceFile<?>> sourceFiles = new ArrayList<>();
         for (File file : files) {
             if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
                 sourceFiles.add(readCmCacheFile(file));
@@ -577,10 +577,10 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    public Collection<SourceFile> readCm(Collection<File> paths) throws IOException, FormatException {
-        Collection<SourceFile> sourceFiles = new ArrayList<>();
+    public Collection<SourceFile<?>> readCm(Collection<File> paths) throws IOException, FormatException {
+        Collection<SourceFile<?>> sourceFiles = new ArrayList<>();
         for (File file : paths) {
-            SourceFile srcFile = readCm(file);
+            SourceFile<?> srcFile = readCm(file);
             if (srcFile != null) {
                 sourceFiles.add(srcFile);
             }
@@ -596,7 +596,7 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    public SourceFile readCm(File file) throws IOException, FormatException {
+    public SourceFile<?> readCm(File file) throws IOException, FormatException {
         return readCmCacheFile(new File(getCacheFileName(file)));
     }
 
@@ -609,7 +609,7 @@ public class HybridCache {
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
-    public SourceFile readPreviousCm(File file) throws IOException, FormatException {
+    public SourceFile<?> readPreviousCm(File file) throws IOException, FormatException {
         return readPreviousCmCacheFile(new File(getCacheFileName(file)));
     }
 
@@ -639,7 +639,7 @@ public class HybridCache {
      */
     public Collection<File> getCmPathsForFlag(ChangeFlag flag) {
         File flagFolder = this.changeInformationFolder.toPath().resolve(flag.toString() + "/").toFile();
-        Collection<File> paths = new ArrayList<File>();
+        Collection<File> paths = new ArrayList<>();
         if (flagFolder.exists()) {
             for (File file : FolderUtil.listRelativeFiles(flagFolder, false)) {
                 if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
@@ -698,7 +698,7 @@ public class HybridCache {
      * @return the vm flags
      */
     public Collection<ChangeFlag> getVmFlags() {
-        Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
+        Collection<ChangeFlag> flags = new ArrayList<>();
         for (ChangeFlag flag : ChangeFlag.values()) {
             boolean flagFileExists = true;
             for (Path vmCacheFile : VM_CACHE_FILES) {
@@ -720,7 +720,7 @@ public class HybridCache {
      * @return the bm flags
      */
     public Collection<ChangeFlag> getBmFlags() {
-        Collection<ChangeFlag> flags = new ArrayList<ChangeFlag>();
+        Collection<ChangeFlag> flags = new ArrayList<>();
         for (ChangeFlag flag : ChangeFlag.values()) {
             boolean flagFileExists = true;
             for (Path vmCacheFile : BM_CACHE_FILES) {
@@ -743,8 +743,8 @@ public class HybridCache {
      * @param flags      the flags
      * @return the flags
      */
-    public Collection<ChangeFlag> getFlags(@NonNull SourceFile sourceFile, ChangeFlag... flags) {
-        Collection<ChangeFlag> changeFlags = new ArrayList<ChangeFlag>();
+    public Collection<ChangeFlag> getFlags(@NonNull SourceFile<?> sourceFile, ChangeFlag... flags) {
+        Collection<ChangeFlag> changeFlags = new ArrayList<>();
         File cacheFile = new File(getCacheFileName(sourceFile.getPath()));
         for (ChangeFlag flag : ChangeFlag.values()) {
             if (this.getFlagFile(cacheFile, flag).exists()) {

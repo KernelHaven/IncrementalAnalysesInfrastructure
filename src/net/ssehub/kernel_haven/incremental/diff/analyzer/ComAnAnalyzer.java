@@ -121,7 +121,7 @@ public class ComAnAnalyzer implements VariabilityChangeAnalyzer {
      * 
      * Value: {@value #BUILD_FILE_PATTERN};
      */
-    private static final String BUILD_FILE_PATTERN = ".*/(Makefile|Kbuild)((\\.|\\-|\\_|\\+|\\~).*)?"; 
+    private static final String BUILD_FILE_PATTERN = ".*/(Makefile|Kbuild)((\\.|\\-|\\_|\\+|\\~).*)?";
 
     /**
      * Generate diff file.

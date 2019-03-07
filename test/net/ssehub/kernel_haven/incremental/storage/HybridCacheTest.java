@@ -109,7 +109,7 @@ public class HybridCacheTest extends HybridCache {
 
         // Create and flag source file object
         File location = new File("test.c");
-        SourceFile sourceFile = new SourceFile(location);
+        SourceFile<?> sourceFile = new SourceFile(location);
         cache.write(sourceFile);
         cache.flag(sourceFile, ChangeFlag.AUXILLARY_CHANGE);
 
@@ -168,7 +168,7 @@ public class HybridCacheTest extends HybridCache {
          * writing to cache
          */
         File existingCodeModelCacheFile =
-            tempFolder.resolve("current/test.c.cache").toFile();
+            tempFolder.resolve("current/test.c.json").toFile();
         existingCodeModelCacheFile.getParentFile().mkdirs();
         existingCodeModelCacheFile.createNewFile();
 
@@ -178,11 +178,11 @@ public class HybridCacheTest extends HybridCache {
         // check if file is correctly represented in cache
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItem(new File("current/test.c.cache")));
+            CoreMatchers.hasItem(new File("current/test.c.json")));
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
             CoreMatchers.hasItem(
-                new File("history/backup/test.c.cache")));
+                new File("history/backup/test.c.json")));
     }
     // CHECKSTYLE:ON
 
