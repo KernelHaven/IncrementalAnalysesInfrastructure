@@ -77,10 +77,11 @@ public class IncrementalPreparation implements IPreparation {
 			// Execution will stop after rollback is complete
 			handleRollback(config, inputSourceDir, diffFile);
 
-			// If it is a normal execution, we continue our preparation for the
-			// execution of extractory and analysis.
+			
 		} else {
-			handleMerge(config, inputSourceDir, diffFile);
+			// merge the changes described by the diff file to the codebase
+			// and define targets for extraction
+			handleMergeAndPrepareExtraction(config, inputSourceDir, diffFile);
 		}
 
 		long totalTime = System.nanoTime() - start;
@@ -114,7 +115,7 @@ public class IncrementalPreparation implements IPreparation {
 		}
 	}
 
-	private void handleMerge(Configuration config, File inputSourceDir, DiffFile diffFile) throws SetUpException {
+	private void handleMergeAndPrepareExtraction(Configuration config, File inputSourceDir, DiffFile diffFile) throws SetUpException {
 		DiffApplier diffApplier = new FileReplacingDiffApplier(inputSourceDir, diffFile);
 		// Merge changes
 		boolean mergeSuccessful = diffApplier.mergeChanges();
@@ -126,6 +127,7 @@ public class IncrementalPreparation implements IPreparation {
 					+ "Stopping execution of KernelHaven.");
 			throw new SetUpException("Could not merge provided diff with existing input files!");
 		} else {
+			//Only analyze for variability changes if required by the configuration
 			if (config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER)) {
 				analyzeVariabilityChanges(config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER_CLASS_NAME),
 						diffFile, config);
