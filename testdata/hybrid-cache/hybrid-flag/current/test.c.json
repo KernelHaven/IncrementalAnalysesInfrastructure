@@ -1,0 +1,44 @@
+{
+	"version": 2,
+	"path": "test.c",
+	"elements": [
+		{
+			"class": "net.ssehub.kernel_haven.code_model.CodeBlock",
+			"id": 1,
+			"sourceFile": "test.c",
+			"lineStart": 1,
+			"lineEnd": 216,
+			"condition": "1",
+			"presenceCondition": "1",
+			"nested": [
+				{
+					"class": "net.ssehub.kernel_haven.code_model.CodeBlock",
+					"id": 2,
+					"sourceFile": "test.c",
+					"lineStart": 170,
+					"lineEnd": 171,
+					"condition": "INITRD_IMAGE_SIZE",
+					"presenceCondition": "INITRD_IMAGE_SIZE"
+				},
+				{
+					"class": "net.ssehub.kernel_haven.code_model.CodeBlock",
+					"id": 3,
+					"sourceFile": "test.c",
+					"lineStart": 201,
+					"lineEnd": 202,
+					"condition": "INITRD_IMAGE_SIZE",
+					"presenceCondition": "INITRD_IMAGE_SIZE"
+				},
+				{
+					"class": "net.ssehub.kernel_haven.code_model.CodeBlock",
+					"id": 4,
+					"sourceFile": "test.c",
+					"lineStart": 209,
+					"lineEnd": 211,
+					"condition": "INITRD_IMAGE_SIZE",
+					"presenceCondition": "INITRD_IMAGE_SIZE"
+				}
+			]
+		}
+	]
+}

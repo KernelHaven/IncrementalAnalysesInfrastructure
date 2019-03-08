@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.code_model.CodeBlock;
+import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.FormatException;
@@ -25,9 +26,6 @@ import net.ssehub.kernel_haven.util.logic.Variable;
  */
 public class HybridCacheTest extends HybridCache {
 
-    /** The Constant TESTFOLDER_HYBRID_DELETE. */
-    private static final File TESTFOLDER_HYBRID_DELETE =
-        new File("testdata/hybrid-cache/hybrid-delete");
 
     private static final File TESTFOLDER_HYBRID_FLAG =
         new File("testdata/hybrid-cache/hybrid-flag");
@@ -45,11 +43,11 @@ public class HybridCacheTest extends HybridCache {
         HybridCache cache = new HybridCache(tempFolder.toFile());
 
         Assert.assertThat(
-            cache.getOriginalCodeModelFile(new File("cached.file.c.cache")),
+            cache.getOriginalCodeModelFile(new File("cached.file.c.json")),
             CoreMatchers.equalTo(new File("cached/file.c")));
 
         Assert.assertThat(
-            cache.getOriginalCodeModelFile(new File("dir.cached.file.c.cache")),
+            cache.getOriginalCodeModelFile(new File("dir.cached.file.c.json")),
             CoreMatchers.equalTo(new File("dir/cached/file.c")));
 
     }
@@ -71,7 +69,7 @@ public class HybridCacheTest extends HybridCache {
 
         // Create a source file object
         File location = new File("test.c");
-        SourceFile originalSourceFile = new SourceFile(location);
+        SourceFile<CodeElement<?>> originalSourceFile = new SourceFile<CodeElement<?>>(location);
         Variable a = new Variable("A");
         Variable b = new Variable("B");
         CodeBlock block1 = new CodeBlock(1, 2, new File("file"), a, a);
@@ -90,9 +88,9 @@ public class HybridCacheTest extends HybridCache {
         // check if file is correctly represented in cache
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItems(new File("current/test.c.cache"),
+            CoreMatchers.hasItems(new File("current/test.c.json"),
                 new File("history/change-information/" + ChangeFlag.ADDITION
-                    + "/test.c.cache")));
+                    + "/test.c.json")));
 
     }
 
@@ -109,15 +107,15 @@ public class HybridCacheTest extends HybridCache {
 
         // Create and flag source file object
         File location = new File("test.c");
-        SourceFile<?> sourceFile = new SourceFile(location);
+        SourceFile<CodeElement<?>> sourceFile = new SourceFile<CodeElement<?>>(location);
         cache.write(sourceFile);
         cache.flag(sourceFile, ChangeFlag.AUXILLARY_CHANGE);
 
         Assert.assertThat(
             FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItems(new File("current/test.c.cache"),
+            CoreMatchers.hasItems(new File("current/test.c.json"),
                 new File("history/change-information/"
-                    + ChangeFlag.AUXILLARY_CHANGE + "/test.c.cache")));
+                    + ChangeFlag.AUXILLARY_CHANGE + "/test.c.json")));
 
     }
 
@@ -150,7 +148,7 @@ public class HybridCacheTest extends HybridCache {
 
         // Create a source file object
         File location = new File("test.c");
-        SourceFile originalSourceFile = new SourceFile(location);
+        SourceFile<CodeElement<?>> originalSourceFile = new SourceFile<CodeElement<?>>(location);
         Variable a = new Variable("A");
         Variable b = new Variable("B");
         CodeBlock block1 = new CodeBlock(1, 2, new File("file"), a, a);

@@ -74,11 +74,15 @@ public class HybridCache {
 	private static final Path CHANGE_INFORMATION_FOLDER = Paths.get("history/change-information/");
 
 	/**
-	 * The Enum Flag.
+	 * The Enum ChangeFlag.
 	 */
 	public enum ChangeFlag {
 
-		/** The auxillary change. */
+		/**
+		 * Auxilarry change that was not made through extraction but by other means. An
+		 * example for this is when only the linenumbers of the extracted model are
+		 * adjusted.
+		 */
 		AUXILLARY_CHANGE("auxillary"),
 
 		/** The change through extraction. */
@@ -373,7 +377,8 @@ public class HybridCache {
 		String originalFilePath = null;
 		File originalFile = null;
 
-		Matcher matcher = Pattern.compile("^([\\S]+)(\\.[^\\.]+)(" + CM_CACHE_SUFFIX.replace(".", "\\.") + ")$").matcher(cachedFilePath);
+		Matcher matcher = Pattern.compile("^([\\S]+)(\\.[^\\.]+)(" + CM_CACHE_SUFFIX.replace(".", "\\.") + ")$")
+				.matcher(cachedFilePath);
 
 		if (matcher.find() && matcher.groupCount() >= 2) {
 			originalFilePath = matcher.group(1).replace('.', '/') + matcher.group(2);

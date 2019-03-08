@@ -189,6 +189,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 				if (srcFile != null) {
 					Logger.get().logDebug("Updating lines for file: " + entry.getPath());
 					// Iterate over sourcefile and update line numbers
+					@SuppressWarnings("unchecked")
 					Iterator<CodeElement<?>> itr = (Iterator<CodeElement<?>>) srcFile.iterator();
 
 					while (itr.hasNext()) {
@@ -292,7 +293,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 	 * @param deletedFiles the deleted files
 	 */
 	private void codeModelExtraction(HybridCache hybridCache, List<String> deletedFiles) {
-		SourceFile file;
+		SourceFile<?> file;
 
 		// delete all models corresponding to deleted files
 		for (String entry : deletedFiles) {

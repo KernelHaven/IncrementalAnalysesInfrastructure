@@ -152,7 +152,7 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 				VariabilityModel varModel = data.readVm();
 
 				// add Models to components
-				for (SourceFile srcFile : codeModel) {
+				for (SourceFile<?> srcFile : codeModel) {
 					if (srcFile == null) {
 						throw new NullPointerException(
 								SourceFile.class.getSimpleName() + " was null - this should never happen");

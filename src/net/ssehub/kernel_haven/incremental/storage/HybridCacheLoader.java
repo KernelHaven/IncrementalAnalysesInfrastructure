@@ -36,7 +36,7 @@ public class HybridCacheLoader extends AnalysisComponent<HybridCache> {
      * @throws SetUpException the set up exception
      */
     public HybridCacheLoader(Configuration config,
-        AnalysisComponent<SourceFile> cmComponent,
+        AnalysisComponent<SourceFile<?>> cmComponent,
         AnalysisComponent<BuildModel> bmComponent,
         AnalysisComponent<VariabilityModel> vmComponent) throws SetUpException {
         super(config);
