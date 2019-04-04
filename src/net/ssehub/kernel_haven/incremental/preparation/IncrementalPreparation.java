@@ -131,8 +131,8 @@ public class IncrementalPreparation implements IPreparation {
 			if (config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER)) {
 				analyzeVariabilityChanges(config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER_CLASS_NAME),
 						diffFile, config);
-			}
-
+			} 
+			
 			// Define targets for extraction.
 			defineTargetsForExtraction(config, inputSourceDir, diffFile);
 
@@ -283,7 +283,6 @@ public class IncrementalPreparation implements IPreparation {
 			throws SetUpException {
 		// Call the method getFilteredResult for filterClassName via
 		// reflection-api
-
 		try {
 			Class<VariabilityChangeAnalyzer> analyzerClass = (Class<VariabilityChangeAnalyzer>) Class
 					.forName(analyzerClassName);

@@ -75,6 +75,8 @@ public final class HybridCacheAdapter extends AnalysisComponent<Void> {
 
 	/** The change set only for cm. */
 	private CodeModelProcessing cmProcessing;
+	
+	
 
 	/**
 	 * Creates this double analysis component with the given input component.
