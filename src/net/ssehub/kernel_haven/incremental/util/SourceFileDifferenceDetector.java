@@ -16,7 +16,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * 
  * @author Moritz
  */
-public class SourceFileChangeDetector {
+public class SourceFileDifferenceDetector {
 
     /**
      * The Enum Consideration.
@@ -47,7 +47,7 @@ public class SourceFileChangeDetector {
      * @param varModelA     the var model A
      * @param varModelB     the var model B
      */
-    public SourceFileChangeDetector(Consideration consideration, VariabilityModel varModelA,
+    public SourceFileDifferenceDetector(Consideration consideration, VariabilityModel varModelA,
             VariabilityModel varModelB) {
         this.consideration = consideration;
         this.varModelA = varModelA;
@@ -57,7 +57,7 @@ public class SourceFileChangeDetector {
     /**
      * Instantiates a new source file change detector.
      */
-    protected SourceFileChangeDetector() {
+    protected SourceFileDifferenceDetector() {
 
     }
 
@@ -68,11 +68,11 @@ public class SourceFileChangeDetector {
      * @param fileB the file B
      * @return true, if changed
      */
-    public boolean hasChanged(SourceFile<?> fileA, SourceFile<?> fileB) {
-        boolean changed = false;
+    public boolean isDifferent(SourceFile<?> fileA, SourceFile<?> fileB) {
+        boolean different = false;
         if (!fileA.equals(fileB)) {
             if (this.consideration == Consideration.ANY_CHANGE) {
-                changed = true;
+                different = true;
             } else {
 
                 if (this.consideration == Consideration.ONLY_VARIABILITY_CHANGE) {
@@ -80,14 +80,14 @@ public class SourceFileChangeDetector {
                             collectRelevantElements(fileA, new LinuxFormulaRelevancyChecker(varModelA, true));
                     Set<CodeElement<?>> relevancyB =
                             collectRelevantElements(fileB, new LinuxFormulaRelevancyChecker(varModelB, true));
-                    changed = !isStructureSame(fileA, fileB, relevancyA, relevancyB);
+                    different = !isStructureSame(fileA, fileB, relevancyA, relevancyB);
                 } else {
-                    changed = !isStructureSame(fileA, fileB, null, null);
+                    different = !isStructureSame(fileA, fileB, null, null);
                 }
             }
 
         }
-        return changed;
+        return different;
     }
 
     /**

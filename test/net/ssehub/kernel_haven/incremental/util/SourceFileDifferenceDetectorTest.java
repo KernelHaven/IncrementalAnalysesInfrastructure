@@ -21,7 +21,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 /**
  * The Class SourceFileChangeDetectorTest.
  */
-public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
+public class SourceFileDifferenceDetectorTest extends SourceFileDifferenceDetector {
 
     /**
      * Creates a test variability model with the variables ALPHA, and BETA.
@@ -45,8 +45,8 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
     @Test
     public void testCollectRelevantElements_irrelevantCb() throws IOException {
         CodeBlock cb = new CodeBlock(12, 15, new File("file"), not("NOT_IN_VAR_MODEL"), not("NOT_IN_VAR_MODEL"));
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ONLY_VARIABILITY_CHANGE,
-                createTestVariabilityModel(), createTestVariabilityModel());
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
+                Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
         SourceFile<CodeElement<?>> srcFile = new SourceFile<CodeElement<?>>(new File("not_existing"));
         srcFile.addElement(cb);
 
@@ -66,8 +66,8 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
         CodeBlock cb = new CodeBlock(12, 15, new File("file"), not("ALPHA"), not("BETA"));
         CodeBlock cb2 = new CodeBlock(17, 20, new File("file"), not("CONFIG_Test"), not("CONFIG_Tests"));
         CodeBlock cb3 = new CodeBlock(22, 30, new File("file"), not("Test_MODULE"), not("Test_MODULE"));
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ONLY_VARIABILITY_CHANGE,
-                createTestVariabilityModel(), createTestVariabilityModel());
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
+                Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
         SourceFile<CodeElement<?>> srcFile = new SourceFile<CodeElement<?>>(new File("not_existing"));
         srcFile.addElement(cb);
         srcFile.addElement(cb2);
@@ -114,8 +114,8 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
         srcFile.addElement(cb2);
         srcFile.addElement(cb3);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ONLY_VARIABILITY_CHANGE,
-                createTestVariabilityModel(), createTestVariabilityModel());
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
+                Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
         Set<CodeElement<?>> collectedElements = changeDetector.collectRelevantElements(srcFile,
                 new LinuxFormulaRelevancyChecker(changeDetector.varModelA, true));
@@ -131,28 +131,28 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
      * Checks if is structure same any change unchanged.
      */
     @Test
-    public void isStructureSame_anyChange_unchanged() {
+    public void isDifferent_anyChange_unchanged() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(0, false, false);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(0, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ANY_CHANGE,
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(Consideration.ANY_CHANGE,
                 createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
     }
 
     /**
      * Checks if is structure same any change changed.
      */
     @Test
-    public void isStructureSame_anyChange_changed() {
+    public void isDifferent_anyChange_changed() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(1, false, false);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(2, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ANY_CHANGE,
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(Consideration.ANY_CHANGE,
                 createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
 
     }
 
@@ -160,42 +160,42 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
      * Checks if is structure same any change except line change unchanged.
      */
     @Test
-    public void isStructureSame_anyChangeExceptLineChange_unchanged() {
+    public void isDifferent_anyChangeExceptLineChange_unchanged() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(1, false, false);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(0, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
                 Consideration.ANY_CHANGE_EXCEPT_LINECHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
     }
 
     /**
      * Checks if is structure same any change except line change changed.
      */
     @Test
-    public void isStructureSame_anyChangeExceptLineChange_changed() {
+    public void isDifferent_anyChangeExceptLineChange_changed() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(1, true, false);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(0, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
                 Consideration.ANY_CHANGE_EXCEPT_LINECHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
     }
 
     /**
      * Checks if is structure same only variability change unchanged.
      */
     @Test
-    public void isStructureSame_onlyVariabilityChange_unchanged() {
+    public void isDifferent_onlyVariabilityChange_unchanged() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(1, true, false);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(2, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ONLY_VARIABILITY_CHANGE,
-                createTestVariabilityModel(), createTestVariabilityModel());
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
+                Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.FALSE));
 
     }
 
@@ -203,14 +203,14 @@ public class SourceFileChangeDetectorTest extends SourceFileChangeDetector {
      * Checks if is structure same only variability change changed.
      */
     @Test
-    public void isStructureSame_onlyVariabilityChange_changed() {
+    public void isDifferent_onlyVariabilityChange_changed() {
         SourceFile<CodeElement<?>> fileA = generateSrcFile(1, true, true);
         SourceFile<CodeElement<?>> fileB = generateSrcFile(2, false, false);
 
-        SourceFileChangeDetector changeDetector = new SourceFileChangeDetector(Consideration.ONLY_VARIABILITY_CHANGE,
-                createTestVariabilityModel(), createTestVariabilityModel());
+        SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
+                Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
-        Assert.assertThat(changeDetector.hasChanged(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
+        Assert.assertThat(changeDetector.isDifferent(fileA, fileB), CoreMatchers.is(Boolean.TRUE));
 
     }
 
