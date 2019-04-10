@@ -154,8 +154,8 @@ public class DiffFileParser {
                         previousEntry.setNoNewLineAtEndOfFile(
                                 changeBlock.toString().endsWith("\\ No newline at end of file"));
                     } else {
-                        FileEntry entry = new FileEntry(filePath, type, VariabilityChange.NOT_ANALYZED, lines,
-                                permissions);
+                        FileEntry entry =
+                                new FileEntry(filePath, type, VariabilityChange.NOT_ANALYZED, lines, permissions);
                         entry.setNoNewLineAtEndOfFile(changeBlock.toString().endsWith("\\ No newline at end of file"));
                         fileEntries.add(entry);
                     }

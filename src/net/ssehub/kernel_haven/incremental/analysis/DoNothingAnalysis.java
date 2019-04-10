@@ -1,3 +1,4 @@
+
 package net.ssehub.kernel_haven.incremental.analysis;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -26,8 +27,7 @@ public class DoNothingAnalysis extends PipelineAnalysis {
     /**
      * Instantiates a new do nothing analysis.
      *
-     * @param config
-     *            the config
+     * @param config the config
      */
     public DoNothingAnalysis(@NonNull Configuration config) {
         super(config);
@@ -41,8 +41,9 @@ public class DoNothingAnalysis extends PipelineAnalysis {
      */
     @Override
     protected AnalysisComponent<?> createPipeline() throws SetUpException {
-        return new HybridCacheAdapter(config, new IncrementalPostExtraction(config, getCmComponent(),
-            getBmComponent(), getVmComponent()), CodeModelProcessing.NEWLY_EXTRACTED);
+        return new HybridCacheAdapter(config,
+                new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()),
+                CodeModelProcessing.NEWLY_EXTRACTED);
     }
 
 }
