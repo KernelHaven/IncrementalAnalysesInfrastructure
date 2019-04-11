@@ -17,7 +17,6 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class SourceFileChangeDetectorTest.
  */
@@ -50,8 +49,8 @@ public class SourceFileDifferenceDetectorTest extends SourceFileDifferenceDetect
         SourceFile<CodeElement<?>> srcFile = new SourceFile<CodeElement<?>>(new File("not_existing"));
         srcFile.addElement(cb);
 
-        Set<CodeElement<?>> collectedElements = changeDetector.collectRelevantElements(srcFile,
-                new LinuxFormulaRelevancyChecker(changeDetector.varModelA, true));
+        Set<CodeElement<?>> collectedElements =
+                changeDetector.collectRelevantElements(srcFile, changeDetector.varModelAChecker);
 
         Assert.assertThat(collectedElements.size(), CoreMatchers.is(0));
     }
@@ -73,8 +72,8 @@ public class SourceFileDifferenceDetectorTest extends SourceFileDifferenceDetect
         srcFile.addElement(cb2);
         srcFile.addElement(cb3);
 
-        Set<CodeElement<?>> collectedElements = changeDetector.collectRelevantElements(srcFile,
-                new LinuxFormulaRelevancyChecker(changeDetector.varModelA, true));
+        Set<CodeElement<?>> collectedElements =
+                changeDetector.collectRelevantElements(srcFile, changeDetector.varModelAChecker);
 
         Assert.assertThat(collectedElements, CoreMatchers.hasItems(cb, cb2, cb3));
     }
@@ -117,8 +116,8 @@ public class SourceFileDifferenceDetectorTest extends SourceFileDifferenceDetect
         SourceFileDifferenceDetector changeDetector = new SourceFileDifferenceDetector(
                 Consideration.ONLY_VARIABILITY_CHANGE, createTestVariabilityModel(), createTestVariabilityModel());
 
-        Set<CodeElement<?>> collectedElements = changeDetector.collectRelevantElements(srcFile,
-                new LinuxFormulaRelevancyChecker(changeDetector.varModelA, true));
+        Set<CodeElement<?>> collectedElements =
+                changeDetector.collectRelevantElements(srcFile, changeDetector.varModelAChecker);
 
         Assert.assertThat(collectedElements, CoreMatchers.hasItems(cb, cbChild, cb3, cb3ChildChild, cb3Child));
         Assert.assertThat(collectedElements, CoreMatchers.not(CoreMatchers.hasItem(cb2)));

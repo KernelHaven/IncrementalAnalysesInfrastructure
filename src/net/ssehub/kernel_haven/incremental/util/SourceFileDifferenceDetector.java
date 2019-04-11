@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.incremental.util;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,34 +9,48 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class CodeFileComparator.
+ * {@link SourceFileDifferenceDetector} serves the detection of changes between
+ * two given {@link SourceFile} elements. It may consider changes on three
+ * levels:
+ * 
+ * <p>
+ * - {@link SourceFileDifferenceDetector.Consideration#ANY_CHANGE}
+ * </p>
+ * 
+ * <p>
+ * -
+ * {@link SourceFileDifferenceDetector.Consideration#ANY_CHANGE_EXCEPT_LINECHANGE}
+ * </p>
+ * <p>
+ * - {@link SourceFileDifferenceDetector.Consideration#ONLY_VARIABILITY_CHANGE}
+ * </p>
  * 
  * @author Moritz
  */
 public class SourceFileDifferenceDetector {
 
     /**
-     * The Enum Consideration.
+     * Defines the consideration level.
      */
     public static enum Consideration {
 
-        /** The all elements. */
+        /** Considers every change. */
         ANY_CHANGE,
-        /** The ignore linechange. */
+        /** Considers every change except for linechanges. */
         ANY_CHANGE_EXCEPT_LINECHANGE,
-        /** The only variability change. */
+        /** Considers only changes to variability. */
         ONLY_VARIABILITY_CHANGE;
     }
 
     /** The var model A. */
-    protected VariabilityModel varModelA;
+    protected LinuxFormulaRelevancyChecker varModelAChecker;
 
     /** The var model B. */
-    protected VariabilityModel varModelB;
+    protected LinuxFormulaRelevancyChecker varModelBChecker;
 
     /** The consideration. */
     private Consideration consideration;
@@ -47,11 +62,13 @@ public class SourceFileDifferenceDetector {
      * @param varModelA     the var model A
      * @param varModelB     the var model B
      */
-    public SourceFileDifferenceDetector(Consideration consideration, VariabilityModel varModelA,
-            VariabilityModel varModelB) {
+    public SourceFileDifferenceDetector(Consideration consideration, @Nullable VariabilityModel varModelA,
+            @Nullable VariabilityModel varModelB) {
         this.consideration = consideration;
-        this.varModelA = varModelA;
-        this.varModelB = varModelB;
+        if (consideration == Consideration.ONLY_VARIABILITY_CHANGE) {
+            this.varModelAChecker = new LinuxFormulaRelevancyChecker(varModelA, true);
+            this.varModelBChecker = new LinuxFormulaRelevancyChecker(varModelB, true);
+        }
     }
 
     /**
@@ -62,24 +79,31 @@ public class SourceFileDifferenceDetector {
     }
 
     /**
-     * Checks for changed.
-     *
+     * Checks if the content of the files is different with respect to the
+     * {@link Consideration} that this {@link SourceFileDifferenceDetector} was set
+     * up with. If fileA or fileB is set to null, the other file will be compared
+     * against an empty {@link SourceFile} object.
+     * 
      * @param fileA the file A
      * @param fileB the file B
-     * @return true, if changed
+     * @return true, if different
      */
-    public boolean isDifferent(SourceFile<?> fileA, SourceFile<?> fileB) {
+    public boolean isDifferent(@Nullable SourceFile<?> fileA, @Nullable SourceFile<?> fileB) {
         boolean different = false;
+        if (fileA == null) {
+            fileA = new SourceFile<CodeElement<?>>(new File("null"));
+        }
+        if (fileB == null) {
+            fileB = new SourceFile<CodeElement<?>>(new File("null"));
+        }
+
         if (!fileA.equals(fileB)) {
             if (this.consideration == Consideration.ANY_CHANGE) {
                 different = true;
             } else {
-
                 if (this.consideration == Consideration.ONLY_VARIABILITY_CHANGE) {
-                    Set<CodeElement<?>> relevancyA =
-                            collectRelevantElements(fileA, new LinuxFormulaRelevancyChecker(varModelA, true));
-                    Set<CodeElement<?>> relevancyB =
-                            collectRelevantElements(fileB, new LinuxFormulaRelevancyChecker(varModelB, true));
+                    Set<CodeElement<?>> relevancyA = collectRelevantElements(fileA, varModelAChecker);
+                    Set<CodeElement<?>> relevancyB = collectRelevantElements(fileB, varModelBChecker);
                     different = !isStructureSame(fileA, fileB, relevancyA, relevancyB);
                 } else {
                     different = !isStructureSame(fileA, fileB, null, null);
@@ -111,9 +135,9 @@ public class SourceFileDifferenceDetector {
 
     /**
      * Collects {@link CodeElement}s that are considered relevant from a given
-     * {@link CodeElement}. If {@link FormulaRelevancyChecker} considers an element
-     * to be relevant, all of its parents as well as children will be considered
-     * relevant as well.
+     * {@link CodeElement}. If the {@link LinuxFormulaRelevancyChecker} checker
+     * considers an element to be relevant, all of its parents as well as children
+     * will be considered relevant as well.
      *
      * @param currentElement           the current element
      * @param checker                  the checker
@@ -157,12 +181,13 @@ public class SourceFileDifferenceDetector {
      *
      * @param fileA                   the file A
      * @param fileB                   the file B
-     * @param relevantElementsInFileA the relevancy A
-     * @param relevantElementsInFileB the relevancy B
+     * @param relevantElementsInFileA list of relevant elements within file A
+     * @param relevantElementsInFileB list of relevant elements within file B
      * @return true, if unchanged
      */
     protected boolean isStructureSame(SourceFile<?> fileA, SourceFile<?> fileB,
-            Set<CodeElement<?>> relevantElementsInFileA, Set<CodeElement<?>> relevantElementsInFileB) {
+            @Nullable Set<CodeElement<?>> relevantElementsInFileA,
+            @Nullable Set<CodeElement<?>> relevantElementsInFileB) {
 
         List<CodeElement<?>> fileAelements =
                 getListOfRelevantNestedElements((Iterable<CodeElement<?>>) fileA, relevantElementsInFileA);
@@ -184,12 +209,15 @@ public class SourceFileDifferenceDetector {
 
     /**
      * Checks for changes within the structure of both elements and their respective
-     * nested elements.
+     * nested elements. It considers only the elements listed in
+     * relevantELementsInFileA and relevantElementsInFileB as relevant for this
+     * comparision. If one of the relevancy lists is null, all elements for the
+     * corresponding file will be considered relevant.
      *
-     * @param fileAElement            the file A element
-     * @param fileBElement            the file B element
-     * @param relevantElementsInFileA the relevancy A
-     * @param relevantElementsInFileB the relevancy B
+     * @param fileAElement            the element from file A
+     * @param fileBElement            the element from file B
+     * @param relevantElementsInFileA set of all relevant elements from file A
+     * @param relevantElementsInFileB set of all relevant elements from file B
      * @return true, if unchanged
      */
     protected boolean isStructureSame(CodeElement<?> fileAElement, CodeElement<?> fileBElement,
@@ -220,14 +248,15 @@ public class SourceFileDifferenceDetector {
     /**
      * Gets the relevant blocks.
      *
-     * @param parentOfNestedElements the elements
-     * @param relevantElementsInFile the relevancy
+     * @param parent                 the parent
+     * @param relevantElementsInFile list of relevant elements in file. If this is
+     *                               null, all elements will be considered relevant.
      * @return the relevant blocks
      */
-    protected List<CodeElement<?>> getListOfRelevantNestedElements(Iterable<CodeElement<?>> parentOfNestedElements,
-            Set<CodeElement<?>> relevantElementsInFile) {
+    protected List<CodeElement<?>> getListOfRelevantNestedElements(Iterable<CodeElement<?>> parent,
+            @Nullable Set<CodeElement<?>> relevantElementsInFile) {
         List<CodeElement<?>> reduced = new LinkedList<CodeElement<?>>();
-        for (CodeElement<?> element : parentOfNestedElements) {
+        for (CodeElement<?> element : parent) {
             if (relevantElementsInFile == null || relevantElementsInFile.contains(element)) {
                 reduced.add(element);
             }
