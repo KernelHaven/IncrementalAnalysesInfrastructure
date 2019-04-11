@@ -93,9 +93,9 @@ public class IncrementalPreparation implements IPreparation {
     /**
      * Handle rollback.
      *
-     * @param config      the config
+     * @param config         the config
      * @param inputSourceDir the input source dir
-     * @param diffFile the diff file
+     * @param diffFile       the diff file
      */
     private void handleRollback(Configuration config, File inputSourceDir, DiffFile diffFile) {
         DiffApplier diffApplier = new FileReplacingDiffApplier(inputSourceDir, diffFile);
@@ -119,9 +119,9 @@ public class IncrementalPreparation implements IPreparation {
     /**
      * Handle merge and prepare extraction.
      *
-     * @param config the config
+     * @param config         the config
      * @param inputSourceDir the input source dir
-     * @param diffFile the diff file
+     * @param diffFile       the diff file
      * @throws SetUpException the set up exception
      */
     private void handleMergeAndPrepareExtraction(Configuration config, File inputSourceDir, DiffFile diffFile)

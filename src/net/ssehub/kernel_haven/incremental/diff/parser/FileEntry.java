@@ -19,14 +19,14 @@ public class FileEntry {
      */
     public enum FileChange {
 
-    /** Modification of a file. */
-    MODIFICATION,
+        /** Modification of a file. */
+        MODIFICATION,
 
-    /** Addition of a file. */
-    ADDITION,
+        /** Addition of a file. */
+        ADDITION,
 
-    /** Deletion of a file. */
-    DELETION
+        /** Deletion of a file. */
+        DELETION
     }
 
     /**

@@ -66,12 +66,12 @@ public class ComAnAnalyzerTest {
     // CHECKSTYLE:OFF
     public void testParse_variability_change() throws IOException, SetUpException {
         // CHECKSTYLE:ON
-        DiffFile diffFile = DiffFileParser
-                .parse(new File("testdata/variability-changes/some-variability-changes.diff"));
+        DiffFile diffFile =
+                DiffFileParser.parse(new File("testdata/variability-changes/some-variability-changes.diff"));
         ComAnAnalyzer analyzer = new ComAnAnalyzer();
 
-        Configuration config = new Configuration(
-                new File("testdata/variability-changes/some-configuration.properties"));
+        Configuration config =
+                new Configuration(new File("testdata/variability-changes/some-configuration.properties"));
         config.registerSetting(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
         analyzer.analyzeDiffFile(diffFile, config);
         LOGGER.logInfo("The following entries were found: ");
@@ -82,7 +82,7 @@ public class ComAnAnalyzerTest {
         Assert.assertThat(diffFile.getEntry(Paths.get(".mailmap")).getVariabilityChange(),
                 CoreMatchers.equalTo(FileEntry.VariabilityChange.NOT_A_VARIABILITY_FILE));
         Assert.assertThat(diffFile.getEntry(Paths.get("include/linux/bitmap.h")).getVariabilityChange(),
-                CoreMatchers.equalTo(FileEntry.VariabilityChange.NO_CHANGE));
+                CoreMatchers.equalTo(FileEntry.VariabilityChange.CHANGE));
         Assert.assertThat(diffFile.getEntry(Paths.get("drivers/crypto/caam/ctrl.c")).getVariabilityChange(),
                 CoreMatchers.equalTo(FileEntry.VariabilityChange.CHANGE));
 
