@@ -57,8 +57,19 @@ public class FileReplacingDiffApplier implements DiffApplier {
      */
     private boolean checkMergePreconditions() {
         boolean preconditionsMet = true;
+
         // iterate over all entries within the diff file
         for (FileEntry entry : diffFile.getEntries()) {
+            for (Lines lines : entry.getLines()) {
+                if (lines.getType().equals(Lines.LineType.BETWEEN_CHUNKS) && lines.getCount() > 0) {
+                    LOGGER.logError("The diff does not explicitly contain all lines of the files that it describes."
+                            + " Use \"git diff --no-renames -U100000\" for generating the diff files "
+                            + "to make sure that the diff file describes the changed files completely.");
+                    LOGGER.logError("This concerns the file: " + entry.getPath().toString());
+                    preconditionsMet = false;
+                }
+            }
+
             // only consider deletions and modifications. deleted and modified
             // files should be present before applying the diff.
             // We do not need to check for added files as those are not on
@@ -91,6 +102,15 @@ public class FileReplacingDiffApplier implements DiffApplier {
         boolean preconditionsMet = true;
 
         for (FileEntry entry : diffFile.getEntries()) {
+            for (Lines lines : entry.getLines()) {
+                if (lines.getType().equals(Lines.LineType.BETWEEN_CHUNKS) && lines.getCount() > 0) {
+                    LOGGER.logError("The diff does not explicitly contain all lines of the files that it describes."
+                            + " Use \"git diff --no-renames -U100000\" for generating the diff files "
+                            + "to make sure that the diff file describes the changed files completely.");
+                    LOGGER.logError("This concerns the file: " + entry.getPath().toString());
+                    preconditionsMet = false;
+                }
+            }
             if (entry.getType().equals(FileChange.ADDITION) || entry.getType().equals(FileChange.MODIFICATION)) {
 
                 if (!filesStorageDir.toPath().resolve(entry.getPath()).toFile().exists()) {
@@ -122,7 +142,6 @@ public class FileReplacingDiffApplier implements DiffApplier {
             BufferedWriter writer = null;
             try {
                 for (FileEntry entry : diffFile.getEntries()) {
-                    LOGGER.logDebug("Applying changes for file entry: " + entry.getPath());
                     Path filePath = entry.getPath();
                     File fileInStorageDir = filesStorageDir.toPath().resolve(filePath).toFile();
                     if (entry.getType().equals(FileEntry.FileChange.ADDITION)

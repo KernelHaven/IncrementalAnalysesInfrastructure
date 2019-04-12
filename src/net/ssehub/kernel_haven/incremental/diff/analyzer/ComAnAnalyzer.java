@@ -3,13 +3,13 @@
  */
 package net.ssehub.kernel_haven.incremental.diff.analyzer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -28,12 +28,13 @@ import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.VariabilityChange;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
+import net.ssehub.kernel_haven.util.Logger;
 
 /**
  * A {@link VariabilityChangeAnalyzer}-Implementation that analyzes for
  * variability-changes within a commit represented by a {@link DiffFile}.
  * 
- * @author Christian Kroeher, moritz
+ * @author Christian Kroeher, Moritz
  *
  */
 public class ComAnAnalyzer implements VariabilityChangeAnalyzer {
@@ -55,7 +56,14 @@ public class ComAnAnalyzer implements VariabilityChangeAnalyzer {
      */
     @Override
     public void analyzeDiffFile(DiffFile diffFile, Configuration config) throws IOException {
-        AnalysisResult comAnResult = getComAnResults(config);
+        AnalysisResult comAnResult = null;
+        try {
+            comAnResult = getComAnResults(config);
+        } catch (IOException exc) {
+            Logger.get().logException("Failed to extract variability change information from diff file with ComAnIn",
+                    exc);
+            throw exc;
+        }
         if (comAnResult != null) {
             boolean buildChanges = comAnResult.getRelevantBuildChanges();
             boolean vmChanges = comAnResult.getRelevantVariabilityModelChanges();
@@ -99,33 +107,36 @@ public class ComAnAnalyzer implements VariabilityChangeAnalyzer {
      */
     public AnalysisResult getComAnResults(Configuration config) throws IOException {
         Properties pluginProperties = new Properties();
+
         pluginProperties.setProperty("core.version_control_system", "git");
         pluginProperties.setProperty("analysis.output", ""); // Unused but mandatory
         pluginProperties.setProperty("analysis.dead_code_change_analyzer.vm_files_regex", comAnKConfigPattern);
         pluginProperties.setProperty("analysis.dead_code_change_analyzer.code_files_regex", comAnCodePattern);
         pluginProperties.setProperty("analysis.dead_code_change_analyzer.build_files_regex", comAnBuildPattern);
 
-        CommitQueue commitQueue = new CommitQueue(1);
-        // Instantiate the commit extractor and analyzer
-
         AnalysisResult result = null;
 
         try {
             Map<String, AnalysisResult> analysisResults = null;
+            CommitQueue commitQueue = new CommitQueue(1);
             GitCommitExtractor commitExtractor = new GitCommitExtractor(pluginProperties, commitQueue);
             DeadCodeChangeAnalyzer commitAnalyzer = new DeadCodeChangeAnalyzer(pluginProperties, commitQueue);
             // Extract the commits based on the commit files in the test commits directory
             commitQueue.setState(QueueState.OPEN);
+
             StringJoiner joiner = new StringJoiner("\n");
             File originalDiffFile = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
-            List<String> lines = Files.readAllLines(originalDiffFile.toPath());
+            try (BufferedReader br = new BufferedReader(new FileReader(originalDiffFile))) {
+                String currentLine = br.readLine();
+                if (!currentLine.startsWith("commit ")) {
+                    joiner.add("commit " + originalDiffFile.getName());
+                }
+                while (currentLine != null) {
+                    joiner.add(currentLine);
+                    currentLine = br.readLine();
+                }
 
-            // handle diff-files that do not carry a commit description
-            // this is due to ComAn requiring such description
-            if (lines.size() > 0 && !lines.get(0).startsWith("commit ")) {
-                joiner.add("commit " + originalDiffFile.getName());
             }
-            Files.readAllLines(originalDiffFile.toPath()).forEach(line -> joiner.add(line));
 
             commitExtractor.extract(joiner.toString());
             commitQueue.setState(QueueState.CLOSED); // Actual closing after all commits are analyzed

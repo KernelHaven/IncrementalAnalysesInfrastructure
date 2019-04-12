@@ -26,7 +26,6 @@ import net.ssehub.kernel_haven.incremental.storage.HybridCache;
 import net.ssehub.kernel_haven.incremental.util.FileUtil;
 import net.ssehub.kernel_haven.util.Logger;
 
-// TODO: Auto-generated Javadoc
 /**
  * Preparation task for incremental analyses. This class is used to integrate a
  * diff on the filebase of the source tree and subsequently select a subset of
@@ -34,19 +33,13 @@ import net.ssehub.kernel_haven.util.Logger;
  * {@link IncrementalPreparation} must be used as preparation when working with
  * an incremental analysis.
  * 
- * @author moritz
+ * @author Moritz
  */
 public class IncrementalPreparation implements IPreparation {
 
     /** Logger instance. */
     private static final Logger LOGGER = Logger.get();
 
-    /**
-     * Run.
-     *
-     * @param config the config
-     * @throws SetUpException the set up exception
-     */
     /*
      * (non-Javadoc)
      * 
@@ -62,7 +55,7 @@ public class IncrementalPreparation implements IPreparation {
         File inputDiff = config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE);
         File inputSourceDir = config.getValue(DefaultSettings.SOURCE_TREE);
 
-        LOGGER.logInfo("Reading diff file ...");
+        LOGGER.logInfo("Parsing diff file - this may take a few minutes ...");
         DiffFile diffFile = readDiffFile(inputDiff);
 
         // First check if the diff file was read successfully
@@ -138,9 +131,10 @@ public class IncrementalPreparation implements IPreparation {
             throw new SetUpException("Could not merge provided diff with existing input files!");
         } else {
             // Only analyze for variability changes if required by the configuration
-            if (config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER)) {
-                analyzeVariabilityChanges(config.getValue(IncrementalAnalysisSettings.VARIABILITY_ANALYZER_CLASS_NAME),
-                        diffFile, config);
+            if (config.getValue(IncrementalAnalysisSettings.EXECUTE_VARIABILITY_CHANGE_ANALYZER)) {
+                analyzeVariabilityChanges(
+                        config.getValue(IncrementalAnalysisSettings.VARIABILITY_CHANGE_ANALYZER_CLASS), diffFile,
+                        config);
             }
 
             // Define targets for extraction.
@@ -294,15 +288,16 @@ public class IncrementalPreparation implements IPreparation {
         // Call the method getFilteredResult for filterClassName via
         // reflection-api
         try {
+            LOGGER.logInfo(
+                    "Analyzing git-diff with " + analyzerClassName + ". This may take a while for large git-diffs.");
             Class<VariabilityChangeAnalyzer> analyzerClass =
                     (Class<VariabilityChangeAnalyzer>) Class.forName(analyzerClassName);
             VariabilityChangeAnalyzer analyzer =
                     VariabilityChangeAnalyzer.class.cast(analyzerClass.getConstructor().newInstance());
-            LOGGER.logInfo("Analyzing git-diff with " + analyzerClass.getSimpleName()
-                    + ". This may take a while for large git-diffs.");
             analyzer.analyzeDiffFile(diffFile, config);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
                 | InvocationTargetException | IOException e) {
+            e.printStackTrace();
             throw new SetUpException("The specified DiffAnalyzer class \"" + analyzerClassName
                     + "\" could not be used successfully: " + e.getClass().getName() + "\n" + e.getMessage());
         }

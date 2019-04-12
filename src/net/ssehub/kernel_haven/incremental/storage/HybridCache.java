@@ -79,7 +79,7 @@ public class HybridCache {
     public enum ChangeFlag {
 
         /**
-         * Auxilarry change that was not made through extraction but by other means. An
+         * Auxillary change that was not made through extraction but by other means. An
          * example for this is when only the linenumbers of the extracted model are
          * adjusted.
          */
@@ -88,13 +88,13 @@ public class HybridCache {
         /** The change through extraction. */
         EXTRACTION_CHANGE("extraction"),
 
-        /** The modification. */
+        /** Indicates that the model was modified by some means. */
         MODIFICATION("modification"),
 
-        /** The addition. */
+        /** Indicates that the model was added. */
         ADDITION("addition"),
 
-        /** The deletion. */
+        /** Indicates that the model was deleted. */
         DELETION("deletion");
 
         /** The flag. */

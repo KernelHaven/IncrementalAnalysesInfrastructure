@@ -95,7 +95,6 @@ public class DiffFileParser {
                             currentLine.indexOf(" b/"));
                     FileEntry.FileChange type;
 
-                    LOGGER.logDebug("Parsing entry for file " + filePathString + " from diff file.");
                     Path filePath = Paths.get(filePathString);
 
                     if (nextLine1.startsWith("new file mode")) {

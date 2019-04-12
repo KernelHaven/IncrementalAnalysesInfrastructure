@@ -143,9 +143,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // have changed
         if (config.getValue(IncrementalAnalysisSettings.UPDATE_CODE_LINES)) {
             try {
-                updateCodeLineInformation(
-                        DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
-                        hybridCache);
+                if (!hybridCache.getCmPathsForFlag(ChangeFlag.AUXILLARY_CHANGE).isEmpty()) {
+                    updateCodeLineInformation(
+                            DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
+                            hybridCache);
+                }
             } catch (IllegalArgumentException | IOException | FormatException exc) {
                 LOGGER.logException("Could not update codelines for models", exc);
             }

@@ -34,13 +34,14 @@ public class IncrementalAnalysisSettings {
             "net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
             "name of the class used to filter the input for the code-model in the incremental analysis");
 
-    public static final Setting<String> VARIABILITY_ANALYZER_CLASS_NAME =
-            new Setting<>("incremental.variability_analyzer.class_name", STRING, true,
+    public static final Setting<String> VARIABILITY_CHANGE_ANALYZER_CLASS =
+            new Setting<>("incremental.variability_change_analyzer.class", STRING, true,
                     "net.ssehub.kernel_haven.incremental.diff.analyzer.ComAnAnalyzer",
                     "name of the class used to analyze the git-diff file for variability changes");
 
-    public static final Setting<Boolean> VARIABILITY_ANALYZER = new Setting<>("incremental.variability_analyzer",
-            BOOLEAN, true, "FALSE", "defines whether a Variability Analyzer is used");
+    public static final Setting<Boolean> EXECUTE_VARIABILITY_CHANGE_ANALYZER =
+            new Setting<>("incremental.variability_change_analyzer.execute", BOOLEAN, true, "FALSE",
+                    "defines whether a Variability Analyzer is used");
 
     public static final Setting<String> VARIABILITY_MODEL_FILTER_CLASS = new Setting<>("incremental.variability.filter",
             STRING, true, "net.ssehub.kernel_haven.incremental.preparation.filter.DefaultFilter",
