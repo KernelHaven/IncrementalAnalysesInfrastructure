@@ -34,15 +34,23 @@ public class FileEntry {
      */
     public enum VariabilityChange {
 
-        /** Indicates changed variability. */
+        /**
+         * Indicates a possible variability change. In case of uncertainty, use this
+         * flag as well.
+         */
         CHANGE,
 
-        /** Indicates no changed variability. */
+        /**
+         * Indicates that variability has not changed. All entries in this category must
+         * not affect variability. In case of uncertainty, flag the files as
+         * {@link CHANGE} instead.
+         */
         NO_CHANGE,
 
         /**
          * Indicates that the file was not considered to be a file carrying variability
-         * information.
+         * information. In case of uncertainty, flag the files as {@link CHANGE}
+         * instead.
          */
         NOT_A_VARIABILITY_FILE,
 
