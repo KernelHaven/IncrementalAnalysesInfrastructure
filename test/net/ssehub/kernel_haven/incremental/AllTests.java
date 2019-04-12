@@ -14,6 +14,7 @@ import net.ssehub.kernel_haven.incremental.preparation.IncrementalPreparationTes
 import net.ssehub.kernel_haven.incremental.preparation.filter.ChangeFilterTest;
 import net.ssehub.kernel_haven.incremental.preparation.filter.VariabilityChangeFilterTest;
 import net.ssehub.kernel_haven.incremental.storage.HybridCacheTest;
+import net.ssehub.kernel_haven.incremental.util.SourceFileDifferenceDetectorTest;
 
 /**
  * The Class AllTests. Contains all unit-tests of for incremental analyses.
@@ -24,7 +25,8 @@ import net.ssehub.kernel_haven.incremental.storage.HybridCacheTest;
 @RunWith(Suite.class)
 @SuiteClasses({ ChangeFilterTest.class, DiffFileTest.class, IncrementalPreparationTest.class, GitDiffApplierTest.class,
         FileReplacingDiffApplierTest.class, ComAnAnalyzerTest.class, VariabilityChangeFilterTest.class,
-        HybridCacheTest.class, LineCounterTest.class, DiffFileParserTest.class })
+        HybridCacheTest.class, LineCounterTest.class, DiffFileParserTest.class,
+        SourceFileDifferenceDetectorTest.class })
 public class AllTests {
 
 }
