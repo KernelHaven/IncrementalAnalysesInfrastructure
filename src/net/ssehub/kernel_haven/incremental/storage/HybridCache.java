@@ -636,7 +636,8 @@ public class HybridCache {
         Collection<File> paths = new ArrayList<>();
         if (flagFolder.exists()) {
             for (File file : FolderUtil.listRelativeFiles(flagFolder, false)) {
-                if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
+                if (file.getPath().endsWith(CM_CACHE_SUFFIX) && !file.getName().equals(BM_CACHE_FILE.toFile().getName())
+                        && !file.getName().equals(VM_CACHE_FILE.toFile().getName())) {
                     paths.add(this.getOriginalCodeModelFile(file));
                 }
             }
