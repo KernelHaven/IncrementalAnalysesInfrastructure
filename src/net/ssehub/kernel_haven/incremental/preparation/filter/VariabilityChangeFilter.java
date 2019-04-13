@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import diff.DiffAnalyzer;
+import net.ssehub.kernel_haven.incremental.diff.analyzer.VariabilityChangeAnalyzer;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
 import net.ssehub.kernel_haven.util.Logger;
@@ -63,7 +63,7 @@ public class VariabilityChangeFilter extends InputFilter {
                     // analyzer was used
                     // that did not analyze for variability
                     LOGGER.logError("The following FileEntry was not analyzed for variability-changes.\nPerhaps the "
-                            + DiffAnalyzer.class.getSimpleName() + " you used does not analyze for "
+                            + VariabilityChangeAnalyzer.class.getSimpleName() + " you used does not analyze for "
                             + "variability-changes.\nFallback: " + "including file for extraction.\n" + entry);
                     paths.add(entry.getPath());
                 }
