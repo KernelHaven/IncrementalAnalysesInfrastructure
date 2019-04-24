@@ -29,16 +29,15 @@ public class HybridCacheLoader extends AnalysisComponent<HybridCache> {
     /**
      * Instantiates a new hybrid cache loader.
      *
-     * @param config the config
+     * @param config      the config
      * @param cmComponent the cm component
      * @param bmComponent the bm component
      * @param vmComponent the vm component
      * @throws SetUpException the set up exception
      */
-    public HybridCacheLoader(Configuration config,
-        AnalysisComponent<SourceFile<?>> cmComponent,
-        AnalysisComponent<BuildModel> bmComponent,
-        AnalysisComponent<VariabilityModel> vmComponent) throws SetUpException {
+    public HybridCacheLoader(Configuration config, AnalysisComponent<SourceFile<?>> cmComponent,
+            AnalysisComponent<BuildModel> bmComponent, AnalysisComponent<VariabilityModel> vmComponent)
+            throws SetUpException {
         super(config);
         this.config = config;
         IncrementalAnalysisSettings.registerAllSettings(config);
@@ -54,10 +53,8 @@ public class HybridCacheLoader extends AnalysisComponent<HybridCache> {
      */
     @Override
     protected void execute() {
-        File cacheDir =
-            config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY);
-        LOGGER.logDebug(
-            "Reusing existing hybrid Cache from directory " + cacheDir);
+        File cacheDir = config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY);
+        LOGGER.logDebug("Reusing existing hybrid Cache from directory " + cacheDir);
         HybridCache hybridCache = new HybridCache(cacheDir);
 
         this.addResult(hybridCache);

@@ -116,6 +116,7 @@ public class ComAnAnalyzer implements VariabilityChangeAnalyzer {
 
         AnalysisResult result = null;
 
+        
         try {
             Map<String, AnalysisResult> analysisResults = null;
             CommitQueue commitQueue = new CommitQueue(1);
