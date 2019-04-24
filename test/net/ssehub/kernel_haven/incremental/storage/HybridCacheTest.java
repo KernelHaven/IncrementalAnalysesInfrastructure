@@ -26,15 +26,12 @@ import net.ssehub.kernel_haven.util.logic.Variable;
  */
 public class HybridCacheTest extends HybridCache {
 
-
-    private static final File TESTFOLDER_HYBRID_FLAG =
-        new File("testdata/hybrid-cache/hybrid-flag");
+    private static final File TESTFOLDER_HYBRID_FLAG = new File("testdata/hybrid-cache/hybrid-flag");
 
     /**
      * Test get original code model file.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     public void testGetOriginalCodeModelFile() throws IOException {
@@ -42,13 +39,11 @@ public class HybridCacheTest extends HybridCache {
 
         HybridCache cache = new HybridCache(tempFolder.toFile());
 
-        Assert.assertThat(
-            cache.getOriginalCodeModelFile(new File("cached.file.c.json")),
-            CoreMatchers.equalTo(new File("cached/file.c")));
+        Assert.assertThat(cache.getOriginalCodeModelFile(new File("cached.file.c.json")),
+                CoreMatchers.equalTo(new File("cached/file.c")));
 
-        Assert.assertThat(
-            cache.getOriginalCodeModelFile(new File("dir.cached.file.c.json")),
-            CoreMatchers.equalTo(new File("dir/cached/file.c")));
+        Assert.assertThat(cache.getOriginalCodeModelFile(new File("dir.cached.file.c.json")),
+                CoreMatchers.equalTo(new File("dir/cached/file.c")));
 
     }
 
@@ -56,8 +51,7 @@ public class HybridCacheTest extends HybridCache {
     /**
      * Test write source file added file.
      *
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Test
     public void testWriteSourceFile_addedFile() throws Exception {
@@ -73,10 +67,8 @@ public class HybridCacheTest extends HybridCache {
         Variable a = new Variable("A");
         Variable b = new Variable("B");
         CodeBlock block1 = new CodeBlock(1, 2, new File("file"), a, a);
-        CodeBlock block2 = new CodeBlock(3, 15, new File("file"),
-            new Negation(a), new Negation(a));
-        CodeBlock block21 = new CodeBlock(4, 5, new File("file"), b,
-            new Conjunction(b, new Negation(a)));
+        CodeBlock block2 = new CodeBlock(3, 15, new File("file"), new Negation(a), new Negation(a));
+        CodeBlock block21 = new CodeBlock(4, 5, new File("file"), b, new Conjunction(b, new Negation(a)));
         block2.addNestedElement(block21);
 
         originalSourceFile.addElement(block1);
@@ -86,11 +78,9 @@ public class HybridCacheTest extends HybridCache {
         cache.write(originalSourceFile);
 
         // check if file is correctly represented in cache
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItems(new File("current/test.c.json"),
-                new File("history/change-information/" + ChangeFlag.ADDITION
-                    + "/test.c.json")));
+        Assert.assertThat(FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+                CoreMatchers.hasItems(new File("current/test.c.json"),
+                        new File("history/change-information/" + ChangeFlag.ADDITION + "/test.c.json")));
 
     }
 
@@ -111,32 +101,27 @@ public class HybridCacheTest extends HybridCache {
         cache.write(sourceFile);
         cache.flag(sourceFile, ChangeFlag.AUXILLARY_CHANGE);
 
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItems(new File("current/test.c.json"),
-                new File("history/change-information/"
-                    + ChangeFlag.AUXILLARY_CHANGE + "/test.c.json")));
+        Assert.assertThat(FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+                CoreMatchers.hasItems(new File("current/test.c.json"),
+                        new File("history/change-information/" + ChangeFlag.AUXILLARY_CHANGE + "/test.c.json")));
 
     }
 
     /**
      * Test reading of code model for a certain flag.
      *
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Test
     public void testReadCmForFlag() throws IOException, FormatException {
         HybridCache cache = new HybridCache(TESTFOLDER_HYBRID_FLAG);
-        Assert.assertThat(cache.readCm(cache.getCmPathsForFlag(ChangeFlag.AUXILLARY_CHANGE)).size(),
-            CoreMatchers.equalTo(1));
+        Assert.assertThat(cache.readCmForFlags(ChangeFlag.AUXILLARY_CHANGE).size(), CoreMatchers.equalTo(1));
     }
 
     /**
      * Test write source file replaced file.
      *
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Test
     public void testWriteSourceFile_replacedFile() throws Exception {
@@ -152,21 +137,18 @@ public class HybridCacheTest extends HybridCache {
         Variable a = new Variable("A");
         Variable b = new Variable("B");
         CodeBlock block1 = new CodeBlock(1, 2, new File("file"), a, a);
-        CodeBlock block2 = new CodeBlock(3, 15, new File("file"),
-            new Negation(a), new Negation(a));
-        CodeBlock block21 = new CodeBlock(4, 5, new File("file"), b,
-            new Conjunction(b, new Negation(a)));
+        CodeBlock block2 = new CodeBlock(3, 15, new File("file"), new Negation(a), new Negation(a));
+        CodeBlock block21 = new CodeBlock(4, 5, new File("file"), b, new Conjunction(b, new Negation(a)));
         block2.addNestedElement(block21);
 
         originalSourceFile.addElement(block1);
         originalSourceFile.addElement(block2);
 
         /*
-         * Create empty code model file in cache that will be replaced when
-         * writing to cache
+         * Create empty code model file in cache that will be replaced when writing to
+         * cache
          */
-        File existingCodeModelCacheFile =
-            tempFolder.resolve("current/test.c.json").toFile();
+        File existingCodeModelCacheFile = tempFolder.resolve("current/test.c.json").toFile();
         existingCodeModelCacheFile.getParentFile().mkdirs();
         existingCodeModelCacheFile.createNewFile();
 
@@ -174,13 +156,10 @@ public class HybridCacheTest extends HybridCache {
         cache.write(originalSourceFile);
 
         // check if file is correctly represented in cache
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItem(new File("current/test.c.json")));
-        Assert.assertThat(
-            FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
-            CoreMatchers.hasItem(
-                new File("history/backup/test.c.json")));
+        Assert.assertThat(FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+                CoreMatchers.hasItem(new File("current/test.c.json")));
+        Assert.assertThat(FolderUtil.listRelativeFiles(tempFolder.toFile(), true),
+                CoreMatchers.hasItem(new File("history/backup/test.c.json")));
     }
     // CHECKSTYLE:ON
 

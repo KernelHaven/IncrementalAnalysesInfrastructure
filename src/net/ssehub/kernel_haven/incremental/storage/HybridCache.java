@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,9 +19,10 @@ import net.ssehub.kernel_haven.code_model.JsonCodeModelCache;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.incremental.util.FolderUtil;
 import net.ssehub.kernel_haven.util.FormatException;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
+import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
@@ -40,6 +43,7 @@ import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
  */
 public class HybridCache {
 
+    private static final Logger LOGGER = Logger.get();
     /**
      * Stores cache-files for the current models.
      */
@@ -81,20 +85,32 @@ public class HybridCache {
         /**
          * Auxillary change that was not made through extraction but by other means. An
          * example for this is when only the linenumbers of the extracted model are
-         * adjusted.
+         * adjusted. This flag is not automatically set by HybridCache.
          */
         AUXILLARY_CHANGE("auxillary"),
 
-        /** The change through extraction. */
+        /**
+         * The change through extraction. This flag is not automatically set by
+         * HybridCache.
+         */
         EXTRACTION_CHANGE("extraction"),
 
-        /** Indicates that the model was modified by some means. */
+        /**
+         * Indicates that the model was modified by some means. This is automatically
+         * set by the HybridCache when writing a model when a previous model exists.
+         */
         MODIFICATION("modification"),
 
-        /** Indicates that the model was added. */
+        /**
+         * Indicates that the model was added. This is automatically set by the
+         * HybridCache when writing a model when no previous model exists.
+         */
         ADDITION("addition"),
 
-        /** Indicates that the model was deleted. */
+        /**
+         * Indicates that the model was deleted. This is automatically set by the
+         * HybridCache when writing a model when a model is deleted.
+         */
         DELETION("deletion");
 
         /** The flag. */
@@ -119,11 +135,14 @@ public class HybridCache {
         }
     }
 
-    /** relative path to build model cache file within cache directory. */
-    private static final Path BM_CACHE_FILE = Paths.get("bmCache.json");
+    private static final String BM_CACHE_FILE_NAME = "bmCache.json";
 
+    /** relative path to build model cache file within cache directory. */
+    private static final Path BM_CACHE_FILE = Paths.get(BM_CACHE_FILE_NAME);
+
+    private static final String VM_CACHE_FILE_NAME = "bmCache.json";
     /** relative path to variability model cache file within cache directory. */
-    private static final Path VM_CACHE_FILE = Paths.get("vmCache.json");
+    private static final Path VM_CACHE_FILE = Paths.get(VM_CACHE_FILE_NAME);
 
     /** The current folder. */
     private File currentFolder;
@@ -238,7 +257,7 @@ public class HybridCache {
     }
 
     /**
-     * Flag.
+     * Flag a given source file.
      *
      * @param file the file
      * @param flag the flag
@@ -351,7 +370,7 @@ public class HybridCache {
      * instead of the name of the file in the source-tree.
      *
      * @param cacheFile the target
-     * @return the source file
+     * @return the source file. Can be null.
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
@@ -462,9 +481,11 @@ public class HybridCache {
     public BuildModel readPreviousBm() throws FormatException, IOException {
         boolean previousModelExists = existsInReplaced(BM_CACHE_FILE);
 
-        BuildModel result = null;
+        BuildModel result;
         if (previousModelExists) {
             result = replacedBmCache.read(BM_CACHE_FILE.toFile());
+        } else if (this.getBmFlags().contains(ChangeFlag.ADDITION)) {
+            result = null;
         } else {
             result = currentBmCache.read(BM_CACHE_FILE.toFile());
         }
@@ -482,13 +503,14 @@ public class HybridCache {
     public VariabilityModel readPreviousVm() throws FormatException, IOException {
         boolean previousModelExists = existsInReplaced(VM_CACHE_FILE);
 
-        VariabilityModel result = null;
+        VariabilityModel result;
         if (previousModelExists) {
             result = replacedVmCache.read(VM_CACHE_FILE.toFile());
+        } else if (this.getVmFlags().contains(ChangeFlag.ADDITION)) {
+            result = null;
         } else {
             result = currentVmCache.read(VM_CACHE_FILE.toFile());
         }
-
         return result;
     }
 
@@ -539,8 +561,17 @@ public class HybridCache {
         // read models for the files
         Collection<SourceFile<?>> sourceFiles = new ArrayList<SourceFile<?>>();
         for (File file : files) {
-            if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-                sourceFiles.add(readPreviousCmCacheFile(file));
+            String fileName = file.getName();
+            if (fileName.endsWith(CM_CACHE_SUFFIX) && !fileName.equals(BM_CACHE_FILE_NAME)
+                    && !fileName.equals(VM_CACHE_FILE_NAME)) {
+
+                SourceFile<?> srcFile = readPreviousCmCacheFile(file);
+                if (srcFile != null) {
+                    sourceFiles.add(srcFile);
+                } else {
+                    LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+                }
+
             }
         }
         return sourceFiles;
@@ -555,29 +586,17 @@ public class HybridCache {
      */
     public Collection<SourceFile<?>> readCm() throws IOException, FormatException {
         Collection<File> files = FolderUtil.listRelativeFiles(currentFolder, false);
-        Collection<SourceFile<?>> sourceFiles = new ArrayList<>();
+        Set<@NonNull SourceFile<?>> sourceFiles = new HashSet<>();
         for (File file : files) {
-            if (file.getPath().endsWith(CM_CACHE_SUFFIX)) {
-                sourceFiles.add(readCmCacheFile(file));
-            }
-        }
-        return sourceFiles;
-    }
-
-    /**
-     * Read cm.
-     *
-     * @param paths the paths
-     * @return the collection
-     * @throws IOException     Signals that an I/O exception has occurred.
-     * @throws FormatException the format exception
-     */
-    public Collection<SourceFile<?>> readCm(Collection<File> paths) throws IOException, FormatException {
-        Collection<SourceFile<?>> sourceFiles = new ArrayList<>();
-        for (File file : paths) {
-            SourceFile<?> srcFile = readCm(file);
-            if (srcFile != null) {
-                sourceFiles.add(srcFile);
+            String fileName = file.getName();
+            if (fileName.endsWith(CM_CACHE_SUFFIX) && !fileName.equals(BM_CACHE_FILE_NAME)
+                    && !fileName.equals(VM_CACHE_FILE_NAME)) {
+                SourceFile<?> srcFile = readCmCacheFile(file);
+                if (srcFile != null) {
+                    sourceFiles.add(readCmCacheFile(file));
+                } else {
+                    LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+                }
             }
         }
         return sourceFiles;
@@ -600,7 +619,8 @@ public class HybridCache {
      * cache.
      *
      * @param file relative file within the source-tree
-     * @return the source file
+     * @return the source file. this may be null if the source file was added for
+     *         the current code model.
      * @throws IOException     Signals that an I/O exception has occurred.
      * @throws FormatException the format exception
      */
@@ -631,14 +651,16 @@ public class HybridCache {
      * @param flag the flag
      * @return the cache files for flag
      */
-    public Collection<File> getCmPathsForFlag(ChangeFlag flag) {
+    private Collection<File> getCmPathsForFlag(ChangeFlag flag) {
         File flagFolder = this.changeInformationFolder.toPath().resolve(flag.toString() + "/").toFile();
-        Collection<File> paths = new ArrayList<>();
+        Set<File> paths = new HashSet<>();
         if (flagFolder.exists()) {
             for (File file : FolderUtil.listRelativeFiles(flagFolder, false)) {
-                if (file.getPath().endsWith(CM_CACHE_SUFFIX) && !file.getName().equals(BM_CACHE_FILE.toFile().getName())
-                        && !file.getName().equals(VM_CACHE_FILE.toFile().getName())) {
+                String fileName = file.getName();
+                if (fileName.endsWith(CM_CACHE_SUFFIX) && !fileName.equals(BM_CACHE_FILE_NAME)
+                        && !fileName.equals(VM_CACHE_FILE_NAME)) {
                     paths.add(this.getOriginalCodeModelFile(file));
+
                 }
             }
         }
@@ -646,7 +668,35 @@ public class HybridCache {
     }
 
     /**
-     * Delete variability model.
+     * Reads the codemodel for a given set of flags. This includes all code model
+     * items that carry any of the flags passed to this method.
+     *
+     * @param flags the flags
+     * @return the collection
+     * @throws IOException     Signals that an I/O exception has occurred.
+     * @throws FormatException the format exception
+     */
+    public Collection<SourceFile<?>> readCmForFlags(ChangeFlag... flags) throws IOException, FormatException {
+        Set<File> paths = new HashSet<File>();
+        for (ChangeFlag flag : flags) {
+            paths.addAll(getCmPathsForFlag(flag));
+        }
+
+        Collection<SourceFile<?>> sourceFiles = new ArrayList<>();
+        for (File file : paths) {
+            SourceFile<?> srcFile = readCm(file);
+            if (srcFile != null) {
+                sourceFiles.add(srcFile);
+            } else {
+                LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+            }
+        }
+        return sourceFiles;
+    }
+
+    /**
+     * Delete variability model. Does nothing if the variability model does not
+     * exist in the first place.
      *
      * @throws IOException Signals that an I/O exception has occurred.
      */
@@ -690,7 +740,7 @@ public class HybridCache {
      * @return the vm flags
      */
     public Collection<ChangeFlag> getVmFlags() {
-        Collection<ChangeFlag> flags = new ArrayList<>();
+        Set<ChangeFlag> flags = new HashSet<>();
         for (ChangeFlag flag : ChangeFlag.values()) {
             if (this.getFlagFile(VM_CACHE_FILE.toFile(), flag).exists()) {
                 flags.add(flag);
@@ -705,7 +755,7 @@ public class HybridCache {
      * @return the bm flags
      */
     public Collection<ChangeFlag> getBmFlags() {
-        Collection<ChangeFlag> flags = new ArrayList<>();
+        Set<ChangeFlag> flags = new HashSet<>();
         for (ChangeFlag flag : ChangeFlag.values()) {
             if (this.getFlagFile(BM_CACHE_FILE.toFile(), flag).exists()) {
                 flags.add(flag);
@@ -721,7 +771,7 @@ public class HybridCache {
      * @return the flags
      */
     public Collection<ChangeFlag> getFlags(@NonNull SourceFile<?> sourceFile) {
-        Collection<ChangeFlag> changeFlags = new ArrayList<>();
+        Set<ChangeFlag> changeFlags = new HashSet<>();
         File cacheFile = new File(getCacheFileName(sourceFile.getPath()));
         for (ChangeFlag flag : ChangeFlag.values()) {
             if (this.getFlagFile(cacheFile, flag).exists()) {

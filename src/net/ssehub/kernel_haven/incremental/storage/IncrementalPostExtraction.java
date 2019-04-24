@@ -143,11 +143,11 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // have changed
         if (config.getValue(IncrementalAnalysisSettings.UPDATE_CODE_LINES)) {
             try {
-                if (!hybridCache.getCmPathsForFlag(ChangeFlag.AUXILLARY_CHANGE).isEmpty()) {
-                    updateCodeLineInformation(
-                            DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
-                            hybridCache);
-                }
+                LOGGER.logInfo("Parsing diff file in order to update line information within the code model."
+                        + " This might take a while for large diff files.");
+                updateCodeLineInformation(
+                        DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
+                        hybridCache);
             } catch (IllegalArgumentException | IOException | FormatException exc) {
                 LOGGER.logException("Could not update codelines for models", exc);
             }
@@ -170,8 +170,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         // Create list of extracted paths as those are the paths that
         // do not need to be considered for line updates
-        Collection<SourceFile<?>> extractedSourceFiles =
-                hybridCache.readCm(hybridCache.getCmPathsForFlag(ChangeFlag.EXTRACTION_CHANGE));
+        Collection<SourceFile<?>> extractedSourceFiles = hybridCache.readCmForFlags(ChangeFlag.EXTRACTION_CHANGE);
         Collection<Path> extractedPaths = new ArrayList<>();
         extractedSourceFiles.forEach(srcFile -> extractedPaths.add(srcFile.getPath().toPath()));
 
