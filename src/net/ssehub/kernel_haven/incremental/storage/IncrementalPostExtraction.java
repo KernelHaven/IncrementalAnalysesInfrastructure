@@ -132,7 +132,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL)) {
             bmThread = new Thread() {
                 public void run() {
-                    buildModelExtraction(hybridCache);
+                    buildModelExtraction(hybridCache,
+                            config.getValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION));
                 }
             };
             bmThread.start();
@@ -270,7 +271,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      *
      * @param hybridCache the hybrid cache to write the extracated results to.
      */
-    private void buildModelExtraction(HybridCache hybridCache) {
+    private void buildModelExtraction(HybridCache hybridCache, boolean auxillaryExtraction) {
         BuildModel buildModel;
         // CHECKSTYLE:OFF
         if ((buildModel = bmComponent.getNextResult()) != null) {
@@ -278,6 +279,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 hybridCache.write(buildModel);
                 hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
+                if (auxillaryExtraction) {
+                    hybridCache.flagBuildModel(ChangeFlag.AUXILLARY_CHANGE);
+                }
             } catch (IOException e) {
                 LOGGER.logException("Could not write build-model to " + HybridCache.class.getSimpleName(), e);
             }
@@ -285,6 +289,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 hybridCache.deleteBuildModel();
                 hybridCache.flagBuildModel(ChangeFlag.EXTRACTION_CHANGE);
+                if (auxillaryExtraction) {
+                    hybridCache.flagBuildModel(ChangeFlag.AUXILLARY_CHANGE);
+                }
             } catch (IOException e) {
                 LOGGER.logException("Could not delete build-model from " + HybridCache.class.getSimpleName(), e);
             }

@@ -20,6 +20,7 @@ import net.ssehub.kernel_haven.incremental.diff.applier.FileReplacingDiffApplier
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry;
+import net.ssehub.kernel_haven.incremental.preparation.filter.AdditionFilter;
 import net.ssehub.kernel_haven.incremental.preparation.filter.InputFilter;
 import net.ssehub.kernel_haven.incremental.settings.IncrementalAnalysisSettings;
 import net.ssehub.kernel_haven.incremental.storage.HybridCache;
@@ -219,12 +220,17 @@ public class IncrementalPreparation implements IPreparation {
 
         config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, extractCm);
 
+        Collection<Path> addedCodeFiles = filterInput(AdditionFilter.class.getName(), inputSourceDir,
+                diffFileForFiltering, config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
+
         // Filter variability model files
         filteredPaths =
                 filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS), inputSourceDir,
                         diffFileForFiltering, config.getValue(DefaultSettings.VARIABILITY_EXTRACTOR_FILE_REGEX), true);
         boolean extractVm = !filteredPaths.isEmpty();
+
         config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, extractVm);
+        config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, false);
 
         // Filter build model files
         if (extractVm) {
@@ -236,6 +242,14 @@ public class IncrementalPreparation implements IPreparation {
                     filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS), inputSourceDir,
                             diffFileForFiltering, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX), true);
             boolean extractBm = !filteredPaths.isEmpty();
+            if (!extractBm && !addedCodeFiles.isEmpty()) {
+                extractBm = true;
+                LOGGER.logInfo(
+                        "Build model will be reextracted due to one or more added code files that needs to be considered when looking at the build process. "
+                                + "The build model itself did not change. "
+                                + "Therefore this extraction is considered an auxillary change to the build model.");
+                config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, true);
+            }
             config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
         }
     }

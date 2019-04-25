@@ -17,6 +17,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * This class represents the settings for incremental analyses.
@@ -72,6 +73,10 @@ public class IncrementalAnalysisSettings {
 
     public static final Setting<Boolean> ROLLBACK = new Setting<>("incremental.rollback", BOOLEAN, true, "FALSE",
             "This setting defines whether a rollback sould be performed");
+
+    public static final @NonNull Setting<Boolean> AUXILLARY_BUILD_MODEL_EXTRACTION =
+            new Setting<>("incremental.build.auxillary_extraction", BOOLEAN, true, "FALSE",
+                    "This setting automatically gets set by IncrementalPreparation.");
 
     // CHECKSTYLE:ON
     /**
