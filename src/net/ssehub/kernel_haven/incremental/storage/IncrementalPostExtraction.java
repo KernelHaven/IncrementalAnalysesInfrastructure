@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -14,6 +16,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.incremental.diff.linecount.LineCounter;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
@@ -108,7 +111,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
             cmThread = new Thread() {
                 public void run() {
-                    codeModelExtraction(hybridCache, config.getValue(IncrementalAnalysisSettings.DELETED_FILES));
+                    codeModelExtraction(hybridCache, config.getValue(IncrementalAnalysisSettings.DELETED_FILES),
+                            config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES));
                 }
             };
             cmThread.start();
@@ -293,13 +297,15 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      * @param hybridCache  the hybrid cache to write the extracted results to.
      * @param deletedFiles the deleted files
      */
-    private void codeModelExtraction(HybridCache hybridCache, List<String> deletedFiles) {
+    private void codeModelExtraction(HybridCache hybridCache, List<String> deletedFiles,
+            List<String> extractionTargets) {
         SourceFile<?> file;
 
         // delete all models corresponding to deleted files
         for (String entry : deletedFiles) {
             try {
-                LOGGER.logDebug("Deleting model because of " + FileEntry.class.getSimpleName() + entry);
+                LOGGER.logDebug(
+                        "Deleting model for " + entry + " because the file got deleted in the analyzed increment.");
                 hybridCache.deleteCodeModel(new File(entry));
             } catch (IOException exception) {
                 LOGGER.logException("Could not delete code model of file " + entry + ". "
@@ -310,16 +316,35 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
 
         }
 
+        Set<String> extractionFailures = new HashSet<String>(extractionTargets);
+
         // Add new models to hybridCache
         while ((file = cmComponent.getNextResult()) != null) {
             try {
                 hybridCache.write(file);
                 hybridCache.flag(file, ChangeFlag.EXTRACTION_CHANGE);
+                extractionFailures.remove(file.getPath().toString());
             } catch (IOException e) {
                 LOGGER.logException("Could not write code model for file " + file.getPath().getPath() + " to "
                         + HybridCache.class.getSimpleName(), e);
             }
         }
+
+        // delete all models corresponding to extraction failures
+        for (String entry : extractionFailures) {
+            try {
+                LOGGER.logDebug("Deleting model for " + entry
+                        + " because the extraction of the model failed for the current increment.");
+                hybridCache.deleteCodeModel(new File(entry));
+            } catch (IOException exception) {
+                LOGGER.logException("Could not delete code model of file " + entry + ". "
+                        + "This may result in an inconsistent state of " + HybridCache.class.getSimpleName() + ". "
+                        + "To fix an inconsistent state you can either do a rollback "
+                        + "or extract all models from scratch.", exception);
+            }
+
+        }
+
     }
 
     /**
