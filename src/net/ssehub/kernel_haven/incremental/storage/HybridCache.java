@@ -140,7 +140,7 @@ public class HybridCache {
     /** relative path to build model cache file within cache directory. */
     private static final Path BM_CACHE_FILE = Paths.get(BM_CACHE_FILE_NAME);
 
-    private static final String VM_CACHE_FILE_NAME = "bmCache.json";
+    private static final String VM_CACHE_FILE_NAME = "vmCache.json";
     /** relative path to variability model cache file within cache directory. */
     private static final Path VM_CACHE_FILE = Paths.get(VM_CACHE_FILE_NAME);
 
@@ -569,7 +569,7 @@ public class HybridCache {
                 if (srcFile != null) {
                     sourceFiles.add(srcFile);
                 } else {
-                    LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+                    LOGGER.logWarning("Could not read code model for file in cache: " + file.getAbsolutePath());
                 }
 
             }
@@ -595,7 +595,7 @@ public class HybridCache {
                 if (srcFile != null) {
                     sourceFiles.add(readCmCacheFile(file));
                 } else {
-                    LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+                    LOGGER.logWarning("Could not read code model for file in cache: " + file.getAbsolutePath());
                 }
             }
         }
@@ -688,7 +688,7 @@ public class HybridCache {
             if (srcFile != null) {
                 sourceFiles.add(srcFile);
             } else {
-                LOGGER.logWarning("Could not read model for file in cache: " + file.getAbsolutePath());
+                LOGGER.logWarning("Could not read code model for file in cache: " + file.getAbsolutePath());
             }
         }
         return sourceFiles;
