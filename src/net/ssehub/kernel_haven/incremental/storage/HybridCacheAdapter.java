@@ -22,7 +22,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * 
  * <pre>
  * HybridCacheAdapter hca = new HybridCacheAdapter(config,
- *         new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()));
+ *         new IncrementalPostExtraction(config, getCmComponent(), getBmComponent(), getVmComponent()), CodeModelProcessing.COMPLETE);
  *
  * DeadCodeFinder dcf = new DeadCodeFinder(config, hca.getVmComponent(), hca.getBmComponent(), hca.getCmComponent());
  * </pre>
