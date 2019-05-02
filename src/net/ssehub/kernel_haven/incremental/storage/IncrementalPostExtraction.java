@@ -340,9 +340,10 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // delete all models corresponding to extraction failures
         for (String entry : extractionFailures) {
             try {
-                LOGGER.logDebug("Deleting model for " + entry
-                        + " because the extraction of the model failed for the current increment.");
-                hybridCache.deleteCodeModel(new File(entry));
+                if (hybridCache.deleteCodeModel(new File(entry))) {
+                    LOGGER.logDebug("Deleted previous model for " + entry
+                            + " because the extraction of the model failed for the current increment while it was successful for the previous one.");
+                }
             } catch (IOException exception) {
                 LOGGER.logException("Could not delete code model of file " + entry + ". "
                         + "This may result in an inconsistent state of " + HybridCache.class.getSimpleName() + ". "

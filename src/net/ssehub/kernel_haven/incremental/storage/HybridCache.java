@@ -24,6 +24,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
+// TODO: Auto-generated Javadoc
 /**
  * {@link HybridCache} serves the purpose of storing two different versions of
  * the models. Starting off with the previously present model (an empty model is
@@ -43,6 +44,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class HybridCache {
 
+    /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.get();
     /**
      * Stores cache-files for the current models.
@@ -135,11 +137,13 @@ public class HybridCache {
         }
     }
 
+    /** The Constant BM_CACHE_FILE_NAME. */
     private static final String BM_CACHE_FILE_NAME = "bmCache.json";
 
     /** relative path to build model cache file within cache directory. */
     private static final Path BM_CACHE_FILE = Paths.get(BM_CACHE_FILE_NAME);
 
+    /** The Constant VM_CACHE_FILE_NAME. */
     private static final String VM_CACHE_FILE_NAME = "vmCache.json";
     /** relative path to variability model cache file within cache directory. */
     private static final Path VM_CACHE_FILE = Paths.get(VM_CACHE_FILE_NAME);
@@ -528,13 +532,17 @@ public class HybridCache {
      * Delete code model for a code-file within the source-tree.
      *
      * @param codeFileWithinSourceTree the path
+     * @return true, if model for file was deleted. false, if model for file did not exist.
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public void deleteCodeModel(File codeFileWithinSourceTree) throws IOException {
+    public boolean deleteCodeModel(File codeFileWithinSourceTree) throws IOException {
         File fileToDelete = currentFolder.toPath().resolve(getCacheFileName(codeFileWithinSourceTree)).toFile();
+        boolean deleted = false;
         if (fileToDelete.exists()) {
             fileToDelete.delete();
+            deleted = true;
         }
+        return deleted;
     }
 
     /**
