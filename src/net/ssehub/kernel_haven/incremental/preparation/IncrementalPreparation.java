@@ -220,9 +220,6 @@ public class IncrementalPreparation implements IPreparation {
 
         config.setValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL, extractCm);
 
-        Collection<Path> addedCodeFiles = filterInput(AdditionFilter.class.getName(), inputSourceDir,
-                diffFileForFiltering, config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
-
         // Filter variability model files
         filteredPaths =
                 filterInput(config.getValue(IncrementalAnalysisSettings.VARIABILITY_MODEL_FILTER_CLASS), inputSourceDir,
@@ -232,23 +229,36 @@ public class IncrementalPreparation implements IPreparation {
         config.setValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL, extractVm);
         config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, false);
 
-        // Filter build model files
+        // Determine build model extraction
         if (extractVm) {
-            // if vm was updated, always extract bm aswell as it depends
-            // on the vm
+            // if vm was updated, always extract bm aswell as it depends on the vm
             config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, true);
         } else {
+            // Filter build model files
             filteredPaths =
                     filterInput(config.getValue(IncrementalAnalysisSettings.BUILD_MODEL_FILTER_CLASS), inputSourceDir,
                             diffFileForFiltering, config.getValue(DefaultSettings.BUILD_EXTRACTOR_FILE_REGEX), true);
             boolean extractBm = !filteredPaths.isEmpty();
-            if (!extractBm && !addedCodeFiles.isEmpty()) {
-                extractBm = true;
-                LOGGER.logInfo(
-                        "Build model will be reextracted due to one or more added code files that needs to be considered when looking at the build process. "
-                                + "The build model itself did not change. "
-                                + "Therefore this extraction is considered an auxillary change to the build model.");
-                config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, true);
+
+            // We further check if the build model needs to be extracted due to changes in
+            // the code model.
+            if (!extractBm) {
+                /*
+                 * Determine added code files as the build model needs to be reextracted if a
+                 * code file gets added. This is an auxillary change to the build model and an
+                 * incremental analysis can treat it accordingly (e.g. consider the build model
+                 * to be unchanged).
+                 */
+                Collection<Path> addedCodeFiles = filterInput(AdditionFilter.class.getName(), inputSourceDir,
+                        diffFileForFiltering, config.getValue(DefaultSettings.CODE_EXTRACTOR_FILE_REGEX), false);
+                if (!extractBm && !addedCodeFiles.isEmpty()) {
+                    extractBm = true;
+                    LOGGER.logInfo(
+                            "Build model will be reextracted due to one or more added code files that needs to be considered when looking at the build process. "
+                                    + "The build model itself did not change. "
+                                    + "Therefore this extraction is considered an auxillary change to the build model.");
+                    config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, true);
+                }
             }
             config.setValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL, extractBm);
         }
