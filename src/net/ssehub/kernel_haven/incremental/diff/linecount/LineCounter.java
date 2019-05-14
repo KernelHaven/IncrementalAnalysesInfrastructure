@@ -1,12 +1,10 @@
 package net.ssehub.kernel_haven.incremental.diff.linecount;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
 import net.ssehub.kernel_haven.incremental.diff.parser.DiffFile;
-import net.ssehub.kernel_haven.incremental.diff.parser.DiffFileParser;
 import net.ssehub.kernel_haven.incremental.diff.parser.FileEntry.Lines;
 
 /**
@@ -23,11 +21,11 @@ public class LineCounter {
     /**
      * Instantiates a new line counter.
      *
-     * @param gitDiffFile the git diff file
+     * @param diffFile the git diff file
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public LineCounter(File gitDiffFile) throws IOException {
-        diffFile = DiffFileParser.parse(gitDiffFile);
+    public LineCounter(DiffFile diffFile) throws IOException {
+        this.diffFile = diffFile;
 
     }
 

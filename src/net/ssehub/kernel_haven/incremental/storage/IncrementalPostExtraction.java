@@ -150,9 +150,9 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 LOGGER.logInfo("Parsing diff file in order to update line information within the code model."
                         + " This might take a while for large diff files.");
-                updateCodeLineInformation(
-                        DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE)),
-                        hybridCache);
+                DiffFile diffFile =
+                        DiffFileParser.parse(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
+                updateCodeLineInformation(diffFile, hybridCache);
             } catch (IllegalArgumentException | IOException | FormatException exc) {
                 LOGGER.logException("Could not update codelines for models", exc);
             }
@@ -183,7 +183,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         // git diff file but skips the paths defined by extractedPaths for
         // extraction
         // to yield better performance
-        LineCounter counter = new LineCounter(config.getValue(IncrementalAnalysisSettings.SOURCE_TREE_DIFF_FILE));
+        LineCounter counter = new LineCounter(diffFile);
 
         // iterate over all entries to the diff file
         for (FileEntry entry : diffFile.getEntries()) {
