@@ -61,10 +61,6 @@ public class LineCounter {
                     || currentChunk.getType().equals(Lines.LineType.UNMODIFIED)) {
                 positionInNewFile += currentChunk.getCount();
                 positionInOriginalFile += currentChunk.getCount();
-                if (currentChunk.getType().equals(Lines.LineType.BETWEEN_CHUNKS)) {
-                    System.out.println(
-                            "Positions after BetweenChunks: " + positionInOriginalFile + ", " + positionInNewFile);
-                }
             } else if (currentChunk.getType().equals(Lines.LineType.DELETED)) {
                 positionInOriginalFile += currentChunk.getCount();
             }
