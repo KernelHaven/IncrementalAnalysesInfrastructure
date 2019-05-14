@@ -44,38 +44,57 @@ public class LineCounter {
         int positionInOriginalFile = 0;
         int positionInNewFile = 0;
 
-        // List chunks of lines. A chunk represents a sequence where a
-        // modification
-        // of the same type was performed (Deletion, Addition etc.)
-
         List<Lines> chunks = diffFile.getEntry(file).getLines();
 
-        // iterate over all chunks to add the number of lines up until
-        // the targeted position is reached
-        for (int i = 0; positionInOriginalFile <= numberToAdjust && i < chunks.size(); i++) {
+        boolean overstepped = false;
+        Lines lastChunk = null;
 
-            adjustedLineNumber = positionInNewFile + (numberToAdjust - positionInOriginalFile);
+        // Determine the position before a chunk that oversteps the position that is to
+        // be adjusted. The result are the respective positions for both the old and new
+        // file
+        for (int i = 0; i < chunks.size() && !overstepped; i++) {
+            Lines currentChunk = chunks.get(i);
 
-            Lines lines = chunks.get(i);
-
-            // Added lines affect the position of the new file:
-            // if the current position is 0 and 5 lines are added,
-            // the new relative position is 5 while the relative position
-            // in the original file remains 0 as it does not have those lines.
-            if (Lines.LineType.ADDED.equals(lines.getType())) {
-                positionInNewFile += lines.getCount();
-                // Similar to ADDED, deleted lines are only present in the
-                // original file and not in the new file.
-            } else if (Lines.LineType.DELETED.equals(lines.getType())) {
-                positionInOriginalFile += lines.getCount();
-                // neutral lines are present in both files and therefore affect
-                // both positions
-            } else {
-                positionInNewFile += lines.getCount();
-                positionInOriginalFile += lines.getCount();
+            if (currentChunk.getType().equals(Lines.LineType.ADDED)) {
+                positionInNewFile += currentChunk.getCount();
+            } else if (currentChunk.getType().equals(Lines.LineType.BETWEEN_CHUNKS)
+                    || currentChunk.getType().equals(Lines.LineType.UNMODIFIED)) {
+                positionInNewFile += currentChunk.getCount();
+                positionInOriginalFile += currentChunk.getCount();
+                if (currentChunk.getType().equals(Lines.LineType.BETWEEN_CHUNKS)) {
+                    System.out.println(
+                            "Positions after BetweenChunks: " + positionInOriginalFile + ", " + positionInNewFile);
+                }
+            } else if (currentChunk.getType().equals(Lines.LineType.DELETED)) {
+                positionInOriginalFile += currentChunk.getCount();
             }
 
+            if (positionInOriginalFile > numberToAdjust) {
+                overstepped = true;
+            }
+
+            lastChunk = currentChunk;
         }
+
+        // If we did overstep, we need to remove the last step we took
+        if (overstepped && (lastChunk.getType().equals(Lines.LineType.UNMODIFIED)
+                || lastChunk.getType().equals(Lines.LineType.BETWEEN_CHUNKS))) {
+            positionInOriginalFile = positionInOriginalFile - lastChunk.getCount();
+            positionInNewFile = positionInNewFile - lastChunk.getCount();
+        } else if (overstepped && lastChunk.getType().equals(Lines.LineType.DELETED)) {
+            positionInOriginalFile = positionInOriginalFile - lastChunk.getCount();
+        }
+
+        // This leaves us with two positions which represent the positions where the
+        // chunk starts
+        // in which we assume our line with the numberToAdjust to be.
+
+        // We substract the position in the original file from the number that is to be
+        // adjusted
+        // in order to get the distance from the last chunk.
+        // As positionInNewFile represents the end of that chunk in the new file, we add
+        // the difference to that position.
+        adjustedLineNumber = numberToAdjust - positionInOriginalFile + positionInNewFile;
 
         return adjustedLineNumber;
     }

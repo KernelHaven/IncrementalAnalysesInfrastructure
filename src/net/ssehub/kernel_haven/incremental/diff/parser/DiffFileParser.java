@@ -191,7 +191,7 @@ public class DiffFileParser {
         StringJoiner chunkContent = new StringJoiner("\n");
         int typeCounter = 0;
 
-        int endOfChunk = 1;
+        int endOfChunk = 0;
         boolean firstChunkFound = false;
         while ((currentLine = bufReader.readLine()) != null) {
             // start with first chunk describing line changes, skip until then
@@ -257,7 +257,7 @@ public class DiffFileParser {
                 String numberString = matcher.group(1);
                 int startNewChunk = 1;
                 if (!numberString.isEmpty()) {
-                    startNewChunk = Integer.parseInt(matcher.group(1));
+                    startNewChunk = Integer.parseInt(matcher.group(1)) - 1;
                 }
 
                 // Add the space between the previous block of changes / between
@@ -272,7 +272,7 @@ public class DiffFileParser {
                 // processing the current chunk so that it matches
                 // the actual end of the chunk when the next line starting with
                 // @@ is found.
-                endOfChunk = startNewChunk;
+                endOfChunk = startNewChunk + 1;
 
                 typeCounter = 0;
                 type = Lines.LineType.UNMODIFIED;
