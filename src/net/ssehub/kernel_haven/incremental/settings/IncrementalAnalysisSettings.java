@@ -4,17 +4,16 @@ import static net.ssehub.kernel_haven.config.Setting.Type.BOOLEAN;
 import static net.ssehub.kernel_haven.config.Setting.Type.DIRECTORY;
 import static net.ssehub.kernel_haven.config.Setting.Type.FILE;
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
-import static net.ssehub.kernel_haven.config.Setting.Type.STRING_LIST;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.ListSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -64,8 +63,8 @@ public class IncrementalAnalysisSettings {
     public static final Setting<Boolean> EXTRACT_BUILD_MODEL = new Setting<>("incremental.build.extract_bm", BOOLEAN,
             true, "FALSE", "This setting automatically gets set by IncrementalPreparation");
 
-    public static final Setting<List<String>> DELETED_FILES = new Setting<>("incremental.postextraction.deleted_files",
-            STRING_LIST, false, null, "This setting automatically gets set by IncrementalPreparation");
+    public static final ListSetting<String> DELETED_FILES = new ListSetting<>("incremental.postextraction.deleted_files",
+            STRING, false, "This setting automatically gets set by IncrementalPreparation");
 
     public static final Setting<Boolean> UPDATE_CODE_LINES = new Setting<>("incremental.lines.update_lines", BOOLEAN,
             true, "FALSE",
