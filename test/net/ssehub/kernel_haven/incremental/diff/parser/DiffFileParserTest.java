@@ -69,7 +69,10 @@ public class DiffFileParserTest {
 
         List<Lines> linesList = diffFile.getEntry(Paths.get("drivers/acpi/ec.c")).getLines();
         Assert.assertThat(linesList.get(0).getType(), CoreMatchers.equalTo(Lines.LineType.BETWEEN_CHUNKS));
+        Assert.assertThat(linesList.get(0).getCount() , CoreMatchers.equalTo(1595));
         Assert.assertThat(linesList.get(1).getType(), CoreMatchers.equalTo(Lines.LineType.UNMODIFIED));
+        Assert.assertThat(linesList.get(1).getCount() , CoreMatchers.equalTo(4));
+        Assert.assertThat(linesList.get(0).getCount() + linesList.get(1).getCount() , CoreMatchers.equalTo(1599));
         Assert.assertThat(linesList.get(2).getType(), CoreMatchers.equalTo(Lines.LineType.ADDED));
         Assert.assertThat(linesList.get(3).getType(), CoreMatchers.equalTo(Lines.LineType.UNMODIFIED));
         Assert.assertThat(linesList.get(4).getType(), CoreMatchers.equalTo(Lines.LineType.DELETED));
@@ -109,6 +112,7 @@ public class DiffFileParserTest {
         Assert.assertThat(linesList.get(29).getType(), CoreMatchers.equalTo(Lines.LineType.UNMODIFIED));
     }
     
+    
     /**
      * Tests if the correct number of Lines-Types is present for each category.
      *
@@ -140,6 +144,27 @@ public class DiffFileParserTest {
         Assert.assertThat(deletedCount, CoreMatchers.equalTo(4));
         Assert.assertThat(addedCount, CoreMatchers.equalTo(8));
         Assert.assertThat(unmodifiedCount, CoreMatchers.equalTo(13));
+
+    }
+    
+    /**
+     * Tests if the correct number of Lines-Types is present for each category.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Test
+    // CHECKSTYLE:OFF
+    public void testParse_correctLineTypeOccurences_ds2490() throws IOException {
+        // CHECKSTYLE:ON
+        File inputFile = new File("testdata/lines/ds2490-commit.diff");
+        DiffFile diffFile = DiffFileParser.parse(inputFile);
+        List<Lines> linesList = diffFile.getEntry(Paths.get("drivers/w1/masters/ds2490.c")).getLines();
+        Lines firstLines = linesList.get(0);
+        Assert.assertThat(firstLines.getType(), CoreMatchers.equalTo(Lines.LineType.UNMODIFIED));
+        Assert.assertThat(firstLines.getCount(), CoreMatchers.equalTo(155));
+        Lines secondLines = linesList.get(1);
+        Assert.assertThat(secondLines.getType(), CoreMatchers.equalTo(Lines.LineType.ADDED));
+        Assert.assertThat(secondLines.getCount(), CoreMatchers.equalTo(3));
 
     }
     
