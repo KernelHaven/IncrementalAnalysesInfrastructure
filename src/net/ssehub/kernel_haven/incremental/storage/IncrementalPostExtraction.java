@@ -234,7 +234,10 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             element.setLineStart(newStart);
         }
         if (previousEnd >= 0) {
-            int newEnd = counter.getNewLineNumber(sourceFilePath, previousEnd);
+        	// The CodeBlockExtractor (and potentially other extractors) mark the line before the closing #endif, #elif etc. as end of the block.
+        	// Therefore we calculate the updated linenumber for the next line and substract 1 from the result to gain the new linenumber before the
+        	// closing preprocessor statement.
+            int newEnd = counter.getNewLineNumber(sourceFilePath, previousEnd + 1) - 1;
             element.setLineEnd(newEnd);
         }
 
