@@ -191,7 +191,7 @@ public class DiffFileParser {
         StringJoiner chunkContent = new StringJoiner("\n");
         int typeCounter = 0;
 
-        int endOfChunk = 0;
+        int endOfChunk = 1;
         boolean firstChunkFound = false;
         while ((currentLine = bufReader.readLine()) != null) {
             // start with first chunk describing line changes, skip until then
@@ -256,7 +256,9 @@ public class DiffFileParser {
                 matcher.find();
                 String numberString = matcher.group(1);
                 int startNewChunk = 1;
-                if (!numberString.isEmpty()) {
+                // Take line - 1 as start of the new chunk except for blocks that start in the first line.
+                // This is because all chunks except for those at the very start of the file repeat the last line before the actual start of the chunk.
+                if (!numberString.isEmpty() && !numberString.equals("1")) {
                     startNewChunk = Integer.parseInt(matcher.group(1)) - 1;
                 }
 

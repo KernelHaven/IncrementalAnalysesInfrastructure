@@ -111,17 +111,5 @@ public class LineCounterTest {
         Assert.assertThat(counter.getNewLineNumber(Paths.get("kernel/sched/clock.c"), 380), CoreMatchers.equalTo(387));
         Assert.assertThat(counter.getNewLineNumber(Paths.get("kernel/sched/clock.c"), 381), CoreMatchers.equalTo(389));
         
-        // In the evaluation dataset for SPLC 2020, this is where we found differences between the reference and our incremental variant
-        // The differences are due to the CodeBlockExtractor setting the end of the block not on the actual end of the block but at the line before that.
-        // Incidentially, an empty line got added just before the end of the block in this commit. This resulted in the following situation:
-        //
-        // } <- this is what the extractor saw as the end of the block before the commit
-        // [this line was added in the commit] <- this is what the extractor saw as end of the block after the commit
-        // #endif /* CONFIG_HAVE_UNSTABLE_SCHED_CLOCK */
-        //
-        // The LineCounter therefore worked correctly and adjusted the number of the line with "}" as intended. 
-        // If the extractor correctly identified line 389 (the line with the #endif) as end of the block, this
-        // update of lines would not result in deviations. 
-
     }
 }
