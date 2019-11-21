@@ -5,8 +5,8 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/KernelHaven"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/ComAnI.jar"/>
-	<classpathentry kind="lib" path="lib/DeadCodeChangeAnalyzer.jar"/>
-	<classpathentry kind="lib" path="lib/GitCommitExtractor.jar"/>
+	<classpathentry kind="lib" path="lib/include/ComAnI.jar"/>
+	<classpathentry kind="lib" path="lib/include/DeadCodeChangeAnalyzer.jar"/>
+	<classpathentry kind="lib" path="lib/include/GitCommitExtractor.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
