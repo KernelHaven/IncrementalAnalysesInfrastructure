@@ -34,7 +34,7 @@ public class FileUtil {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public static boolean textContentIsEqual(File fileA, File fileB) throws IOException {
-        return FileUtil.readFile(fileA).equals(FileUtil.readFile(fileB));
+        return fileA.exists() && fileB.exists() && FileUtil.readFile(fileA).equals(FileUtil.readFile(fileB));
     }
 
     /**
