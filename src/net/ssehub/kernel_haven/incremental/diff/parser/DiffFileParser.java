@@ -257,7 +257,8 @@ public class DiffFileParser {
                 String numberString = matcher.group(1);
                 int startNewChunk = 1;
                 // Take line - 1 as start of the new chunk except for blocks that start in the first line.
-                // This is because all chunks except for those at the very start of the file repeat the last line before the actual start of the chunk.
+                // This is because all chunks except for those at the very start of the file repeat the last line
+                // before the actual start of the chunk.
                 if (!numberString.isEmpty() && !numberString.equals("1")) {
                     startNewChunk = Integer.parseInt(matcher.group(1)) - 1;
                 }

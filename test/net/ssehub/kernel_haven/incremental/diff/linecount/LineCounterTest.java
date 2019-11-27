@@ -66,7 +66,7 @@ public class LineCounterTest {
     }
     
     /**
-     * Test get new line number for ds2490
+     * Test get new line number for ds2490.
      *
      * @throws IOException Signals that an I/O exception has occurred.
      */
@@ -78,20 +78,24 @@ public class LineCounterTest {
         LineCounter counter = new LineCounter(DiffFileParser.parse(inputFile));
         
         //Test line right before first addition
-        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 155), CoreMatchers.equalTo(155));
+        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 155),
+                CoreMatchers.equalTo(155));
         //Test line right after first addition
-        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 156), CoreMatchers.equalTo(159));
+        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 156),
+                CoreMatchers.equalTo(159));
         
         //Test problematic line in result
-        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 799), CoreMatchers.equalTo(803));
-        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 1090), CoreMatchers.equalTo(1115));
+        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 799),
+                CoreMatchers.equalTo(803));
+        Assert.assertThat(counter.getNewLineNumber(Paths.get("drivers/w1/masters/ds2490.c"), 1090),
+                CoreMatchers.equalTo(1115));
 
 
     }
     
     
     /**
-     * Test get new line number for clock
+     * Test get new line number for clock.
      *
      * @throws IOException Signals that an I/O exception has occurred.
      */

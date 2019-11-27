@@ -237,9 +237,10 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             element.setLineStart(newStart);
         }
         if (previousEnd >= 0) {
-        	// The CodeBlockExtractor (and potentially other extractors) mark the line before the closing #endif, #elif etc. as end of the block.
-        	// Therefore we calculate the updated linenumber for the next line and substract 1 from the result to gain the new linenumber before the
-        	// closing preprocessor statement.
+            // The CodeBlockExtractor (and potentially other extractors) mark the line before the closing #endif, #elif 
+            // etc. as end of the block.
+            // Therefore we calculate the updated linenumber for the next line and substract 1 from the result to gain
+            // the new linenumber before the closing preprocessor statement.
             int newEnd = counter.getNewLineNumber(sourceFilePath, previousEnd + 1) - 1;
             element.setLineEnd(newEnd);
         }
@@ -276,6 +277,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      * Build model extraction.
      *
      * @param hybridCache the hybrid cache to write the extracated results to.
+     * @param auxillaryExtraction Whether to set the flag for AUXILLARY_CHANGE.
      */
     private void buildModelExtraction(HybridCache hybridCache, boolean auxillaryExtraction) {
         BuildModel buildModel;
@@ -309,6 +311,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
      *
      * @param hybridCache  the hybrid cache to write the extracted results to.
      * @param deletedFiles the deleted files
+     * @param extractionTargets The list of extraction targets (file paths).
      */
     private void codeModelExtraction(HybridCache hybridCache, List<String> deletedFiles,
             List<String> extractionTargets) {
@@ -348,7 +351,8 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
             try {
                 if (hybridCache.deleteCodeModel(new File(entry))) {
                     LOGGER.logDebug("Deleted previous model for " + entry
-                            + " because the extraction of the model failed for the current increment while it was successful for the previous one.");
+                            + " because the extraction of the model failed for the current increment while it was"
+                            + " successful for the previous one.");
                 }
             } catch (IOException exception) {
                 LOGGER.logException("Could not delete code model of file " + entry + ". "

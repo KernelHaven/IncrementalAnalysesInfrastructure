@@ -254,9 +254,10 @@ public class IncrementalPreparation implements IPreparation {
                 if (!extractBm && !addedCodeFiles.isEmpty()) {
                     extractBm = true;
                     LOGGER.logInfo(
-                            "Build model will be reextracted due to one or more added code files that needs to be considered when looking at the build process. "
-                                    + "The build model itself did not change. "
-                                    + "Therefore this extraction is considered an auxillary change to the build model.");
+                            "Build model will be reextracted due to one or more added code files that needs to be"
+                                + " considered when looking at the build process."
+                                + " The build model itself did not change."
+                                + " Therefore this extraction is considered an auxillary change to the build model.");
                     config.setValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION, true);
                 }
             }
