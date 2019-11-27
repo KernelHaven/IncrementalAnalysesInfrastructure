@@ -96,7 +96,7 @@ public class IncrementalPreparation implements IPreparation {
         // Handle rollback
         boolean revertSuccessful = diffApplier.revertChanges();
         HybridCache hybridCache =
-                new HybridCache((File) config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
+                new HybridCache(config.getValue(IncrementalAnalysisSettings.HYBRID_CACHE_DIRECTORY));
         try {
             hybridCache.rollback();
         } catch (IOException e) {

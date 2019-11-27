@@ -110,6 +110,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         Thread cmThread = null;
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_CODE_MODEL)) {
             cmThread = new Thread() {
+                @Override
                 public void run() {
                     codeModelExtraction(hybridCache, config.getValue(IncrementalAnalysisSettings.DELETED_FILES),
                             config.getValue(DefaultSettings.CODE_EXTRACTOR_FILES));
@@ -121,6 +122,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         Thread vmThread = null;
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_VARIABILITY_MODEL)) {
             vmThread = new Thread() {
+                @Override
                 public void run() {
                     variabilityModelExtraction(hybridCache);
                 }
@@ -131,6 +133,7 @@ public class IncrementalPostExtraction extends AnalysisComponent<HybridCache> {
         Thread bmThread = null;
         if (config.getValue(IncrementalAnalysisSettings.EXTRACT_BUILD_MODEL)) {
             bmThread = new Thread() {
+                @Override
                 public void run() {
                     buildModelExtraction(hybridCache,
                             config.getValue(IncrementalAnalysisSettings.AUXILLARY_BUILD_MODEL_EXTRACTION));

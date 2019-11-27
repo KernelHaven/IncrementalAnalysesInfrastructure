@@ -17,6 +17,7 @@ import net.ssehub.kernel_haven.util.Logger;
  * 
  * @author moritz
  */
+@SuppressWarnings("deprecation")
 public class GitDiffApplierTest {
 
     /** The Constant ORIGINAL_FOLDER. */

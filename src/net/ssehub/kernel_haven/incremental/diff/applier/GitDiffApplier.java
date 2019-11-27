@@ -40,6 +40,7 @@ public class GitDiffApplier implements DiffApplier {
      *
      * @return true, if successful
      */
+    @Override
     public boolean mergeChanges() {
         boolean success = false;
 
@@ -85,6 +86,7 @@ public class GitDiffApplier implements DiffApplier {
      *
      * @return true, if successful
      */
+    @Override
     public boolean revertChanges() {
         boolean success = false;
 

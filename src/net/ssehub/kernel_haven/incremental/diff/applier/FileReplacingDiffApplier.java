@@ -135,6 +135,7 @@ public class FileReplacingDiffApplier implements DiffApplier {
      *
      * @return true, if successful
      */
+    @Override
     public boolean mergeChanges() {
         LOGGER.logInfo("Applying changes described by git-diff file ... ");
         boolean success = true;
@@ -204,6 +205,7 @@ public class FileReplacingDiffApplier implements DiffApplier {
      *
      * @return true, if successful
      */
+    @Override
     public boolean revertChanges() {
         boolean success = true;
         LOGGER.logInfo("Reverting changes described by git-diff file ... ");

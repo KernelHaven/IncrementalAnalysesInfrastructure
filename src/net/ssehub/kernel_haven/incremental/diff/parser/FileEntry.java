@@ -179,6 +179,7 @@ public class FileEntry {
      *
      * @return the int
      */
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -195,6 +196,7 @@ public class FileEntry {
      * @param obj the obj
      * @return true, if successful
      */
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -269,6 +271,7 @@ public class FileEntry {
          *
          * @return the string
          */
+        @Override
         public String toString() {
             return "Lines [count=" + count + ", type=" + type + "]";
         }
@@ -310,6 +313,7 @@ public class FileEntry {
          *
          * @return the int
          */
+        @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
@@ -325,6 +329,7 @@ public class FileEntry {
          * @param obj the obj
          * @return true, if successful
          */
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;

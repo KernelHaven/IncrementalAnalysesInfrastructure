@@ -185,6 +185,7 @@ public class SourceFileDifferenceDetector {
      * @param relevantElementsInFileB list of relevant elements within file B
      * @return true, if unchanged
      */
+    @SuppressWarnings("unchecked")
     protected boolean isStructureSame(SourceFile<?> fileA, SourceFile<?> fileB,
             @Nullable Set<CodeElement<?>> relevantElementsInFileA,
             @Nullable Set<CodeElement<?>> relevantElementsInFileB) {
@@ -220,6 +221,7 @@ public class SourceFileDifferenceDetector {
      * @param relevantElementsInFileB set of all relevant elements from file B
      * @return true, if unchanged
      */
+    @SuppressWarnings("unchecked")
     protected boolean isStructureSame(CodeElement<?> fileAElement, CodeElement<?> fileBElement,
             Set<CodeElement<?>> relevantElementsInFileA, Set<CodeElement<?>> relevantElementsInFileB) {
 
